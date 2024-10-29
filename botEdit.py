@@ -25,6 +25,24 @@ stop_edit_temps = {
 
 
 def bot_May_Edit(text='', title_page='', botjob='all'):
+    """Determine if a bot may edit a given page based on templates.
+
+    This function checks if the bot is allowed to edit a page by examining
+    specific templates present in the page's content. It considers various
+    conditions, such as the bot's job type and any restrictions defined by
+    templates like 'nobots' and 'bots'. The function utilizes a cache to
+    store results for previously checked pages to optimize performance.
+
+    Args:
+        text (str): The content of the page to be checked.
+        title_page (str): The title of the page being checked.
+        botjob (str): The type of job the bot is performing, which can affect
+            its editing permissions.
+
+    Returns:
+        bool: True if the bot is allowed to edit the page, False otherwise.
+    """
+
     # ---
     if ('botedit' in sys.argv or 'editbot' in sys.argv) or 'workibrahem' in sys.argv:
         return True
