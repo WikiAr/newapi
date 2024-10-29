@@ -61,6 +61,15 @@ class MwClientSite:
         self.do_login()
 
     def __initialize_connection(self):
+        """Initialize a connection with session cookies.
+
+        This method sets up a requests session with a specified user agent and
+        attempts to load cookies from a file if it exists. The cookies are used
+        to maintain the session state across requests. If the cookies file is
+        not found or an error occurs while loading the cookies, an error message
+        is printed to the output.
+        """
+
         cookies_file = get_file_name(self.lang, self.family, self.username)
 
         self.jar_cookie = MozillaCookieJar(cookies_file)
@@ -79,6 +88,18 @@ class MwClientSite:
                 printe.output("Could not load cookies: %s" % e)
 
     def __initialize_site(self):
+        """Initialize the site with the specified domain and client settings.
+
+        This method constructs the domain using the language and family
+        attributes, then attempts to create a MediaWiki client instance. If the
+        "dopost" argument is present in the command line arguments, it
+        initializes the client accordingly. If an exception occurs during the
+        client initialization, it logs an error message and returns False.
+
+        Returns:
+            bool: Returns False if the client could not be initialized due to an error.
+        """
+
         self.domain = f"{self.lang}.{self.family}.org"
 
         if "dopost" in sys.argv:
@@ -91,6 +112,15 @@ class MwClientSite:
                 return False
 
     def do_login(self):
+        """Perform the login process for the user.
+
+        This method checks if a forced login is required and if the MediaWiki
+        client is available. If the client is not logged in, it attempts to log
+        in using the provided username and password. Upon successful login, it
+        saves the session cookies to a file. If any errors occur during the
+        login attempt, an error message is printed.
+        """
+
         if not self.force_login:
             return
 
@@ -158,6 +188,17 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             self._start_(self.username, self.password)
 
     def make_new_r3_token(self) -> str:
+        """Retrieve a new CSRF token from the site.
+
+        This function attempts to obtain a CSRF token using the site's mediawiki
+        client. If successful, it returns the token as a string. If there is an
+        error during the token retrieval process, it logs the error message and
+        returns False.
+
+        Returns:
+            str: The CSRF token if successful, otherwise False.
+        """
+
         # ---
         try:
             csrftoken = self.site_mwclient.get_token("csrf")
