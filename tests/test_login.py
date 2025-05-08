@@ -9,7 +9,7 @@ from newapi import useraccount
 
 User_tables = {"username": useraccount.username, "password": useraccount.password}
 # ---
-from newapi.super import super_login
+from newapi.super.S_Login import super_login
 
 Login = super_login.Login
 # ---

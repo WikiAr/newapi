@@ -1,6 +1,6 @@
 # ---
 """
-from newapi.super import super_login
+from newapi.super.S_Login import super_login
 # ---
 # bot   = Login(lang, family="wikipedia")
 # login = bot.Log_to_wiki()
