@@ -31,14 +31,14 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
     # ---
     """
     Determines if a bot is permitted to edit a page based on templates in the page text.
-    
+
     Checks for the presence of templates that restrict bot editing, such as those in the stop lists for the specified bot job or the global list. Handles special cases for `nobots` and `bots` templates, interpreting their parameters to allow or deny editing for specific bots or all bots. Results are cached for efficiency.
-    
+
     Args:
         text: The wikitext of the page to analyze.
         title_page: The title of the page.
         botjob: The bot job type, used to select relevant stop templates.
-    
+
     Returns:
         True if the bot is allowed to edit the page; False otherwise.
     """
@@ -155,7 +155,7 @@ def check_create_time(page, title_page):
     # ---
     """
     Checks if a page was created at least three hours ago before allowing bot edits.
-    
+
     Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago, caching the result for future checks.
     """
     # ---
@@ -197,9 +197,9 @@ def check_last_edit_time(page, title_page, delay):
     # ---
     """
     Checks if enough time has passed since the last non-bot edit before allowing a bot to edit.
-    
+
     If the last editor is a bot, editing is allowed immediately. Otherwise, returns False if the last edit was made less than the specified delay (in minutes) ago; returns True if the delay has passed or if no last edit timestamp is available.
-    
+
     Args:
         page: The page object to check.
         title_page: The title of the page.
@@ -220,7 +220,7 @@ def check_last_edit_time(page, title_page, delay):
         # ---
         diff_minutes = (now - ts_time).total_seconds() / 60
         # ---
-        # printe.output(f"<<grey>> last-edit Δ={diff_minutes:.2f} min for {title_page}")
+        printe.output(f"<<grey>> last-edit Δ={diff_minutes:.2f} min for {title_page}")
         # ---
         wait_time = delay - diff_minutes
         # ---
@@ -236,16 +236,16 @@ def bot_May_Edit(text="", title_page="", botjob="all", page=False, delay=0):
     # ---
     """
     Determines whether a bot is permitted to edit a page based on templates, last edit time, and creation time.
-    
+
     If a page object is provided and template checks pass, the function also verifies that the page was not edited or created too recently, applying namespace and language restrictions for time-based checks.
-    
+
     Args:
         text: The page text to analyze for edit-blocking templates.
         title_page: The title of the page being checked.
         botjob: The bot job type, used to determine relevant template restrictions.
         page: The page object, required for time-based checks.
         delay: Minimum number of minutes since the last edit required before editing.
-    
+
     Returns:
         True if the bot is allowed to edit the page; False otherwise.
     """
