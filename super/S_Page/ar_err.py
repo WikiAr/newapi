@@ -13,8 +13,9 @@ if find_edit_error(old, new):
 def find_edit_error(old, new):
     # Define the dictionary of conversion phrases
     conversion_phrases = {
-        "#تحويل [[",
+        "#تحويل [["
     }
+
     for phrase in conversion_phrases:
         if phrase in old and phrase not in new:
             print(f"ar_err.py found ({phrase}) in old but not in new. return True")

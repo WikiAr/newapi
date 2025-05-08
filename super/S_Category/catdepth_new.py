@@ -10,7 +10,7 @@ import time
 import sys
 import tqdm
 from newapi import printe
-from newapi.super.botapi_bots.bot import BOTS_APIS
+from newapi.super.S_API.bot import BOTS_APIS
 from newapi.super.S_Login.super_login import Login
 
 SITECODE = "en"

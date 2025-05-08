@@ -20,7 +20,7 @@ import time
 import urllib.parse
 
 from newapi import printe
-from newapi.super.bots.handel_errors import HANDEL_ERRORS
+from newapi.super.handel_errors import HANDEL_ERRORS
 from newapi.except_err import warn_err
 
 if "nomwclient" in sys.argv:
