@@ -46,7 +46,7 @@ if "mwclient" not in sys.argv:
 
 import os
 from newapi.super import bot_api
-from newapi.super import super_page
+from newapi.super.S_Page import super_page
 from newapi.super.S_Category import catdepth_new
 
 from newapi import user_account_new
