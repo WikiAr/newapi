@@ -54,8 +54,8 @@ from newapi import printe
 from newapi import txtlib
 from newapi import botEdit
 
-from newapi.super.page_bots.ar_err import find_edit_error
-from newapi.super.page_bots.bot import APIS
+from newapi.super.S_Page.ar_err import find_edit_error
+from newapi.super.S_Page.bot import APIS
 from newapi.super.S_Login.super_login import Login
 from newapi.except_err import exception_err, warn_err
 
