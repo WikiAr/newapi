@@ -29,6 +29,19 @@ stop_edit_temps = {
 
 def bot_May_Edit_do(text="", title_page="", botjob="all"):
     # ---
+    """
+    Determines if a bot is permitted to edit a page based on templates in the page text.
+    
+    Checks for the presence of templates that restrict bot editing, such as those in the stop lists for the specified bot job or the global list. Handles special cases for `nobots` and `bots` templates, interpreting their parameters to allow or deny editing for specific bots or all bots. Results are cached for efficiency.
+    
+    Args:
+        text: The wikitext of the page to analyze.
+        title_page: The title of the page.
+        botjob: The bot job type, used to select relevant stop templates.
+    
+    Returns:
+        True if the bot is allowed to edit the page; False otherwise.
+    """
     if ("botedit" in sys.argv or "editbot" in sys.argv) or "workibrahem" in sys.argv:
         return True
     # ---
@@ -141,12 +154,9 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
 def check_create_time(page, title_page):
     # ---
     """
-    This function checks the namespace and language of the page. If the
-    namespace is not 0 or the language is not "ar", it returns True.
-    Otherwise, it calculates the time difference between the current time
-    and the page's creation timestamp. If the page was created less than
-    a specified delay (in hours) ago, it logs a message and returns False.
-    If no creation timestamp is found, it returns True.
+    Checks if a page was created at least three hours ago before allowing bot edits.
+    
+    Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago, caching the result for future checks.
     """
     # ---
     if title_page in Created_Cache:
@@ -186,12 +196,14 @@ def check_create_time(page, title_page):
 def check_last_edit_time(page, title_page, delay):
     # ---
     """
-    This function checks the last edit time of a page. If the page has
-    been edited by a bot, it returns True. Otherwise, it calculates the
-    time difference between the current time and the page's last edit
-    timestamp. If the page was edited less than a specified delay (in
-    minutes) ago, it logs a message and returns False. If no last edit
-    timestamp is found, it returns True.
+    Checks if enough time has passed since the last non-bot edit before allowing a bot to edit.
+    
+    If the last editor is a bot, editing is allowed immediately. Otherwise, returns False if the last edit was made less than the specified delay (in minutes) ago; returns True if the delay has passed or if no last edit timestamp is available.
+    
+    Args:
+        page: The page object to check.
+        title_page: The title of the page.
+        delay: Minimum number of minutes that must have passed since the last edit.
     """
     userinfo = page.get_userinfo()
     # ---
@@ -223,10 +235,19 @@ def check_last_edit_time(page, title_page, delay):
 def bot_May_Edit(text="", title_page="", botjob="all", page=False, delay=0):
     # ---
     """
-    This function checks if a bot can edit a page. If the page is None, it
-    only checks if the page has a specific template. If the page is not None,
-    it also checks if the page was edited too recently and if the page was
-    created too recently.
+    Determines whether a bot is permitted to edit a page based on templates, last edit time, and creation time.
+    
+    If a page object is provided and template checks pass, the function also verifies that the page was not edited or created too recently, applying namespace and language restrictions for time-based checks.
+    
+    Args:
+        text: The page text to analyze for edit-blocking templates.
+        title_page: The title of the page being checked.
+        botjob: The bot job type, used to determine relevant template restrictions.
+        page: The page object, required for time-based checks.
+        delay: Minimum number of minutes since the last edit required before editing.
+    
+    Returns:
+        True if the bot is allowed to edit the page; False otherwise.
     """
     check_it = bot_May_Edit_do(text=text, title_page=title_page, botjob=botjob)
     # ---

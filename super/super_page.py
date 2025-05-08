@@ -106,6 +106,11 @@ class MainPage(Login, APIS):
     def __init__(self, title, lang, family="wikipedia"):
         # print(f"class MainPage: {lang=}")
         # ---
+        """
+        Initializes a MainPage instance for interacting with a MediaWiki page.
+        
+        Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
+        """
         self.username = ""
         # ---
         super().__init__(lang, family)
@@ -172,6 +177,18 @@ class MainPage(Login, APIS):
             not_loged_m[1] = self.lang
 
     def ask_put(self, nodiff=False, ASK=False):
+        """
+        Prompts the user to confirm saving changes to a page, optionally displaying a diff.
+        
+        If enabled by command-line arguments or parameters, shows the difference between the current and new text, displays summary information, and asks the user to accept or reject the changes. Supports skipping further prompts for subsequent edits.
+        
+        Args:
+            nodiff: If True, skips displaying the diff.
+            ASK: If True, forces the prompt regardless of command-line arguments.
+        
+        Returns:
+            True if the user accepts the changes or prompting is not required; False otherwise.
+        """
         yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
         # ---
         if "ask" in sys.argv and not Save_Edit_Pages[1] or print_test[1] or ASK:
@@ -206,6 +223,11 @@ class MainPage(Login, APIS):
         # self.newtext
         # self.text
         # ---
+        """
+        Determines if a proposed edit should be considered erroneous and aborted.
+        
+        Returns True if the edit is likely to be a false or destructive edit, such as removing over 90% of the page content or matching language-specific error conditions (e.g., for Arabic pages). Returns False if the edit is allowed or if the page is not in the main namespace.
+        """
         if self.ns is False or self.ns != 0:
             return False
         # ---
@@ -229,6 +251,15 @@ class MainPage(Login, APIS):
         return False
 
     def import_page(self, family="wikipedia"):
+        """
+        Imports the page from another wiki family using the MediaWiki API.
+        
+        Args:
+            family: The source wiki family from which to import the page (default is "wikipedia").
+        
+        Returns:
+            The API response data from the import operation.
+        """
         params = {
             "action": "import",
             "format": "json",
@@ -247,6 +278,14 @@ class MainPage(Login, APIS):
         return data
 
     def find_create_data(self):
+        """
+        Retrieves and stores the creation metadata of the page's first revision.
+        
+        Queries the MediaWiki API for the earliest revision of the page and extracts the creation timestamp, user, and anonymity status. The data is stored in the `create_data` attribute and returned as a dictionary.
+        
+        Returns:
+            dict: A dictionary containing 'timestamp', 'user', and 'anon' keys for the page's creation.
+        """
         params = {
             "action": "query",
             "format": "json",
@@ -278,6 +317,17 @@ class MainPage(Login, APIS):
         return self.create_data
 
     def get_text(self, redirects=False):
+        """
+        Retrieves the current wikitext content and metadata for the page.
+        
+        Fetches the latest revision's wikitext, user, revision ID, timestamp, namespace, Wikibase item, and flagged status. Updates instance attributes with the retrieved data. If the revision is the first (creation), stores creation metadata. Returns the page's wikitext content.
+        
+        Args:
+            redirects: If True, follows redirects to the target page.
+        
+        Returns:
+            The wikitext content of the page.
+        """
         params = {
             "action": "query",
             "prop": "revisions|pageprops|flagged",
@@ -355,6 +405,11 @@ class MainPage(Login, APIS):
 
     def get_infos(self):
         # ---
+        """
+        Fetches and updates comprehensive metadata for the current page from the MediaWiki API.
+        
+        Retrieves and stores categories (including hidden), language links, templates, backlinks, interwiki links, and page information such as namespace, page ID, length, last revision ID, and last touched timestamp. Updates instance attributes with the fetched data for later access.
+        """
         params = {
             "action": "query",
             "titles": self.title,
@@ -662,17 +717,35 @@ class MainPage(Login, APIS):
 
     def is_flagged(self):
         # ---
+        """
+        Returns whether the page is flagged for review or quality control.
+        
+        If the page text has not been loaded, it is retrieved before checking the flagged status.
+        
+        Returns:
+            bool: True if the page is flagged, False otherwise.
+        """
         if not self.text:
             self.text = self.get_text()
         # ---
         return self.flagged
 
     def get_create_data(self):
+        """
+        Returns the page creation metadata, fetching it if not already loaded.
+        
+        The creation metadata includes the timestamp, user, and anonymity status of the first revision.
+        """
         if not self.create_data:
             self.find_create_data()
         return self.create_data
 
     def get_timestamp(self):
+        """
+        Returns the timestamp of the latest revision of the page.
+        
+        If the timestamp is not already loaded, retrieves the page content to obtain it.
+        """
         if not self.timestamp:
             self.get_text()
         return self.timestamp
@@ -701,26 +774,22 @@ class MainPage(Login, APIS):
         return self.templates
 
     def save(self, newtext="", summary="", nocreate=1, minor="0", tags="", nodiff=False, ASK=False):
-        """Save the new text to a specified title with optional parameters.
-
-        This function updates the content of a page with new text. It handles
-        various parameters such as summary, minor edit flag, and tags. The
-        function checks for conditions that may prevent the edit, such as false
-        edits or user prompts. If the edit is successful, it updates the
-        instance variables with the new revision details.
-
+        """
+        Saves new text to the page, updating its content and metadata.
+        
+        Prompts for confirmation and checks for invalid edits before submitting the change. Updates instance attributes with the latest revision and timestamps on success.
+        
         Args:
-            newtext (str): The new content to be saved to the page.
-            summary (str): A brief summary of the edit.
-            nocreate (int): Flag indicating whether to create a new page if it doesn't exist
-                (default is 1).
-            minor (str): Indicates if the edit is minor.
-            tags (str): Tags associated with the edit.
-            nodiff (bool): Flag to indicate whether to skip diff checks.
-            ASK (bool): Flag to prompt the user for confirmation before saving.
-
+        	newtext: The new wikitext to save to the page.
+        	summary: Edit summary for the change.
+        	nocreate: If 1 (default), prevents creating the page if it does not exist.
+        	minor: Indicates if the edit should be marked as minor.
+        	tags: Optional tags to associate with the edit.
+        	nodiff: If True, skips showing a diff before saving.
+        	ASK: If True, prompts the user for confirmation before saving.
+        
         Returns:
-            bool: True if the edit was successful, False otherwise.
+        	True if the edit was successful, False otherwise.
         """
 
         # ---
@@ -828,6 +897,20 @@ class MainPage(Login, APIS):
 
     def Create(self, text="", summary="", nodiff="", noask=False):
         # ---
+        """
+        Creates a new page with the specified text and summary.
+        
+        If user confirmation is not suppressed, prompts the user before creating the page. Only succeeds if the page does not already exist. Updates instance attributes with the new page state on success.
+        
+        Args:
+            text: The wikitext content to use for the new page.
+            summary: Edit summary for the page creation.
+            nodiff: If set, disables showing a diff before confirmation.
+            noask: If True, skips the user confirmation prompt.
+        
+        Returns:
+            True if the page was created successfully, False otherwise or if the user aborts.
+        """
         self.newtext = text
         # ---
         if not noask:
