@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_login mwclient
+python3 core8/pwb.py newapi/tests/test_login nomwclient
 
 python3 core8/pwb.py newapi/tests/test_login
 
@@ -21,4 +21,6 @@ params = {"action": "query", "titles": f"User:{User_tables['username']}", "prop"
 # ---
 json1 = bot.post(params, Type="post", addtoken=False)
 # ---
+print(json1)
+
 print(f"{len(json1)=}")

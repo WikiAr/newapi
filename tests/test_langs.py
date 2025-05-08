@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_langs ask mwclient
+python3 core8/pwb.py newapi/tests/test_langs ask nomwclient
 python3 core8/pwb.py newapi/tests/test_langs ask
 
 """
@@ -12,11 +12,11 @@ exists = page.exists()
 
 # ---
 print('--------------')
-print('en:')
+print('simple:')
 from newapi.page import NEW_API
 
 # ---
-en_api_new = NEW_API('en', family='wikipedia')
+en_api_new = NEW_API('simple', family='wikipedia')
 # ---
 en_api_new.Login_to_wiki()
 # ---
