@@ -11,7 +11,7 @@ import sys
 import tqdm
 from newapi import printe
 from newapi.super.botapi_bots.bot import BOTS_APIS
-from newapi.super.super_login import Login
+from newapi.super.S_Login.super_login import Login
 
 SITECODE = "en"
 FAMILY = "wikipedia"
