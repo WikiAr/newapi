@@ -32,7 +32,7 @@ import sys
 import os
 import configparser
 from pathlib import Path
-from newapi.super import bot_api
+from newapi.super.S_API import bot_api
 from newapi.super.S_Page import super_page
 from newapi.super.S_Category import catdepth_new
 

@@ -45,7 +45,7 @@ if "mwclient" not in sys.argv:
     print("sys.argv.append('nomwclient')")
 
 import os
-from newapi.super import bot_api
+from newapi.super.S_API import bot_api
 from newapi.super.S_Page import super_page
 from newapi.super.S_Category import catdepth_new
 
