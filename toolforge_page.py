@@ -15,7 +15,7 @@ MainPage = toolforge_page.super_page.MainPage
 """
 # ---
 from newapi.super import super_page
-from newapi.super import catdepth_new
+from newapi.super.S_Category import catdepth_new
 
 __all__ = [
     "super_page",
