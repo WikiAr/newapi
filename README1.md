@@ -38,7 +38,7 @@ The project follows a modular and layered architecture:
 
 ### Login Module
 - `super/super_login.py`
-- `super/login_bots/` (including `bot.py`, `bot_new.py`, `cookies_bot.py`)
+- `super/S_Login/` (including `bot.py`, `bot_new.py`, `cookies_bot.py`)
 
 ### Page Management Module
 - `wiki_page.py`, `page.py`, `mdwiki_page.py`, `ncc_page.py`
@@ -53,7 +53,7 @@ The project follows a modular and layered architecture:
 - Additional bot utilities: `botEdit.py`, `super/bots/`
 
 ### MWClient Wrappers
-- `super/login_bots/mwclient/` (including `client.py`, `page.py`, `errors.py`, `image.py`, `listing.py`, `sleep.py`, `util.py`)
+- `super/S_Login/mwclient/` (including `client.py`, `page.py`, `errors.py`, `image.py`, `listing.py`, `sleep.py`, `util.py`)
 
 ### Database & Utility Bots
 - `db_bot.py`, `pymysql_bot.py`

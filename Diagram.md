@@ -28,7 +28,7 @@ flowchart TD
 
     %% Click Events for Login Module
     click LoginModule "https://github.com/wikiar/newapi/blob/main/super/super_login.py"
-    click LoginModule "https://github.com/wikiar/newapi/tree/main/super/login_bots/"
+    click LoginModule "https://github.com/wikiar/newapi/tree/main/super/S_Login/"
 
     %% Click Events for Page Operations Module
     click PageOps "https://github.com/wikiar/newapi/blob/main/page.py"

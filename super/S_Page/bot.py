@@ -1,6 +1,6 @@
 """
 
-from newapi.super.page_bots.bot import APIS
+from newapi.super.S_Page.bot import APIS
 
 """
 

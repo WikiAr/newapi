@@ -32,9 +32,9 @@ import sys
 import os
 import configparser
 from pathlib import Path
-from newapi.super import bot_api
-from newapi.super import super_page
-from newapi.super import catdepth_new
+from newapi.super.S_API import bot_api
+from newapi.super.S_Page import super_page
+from newapi.super.S_Login import catdepth_new
 
 print_test = {1: True if "test" in sys.argv else False}
 
