@@ -1,6 +1,6 @@
 """
 
-from newapi.super.login_bots.cookies_bot import get_cookies
+from newapi.super.S_Login.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """

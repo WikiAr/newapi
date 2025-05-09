@@ -2,11 +2,8 @@
 
 """
 
-from newapi.super.page_bots.ar_err import find_edit_error
-
-if find_edit_error(old, new):
-    return
-
+from newapi.super.S_Page.ar_err import find_edit_error
+if find_edit_error(old, new): return
 """
 
 

@@ -1,5 +1,5 @@
 """
-from newapi.super.bots.handel_errors import HANDEL_ERRORS
+from newapi.super.handel_errors import HANDEL_ERRORS
 
 """
 import sys

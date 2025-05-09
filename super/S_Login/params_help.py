@@ -1,6 +1,6 @@
 """
 
-from newapi.super.login_bots.params_help import PARAMS_HELPS
+from newapi.super.S_Login.params_help import PARAMS_HELPS
 
 """
 import sys
