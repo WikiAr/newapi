@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page ask mwclient
+python3 core8/pwb.py newapi/tests/test_page ask nomwclient
 
 python3 core8/pwb.py newapi/tests/test_page
 
@@ -8,7 +8,7 @@ python3 core8/pwb.py newapi/tests/test_page
 from newapi.page import MainPage
 
 # ---
-pageen = MainPage("User:Mr. Ibrahem/sandbox", 'en')
+pageen = MainPage("User:Mr. Ibrahem/sandbox", 'simple')
 page = MainPage("وب:ملعب", "ar")
 # ---
 existsen = pageen.exists()
