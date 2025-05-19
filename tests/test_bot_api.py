@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_bot_api mwclient
+python3 core8/pwb.py newapi/tests/test_bot_api nomwclient
 python3 core8/pwb.py newapi/tests/test_bot_api
 python3 core8/pwb.py newapi/tests/test_bot_api test:13 printresult
 python3 core8/pwb.py newapi/tests/test_bot_api test:4
