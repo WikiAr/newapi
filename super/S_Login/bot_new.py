@@ -17,6 +17,7 @@ from newapi import printe
 from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
 from newapi.except_err import exception_err
 from newapi.super.S_Login.params_help import PARAMS_HELPS
+from newapi.super.S_Login.login_db import log_one
 
 # import mwclient
 
@@ -61,6 +62,8 @@ class MwClientSite:
         self.domain = getattr(self, "domain") if hasattr(self, "domain") else ""
 
         self.site_mwclient = None
+        self.jar_cookie = None
+        self.connection = None
         # self._start_()
 
     def _start_(self, username, password):
@@ -114,7 +117,10 @@ class MwClientSite:
             logins_count[1] += 1
             printe.output(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
             try:
-                self.site_mwclient.login(username=self.username, password=self.password)
+                login_result = self.site_mwclient.login(username=self.username, password=self.password)
+
+                log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=login_result)
+
             except Exception as e:
                 printe.output(f"Could not login to ({self.domain}): %s" % e)
 
@@ -164,6 +170,8 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         self.family = getattr(self, "family") if hasattr(self, "family") else ""
         self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
+        # ---
+        self.cookies_file = getattr(self, "cookies_file") if hasattr(self, "cookies_file") else ""
         # ---
         super().__init__(self.lang, self.family)
         # ---

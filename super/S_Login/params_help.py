@@ -10,7 +10,12 @@ from newapi.except_err import exception_err
 
 class PARAMS_HELPS:
     def __init__(self) -> None:
-        pass
+        self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
+        self.family = getattr(self, "family") if hasattr(self, "family") else ""
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        self.Bot_or_himo = getattr(self, "Bot_or_himo") if hasattr(self, "Bot_or_himo") else ""
+        self.url_o_print = getattr(self, "url_o_print") if hasattr(self, "url_o_print") else ""
+        # pass
 
     def params_w(self, params) -> dict:
         if self.family == "wikipedia" and self.lang == "ar" and params.get("summary") and self.username.find("bot") == -1 and "ibrahemsummary" not in sys.argv:
@@ -61,4 +66,3 @@ class PARAMS_HELPS:
             exception_err(e, self.url_o_print)
 
         return {}
-
