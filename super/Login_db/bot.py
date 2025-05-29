@@ -68,7 +68,7 @@ def jls_extract_def():
 
 main_args, credentials = jls_extract_def()
 
-def log_one(site, user, result):
+def log_one(site, user, result, action=""):
 
     timestamp = datetime.datetime.now().isoformat()
 
@@ -81,7 +81,8 @@ def log_one(site, user, result):
             result VARCHAR(50) NOT NULL,
             timestamp DATETIME NOT NULL,
             INDEX idx_site_user (site, username),
-            INDEX idx_timestamp (timestamp)
+            INDEX idx_timestamp (timestamp),
+            action VARCHAR(100) NULL,
         )
     """
     # print(f"create_table_query: {create_table_query}")
@@ -95,15 +96,15 @@ def log_one(site, user, result):
 
     # Insert login attempt
     insert_query = """
-        INSERT INTO login_attempts (site, username, result, timestamp)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO login_attempts (site, username, result, timestamp, action)
+        VALUES (%s, %s, %s, %s, %s)
     """
 
     # print(f"insert_query: {insert_query}")
 
     sql_connect_pymysql(
         insert_query,
-        values=(site, user, result, timestamp),
+        values=(site, user, result, timestamp, action),
         main_args=main_args,
         credentials=credentials,
     )
