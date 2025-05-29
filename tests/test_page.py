@@ -8,8 +8,8 @@ python3 core8/pwb.py newapi/tests/test_page
 from newapi.page import MainPage
 
 # ---
-pageen = MainPage("User:Mr. Ibrahem/sandbox", 'simple')
 page = MainPage("وب:ملعب", "ar")
+pageen = MainPage("User:Mr. Ibrahem/sandbox", 'simple')
 # ---
 existsen = pageen.exists()
 

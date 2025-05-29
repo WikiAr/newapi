@@ -66,6 +66,9 @@ class MwClientSite:
         self.connection = None
         # self._start_()
 
+    def log_error(self, result, action) -> None:
+        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action)
+
     def _start_(self, username, password):
         self.username = username
         self.password = password
@@ -119,7 +122,7 @@ class MwClientSite:
             try:
                 login_result = self.site_mwclient.login(username=self.username, password=self.password)
 
-                log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=login_result)
+                self.log_error(login_result, "login")
 
             except Exception as e:
                 printe.output(f"Could not login to ({self.domain}): %s" % e)
@@ -150,17 +153,22 @@ class MwClientSite:
         if "dopost" in sys.argv:
             r4 = self.site_mwclient.api(action, http_method=method, **params)
             return r4
-        else:
-            try:
-                r4 = self.site_mwclient.api(action, http_method=method, **params)
-                return r4
+        # ---
+        try:
+            r4 = self.site_mwclient.api(action, http_method=method, **params)
+            # ---
+            self.log_error("success", action)
+            # ---
+            return r4
 
-            except Exception as e:
-                # ---
-                if "text" in params:
-                    params["text"] = params["text"][:100]
-                # ---
-                exception_err(e, text=params)
+        except Exception as e:
+            # ---
+            self.log_error("Exception", action)
+            # ---
+            if "text" in params:
+                params["text"] = params["text"][:100]
+            # ---
+            exception_err(e, text=params)
         # ---
         return {}
 

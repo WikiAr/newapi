@@ -64,6 +64,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.headers = {"User-Agent": self.user_agent}
         self.sea_key = f"{self.lang}-{self.family}-{self.username}"
 
+    def log_error(self, result, action) -> None:
+        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action)
+
     def add_User_tables(self, family, table) -> None:
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
@@ -185,7 +188,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         success = login_result.lower() == "success"
         # ---
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=login_result)
+        self.log_error(login_result, "login")
         # ---
         if success:
             self.loged_in()
@@ -217,6 +220,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=params, headers=self.headers)
         except Exception as e:
             exception_err(e)
+            self.log_error("failed", "userinfo")
             return False
         # ---
         json1 = {}
@@ -227,6 +231,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 exception_err(e)
                 print(req.text)
                 return False
+        # ---
+        self.log_error("success", "userinfo")
         # ---
         userinfo = json1.get("query", {}).get("userinfo", {})
         # ---
@@ -273,9 +279,13 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if loged_t:
             self.cookie_jar.save(ignore_discard=True, ignore_expires=True)
 
-    def _handle_server_error(self, req0):
-        if req0 and req0.status_code and not str(req0.status_code).startswith("2"):
-            printe.output(f"<<red>> newapi {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+    def _handle_server_error(self, req0, action):
+        if req0 and req0.status_code:
+            # ---
+            self.log_error(req0.status_code, action)
+            # ---
+            if not str(req0.status_code).startswith("2"):
+                printe.output(f"<<red>> newapi {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
 
     def post_it_2(self, params, files=None, timeout=30) -> any or None:
         """Send a POST request to a specified endpoint with given parameters and
@@ -328,7 +338,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             printe.output("<<green>> :::dopost")
             req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
             # ---
-            self._handle_server_error(req0)
+            self._handle_server_error(req0, params.get("action", ""))
             # ---
             return req0
         # ---
@@ -338,12 +348,14 @@ class LOGIN_HELPS(PARAMS_HELPS):
             req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
 
         except requests.exceptions.ReadTimeout:
+            self.log_error("ReadTimeout", params.get("action", ""))
             printe.output(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
 
         except Exception as e:
+            self.log_error("Exception", params.get("action", ""))
             exception_err(e)
         # ---
-        self._handle_server_error(req0)
+        self._handle_server_error(req0, params.get("action", ""))
         # ---
         return req0
 
