@@ -84,7 +84,7 @@ def log_one(site, user, result):
             INDEX idx_timestamp (timestamp)
         )
     """
-    print(f"create_table_query: {create_table_query}")
+    # print(f"create_table_query: {create_table_query}")
 
     # Execute table creation
     sql_connect_pymysql(
@@ -99,7 +99,7 @@ def log_one(site, user, result):
         VALUES (%s, %s, %s, %s)
     """
 
-    print(f"insert_query: {insert_query}")
+    # print(f"insert_query: {insert_query}")
 
     sql_connect_pymysql(
         insert_query,
