@@ -11,45 +11,62 @@ from newapi.pymysql_bot import sql_connect_pymysql
 import datetime
 from configparser import ConfigParser
 
+def local_host():
+    main_args = {
+        "host": "127.0.0.1",
+        "db": "mv",
+        "charset": "utf8mb4",
+        # "cursorclass": Typee,
+        "use_unicode": True,
+        "autocommit": True,
+    }
 
-if os.getenv("HOME"):
-    project = "/data/project/himo"
-else:
-    project = 'I:/core/bots/core1'
-
-db_connect_file = f"{project}/confs/db.ini"
-db_username = ""
-credentials = {}
-
-# if db_connect_file is not file
-if os.path.isfile(db_connect_file):
-    credentials = {"read_default_file": db_connect_file}
-    config2 = ConfigParser()
-    config2.read(db_connect_file)
-    # ---
-    try:
-        db_username = config2["client"]["user"]
-    except KeyError as e:
-        print(f"error: {e}")
-# ---
-# Typee = pymysql.cursors.DictCursor if return_dict else pymysql.cursors.Cursor
-
-main_args = {
-    "host": "tools.db.svc.wikimedia.cloud",
-    "db": f"{db_username}__mv",
-    "charset": "utf8mb4",
-    # "cursorclass": Typee,
-    "use_unicode": True,
-    "autocommit": True,
-}
-
-if not os.getenv("HOME"):
     credentials = {"user": "root", "password": "root11"}
-    main_args["host"] = "127.0.0.1"
-    main_args["db"] = "mv"
 
-elif os.getenv("HOME") == "/data/project/mdwiki":
-    main_args["db"] = "s54732__mdwiki_new"
+    return main_args, credentials
+
+def jls_extract_def():
+    # ---
+    if not os.getenv("HOME"):
+        return local_host()
+    # ---
+    project = os.getenv("HOME")
+    # ---
+    if __file__.find('/data/project/himo') != -1:
+        project = "/data/project/himo"
+    # ---
+    db_connect_file = f"{project}/confs/db.ini"
+    db_username = ""
+    credentials = {"read_default_file": db_connect_file}
+    # ---
+    # if db_connect_file is not file
+    if os.path.isfile(db_connect_file):
+        config2 = ConfigParser()
+        config2.read(db_connect_file)
+        # ---
+        try:
+            db_username = config2["client"]["user"]
+        except KeyError as e:
+            print(f"error: {e}")
+    # ---
+    # Typee = pymysql.cursors.DictCursor if return_dict else pymysql.cursors.Cursor
+    # ---
+    main_args = {
+        "host": "tools.db.svc.wikimedia.cloud",
+        "db": f"{db_username}__mv",
+        "charset": "utf8mb4",
+        # "cursorclass": Typee,
+        "use_unicode": True,
+        "autocommit": True,
+    }
+
+    if os.getenv("HOME").find("/data/project/mdwiki") != -1:
+        main_args["db"] = f"{db_username}__mdwiki_new"
+
+    return main_args, credentials
+
+
+main_args, credentials = jls_extract_def()
 
 def log_one(site, user, result):
 

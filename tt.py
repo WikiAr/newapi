@@ -11,6 +11,10 @@ db_connect_file = f"{project}/confs/db.ini"
 
 print(f"{db_connect_file=}")
 
+main_dir = os.path.dirname(__file__)
+print(f"{main_dir=}")
+print(f"{__file__=}")
+
 config2 = ConfigParser()
 config2.read(db_connect_file)
 
