@@ -80,9 +80,9 @@ def log_one(site, user, result, action=""):
             username VARCHAR(255) NOT NULL,
             result VARCHAR(50) NOT NULL,
             timestamp DATETIME NOT NULL,
+            action VARCHAR(100) NULL,
             INDEX idx_site_user (site, username),
-            INDEX idx_timestamp (timestamp),
-            action VARCHAR(100) NULL
+            INDEX idx_timestamp (timestamp)
         )
     """
     # print(f"create_table_query: {create_table_query}")
