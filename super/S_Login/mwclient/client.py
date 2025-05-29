@@ -525,6 +525,7 @@ class Site:
             # Requests will raise a ConnectionError exception.
             if not retry_on_error:
                 print("raise")
+            print(err)
             log.warning('Connection error. Retrying in a moment.')
             toraise = err
             # proceed to the sleep
