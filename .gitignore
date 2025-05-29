@@ -7,3 +7,5 @@ tests/super_login_old.py
 super/S_Login/jar.py
 super/S_Login/mwclient.pyyy.py
 wait_time_errors.bash
+super/Login_db/bot1.py
+super/Login_db/lite.py

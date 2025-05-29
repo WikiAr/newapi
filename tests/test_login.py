@@ -21,6 +21,6 @@ params = {"action": "query", "titles": f"User:{User_tables['username']}", "prop"
 # ---
 json1 = bot.post(params, Type="post", addtoken=False)
 # ---
-print(json1)
+# print(json1)
 
 print(f"{len(json1)=}")

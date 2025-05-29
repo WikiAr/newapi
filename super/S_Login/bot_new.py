@@ -17,7 +17,7 @@ from newapi import printe
 from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
 from newapi.except_err import exception_err
 from newapi.super.S_Login.params_help import PARAMS_HELPS
-from newapi.super.S_Login.login_db import log_one
+from newapi.super.Login_db.bot import log_one
 
 # import mwclient
 
