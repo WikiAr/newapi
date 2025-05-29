@@ -759,12 +759,15 @@ class Site:
                     login_result = 'Success'
                     break
                 elif login['login']['result'] == 'NeedToken':
+                    login_result = 'NeedToken'
                     kwargs['lgtoken'] = login['login']['token']
                 elif login['login']['result'] == 'Throttled':
+                    login_result = 'Throttled'
                     so = int(login['login'].get('wait', 5))
                     # sleeper.sleep(so)
                     print(f"so: {so}")
                 else:
+                    login_result = login['login']['result']
                     print(errors.LoginError(self, login['login']['result'],
                                             login['login']['reason']))
 

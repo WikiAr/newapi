@@ -41,10 +41,10 @@ def jls_extract_def():
     # ---
     # if db_connect_file is not file
     if os.path.isfile(db_connect_file):
-        config2 = ConfigParser()
-        config2.read(db_connect_file)
         # ---
         try:
+            config2 = ConfigParser()
+            config2.read(db_connect_file)
             db_username = config2["client"]["user"]
         except KeyError as e:
             print(f"error: {e}")
