@@ -753,24 +753,24 @@ class Site:
                 log.debug('Failed to get login token, MediaWiki is older than 1.27.')
 
 
-            while True:
-                login = self.post('login', **kwargs)
+            # while True:
+            login = self.post('login', **kwargs)
 
-                if login['login']['result'] == 'Success':
-                    login_result = 'Success'
-                    break
-                elif login['login']['result'] == 'NeedToken':
-                    login_result = 'NeedToken'
-                    kwargs['lgtoken'] = login['login']['token']
-                elif login['login']['result'] == 'Throttled':
-                    login_result = 'Throttled'
-                    so = int(login['login'].get('wait', 5))
-                    # sleeper.sleep(so)
-                    print(f"so: {so}")
-                else:
-                    login_result = login['login']['result']
-                    print(errors.LoginError(self, login['login']['result'],
-                                            login['login']['reason']))
+            if login['login']['result'] == 'Success':
+                login_result = 'Success'
+                # break
+            elif login['login']['result'] == 'NeedToken':
+                login_result = 'NeedToken'
+                kwargs['lgtoken'] = login['login']['token']
+            elif login['login']['result'] == 'Throttled':
+                login_result = 'Throttled'
+                so = int(login['login'].get('wait', 5))
+                # sleeper.sleep(so)
+                print(f"so: {so}")
+            else:
+                login_result = login['login']['result']
+                print(errors.LoginError(self, login['login']['result'],
+                                        login['login']['reason']))
 
         self.site_init()
 
@@ -834,16 +834,16 @@ class Site:
                 # should be great if API didn't require this...
                 kwargs['loginreturnurl'] = '%s://%s' % (self.scheme, self.host)
 
-            while True:
-                login = self.post('clientlogin', **kwargs)
-                status = login['clientlogin'].get('status')
-                if status == 'PASS':
-                    return True
-                elif status in ('UI', 'REDIRECT'):
-                    return login['clientlogin']
-                else:
-                    print(errors.LoginError(self, status,
-                                            login['clientlogin'].get('message')))
+            # while True:
+            login = self.post('clientlogin', **kwargs)
+            status = login['clientlogin'].get('status')
+            if status == 'PASS':
+                return True
+            elif status in ('UI', 'REDIRECT'):
+                return login['clientlogin']
+            else:
+                print(errors.LoginError(self, status,
+                                        login['clientlogin'].get('message')))
 
     def get_token(self, type, force=False, title=None):
         """Request a MediaWiki access token of the given `type`.
@@ -1000,24 +1000,24 @@ class Site:
             files = {'file': ('fake-filename', file)}
 
         # sleeper = self.sleepers.make()
-        while True:
-            data = self.raw_call('api', postdata, files)
-            info = json.loads(data)
-            if not info:
-                info = {}
-            if self.handle_api_result(info, kwargs=predata
-                #, sleeper=sleeper
-                ):
-                response = info.get('upload', {})
-                # Workaround for https://github.com/mwclient/mwclient/issues/211
-                # ----------------------------------------------------------------
-                # Raise an error if the file already exists. This is necessary because
-                # MediaWiki returns a warning, not an error, leading to silent failure.
-                # The user must explicitly set ignore=True (ignorewarnings=True) to
-                # overwrite an existing file.
-                if ignore is False and 'exists' in response.get('warnings', {}):
-                    print(errors.FileExists(filename))
-                break
+        # while True:
+        data = self.raw_call('api', postdata, files)
+        info = json.loads(data)
+        if not info:
+            info = {}
+        if self.handle_api_result(info, kwargs=predata
+            #, sleeper=sleeper
+            ):
+            response = info.get('upload', {})
+            # Workaround for https://github.com/mwclient/mwclient/issues/211
+            # ----------------------------------------------------------------
+            # Raise an error if the file already exists. This is necessary because
+            # MediaWiki returns a warning, not an error, leading to silent failure.
+            # The user must explicitly set ignore=True (ignorewarnings=True) to
+            # overwrite an existing file.
+            if ignore is False and 'exists' in response.get('warnings', {}):
+                print(errors.FileExists(filename))
+            # break
 
         if file is not None:
             file.close()
