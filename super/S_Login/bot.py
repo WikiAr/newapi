@@ -14,6 +14,7 @@ from newapi import printe
 from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
 from newapi.except_err import exception_err
 from newapi.super.S_Login.params_help import PARAMS_HELPS
+from newapi.super.Login_db.bot import log_one
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -52,6 +53,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.family = getattr(self, "family") if hasattr(self, "family") else ""
         self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
+        self.endpoint = getattr(self, "endpoint") if hasattr(self, "endpoint") else f"https://{self.lang}.{self.family}.org/w/api.php"
         # ---
         self.password = ""
         self.username_in = ""
@@ -170,6 +172,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             return False
         # ---
         r22 = {}
+        # ---
         if req:
             try:
                 r22 = req.json()
@@ -178,7 +181,11 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 print(req.text)
                 return False
         # ---
-        success = r22.get("login", {}).get("result", "").lower() == "success"
+        login_result = r22.get("login", {}).get("result", "")
+        # ---
+        success = login_result.lower() == "success"
+        # ---
+        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=login_result)
         # ---
         if success:
             self.loged_in()

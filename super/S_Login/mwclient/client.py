@@ -732,6 +732,8 @@ class Site:
         if cookies:
             self.connection.cookies.update(cookies)
 
+        login_result = ""
+
         if self.credentials:
             # sleeper = self.sleepers.make()
             kwargs = {
@@ -749,22 +751,29 @@ class Site:
             except (errors.APIError, KeyError):
                 log.debug('Failed to get login token, MediaWiki is older than 1.27.')
 
+
             while True:
                 login = self.post('login', **kwargs)
 
                 if login['login']['result'] == 'Success':
+                    login_result = 'Success'
                     break
                 elif login['login']['result'] == 'NeedToken':
+                    login_result = 'NeedToken'
                     kwargs['lgtoken'] = login['login']['token']
                 elif login['login']['result'] == 'Throttled':
+                    login_result = 'Throttled'
                     so = int(login['login'].get('wait', 5))
                     # sleeper.sleep(so)
                     print(f"so: {so}")
                 else:
+                    login_result = login['login']['result']
                     print(errors.LoginError(self, login['login']['result'],
                                             login['login']['reason']))
 
         self.site_init()
+
+        return login_result
 
     def clientlogin(self, cookies=None, **kwargs):
         """
