@@ -101,6 +101,7 @@ class Site:
         self.path = path
         self.ext = ext
         self.credentials = None
+        self.username = ""
         self.compress = compress
         self.max_lag = str(max_lag)
         self.force_login = force_login
