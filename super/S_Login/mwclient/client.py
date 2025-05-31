@@ -578,15 +578,19 @@ class Site:
         res = self.raw_call('api', data, retry_on_error=retry_on_error,
                             http_method=http_method)
 
+        u_action = action
+        if data.get('meta') == "tokens":
+            u_action = "tokens"
+
         try:
             data = json.loads(res, object_pairs_hook=OrderedDict)
             # ---
-            self.log_error("success", action)
+            self.log_error("success", u_action)
             # ---
             return data
 
         except ValueError:
-            self.log_error("ValueError", action)
+            self.log_error("ValueError", u_action)
             # ---
             if res.startswith('MediaWiki API is not enabled for this site.'):
                 print(errors.APIDisabledError)
