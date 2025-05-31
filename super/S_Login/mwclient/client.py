@@ -580,7 +580,10 @@ class Site:
 
         u_action = action
         if data.get('meta') == "tokens":
+
             u_action = "tokens"
+            if data.get('type'):
+                u_action += "_" + data['type']
 
         try:
             data = json.loads(res, object_pairs_hook=OrderedDict)
