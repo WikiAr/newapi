@@ -157,7 +157,7 @@ class MwClientSite:
         try:
             r4 = self.site_mwclient.api(action, http_method=method, **params)
             # ---
-            self.log_error("success", action)
+            # self.log_error("success", action)
             # ---
             return r4
 

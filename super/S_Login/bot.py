@@ -136,8 +136,12 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         try:
             r11 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r1_params, headers=self.headers)
+            # ---
+            self.log_error(r11.status_code, "logintoken")
+            # ---
             if not str(r11.status_code).startswith("2"):
                 printe.output(f"<<red>> newapi {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+            # ---
         except Exception as e:
             exception_err(e)
             return ""
@@ -232,9 +236,11 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 print(req.text)
                 return False
         # ---
-        self.log_error("success", "userinfo")
-        # ---
         userinfo = json1.get("query", {}).get("userinfo", {})
+        # ---
+        result_x = "success" if userinfo else "failed"
+        # ---
+        self.log_error(result_x, "userinfo")
         # ---
         # print(json1)
         # ---

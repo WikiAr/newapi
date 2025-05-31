@@ -12,6 +12,7 @@ from . import errors
 from . import listing
 from .sleep import Sleepers
 from .util import parse_timestamp, read_in_chunks, handle_limit
+from newapi.super.Login_db.bot import log_one
 
 __version__ = '0.11.0'
 
@@ -363,6 +364,9 @@ class Site:
         self.handle_api_result(info)#, sleeper=sleeper
         return info
 
+    def log_error(self, result, action) -> None:
+        log_one(site=self.host, user=self.username, result=result, action=action)
+
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if
         necessary.
@@ -574,8 +578,15 @@ class Site:
                             http_method=http_method)
 
         try:
-            return json.loads(res, object_pairs_hook=OrderedDict)
+            data = json.loads(res, object_pairs_hook=OrderedDict)
+            # ---
+            self.log_error("success", action)
+            # ---
+            return data
+
         except ValueError:
+            self.log_error("ValueError", action)
+            # ---
             if res.startswith('MediaWiki API is not enabled for this site.'):
                 print(errors.APIDisabledError)
             print(errors.InvalidResponse(res))
