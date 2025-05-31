@@ -90,12 +90,13 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             self.url_o_print = f"{self.endpoint}?{urllib.parse.urlencode(pams2)}".replace("&format=json", "")
             # ---
-            if self.url_o_print in urls_prints:
-                urls_prints[self.url_o_print] += 1
-            else:
-                urls_prints[self.url_o_print] = 1
+            if self.url_o_print not in urls_prints:
+                urls_prints[self.url_o_print] = 0
             # ---
-            printe.output(f"c: {urls_prints[self.url_o_print]}\t {self.url_o_print}")
+            urls_prints[self.url_o_print] += 1
+            urls_prints["all"] += 1
+            # ---
+            printe.output(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
 
     def make_response(self, params, files=None, timeout=30, do_error=True):
         """
