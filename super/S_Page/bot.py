@@ -1,5 +1,6 @@
 """
 
+from .super.page_bots.bot import APIS // wikiapi_new
 from newapi.super.S_Page.bot import APIS
 
 """

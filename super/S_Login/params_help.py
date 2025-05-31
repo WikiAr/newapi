@@ -1,11 +1,19 @@
 """
 
-from newapi.super.S_Login.params_help import PARAMS_HELPS
+
 
 """
 import sys
 import json
-from newapi.except_err import exception_err
+import os
+
+botname = os.getenv("BOTNAME", "newapi")
+if botname == "wikiapi_new":
+    # from .super.login_bots.params_help import PARAMS_HELPS
+    from ...api_utils.except_err import exception_err
+else:
+    # from newapi.super.S_Login.params_help import PARAMS_HELPS
+    from newapi.except_err import exception_err
 
 
 class PARAMS_HELPS:

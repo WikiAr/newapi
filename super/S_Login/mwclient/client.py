@@ -12,7 +12,14 @@ from . import errors
 from . import listing
 from .sleep import Sleepers
 from .util import parse_timestamp, read_in_chunks, handle_limit
-from newapi.super.Login_db.bot import log_one
+import os
+
+botname = os.getenv("BOTNAME", "newapi")
+
+if botname == "wikiapi_new":
+    from ...Login_db.bot import log_one
+else:
+    from newapi.super.Login_db.bot import log_one
 
 __version__ = '0.11.0'
 
