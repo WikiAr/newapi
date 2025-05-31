@@ -338,13 +338,21 @@ class LOGIN_HELPS(PARAMS_HELPS):
             "timeout": timeout,
         }
         # ---
+        u_action = params.get("action", "")
+        # ---
+        if params.get('meta') == "tokens":
+            u_action = "tokens"
+            # ---
+            if params.get('type'):
+                u_action += "_" + params['type']
+        # ---
         if "dopost" in sys.argv:
             printe.output("<<green>> dopost:::")
             printe.output(params)
             printe.output("<<green>> :::dopost")
             req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
             # ---
-            self._handle_server_error(req0, params.get("action", ""))
+            self._handle_server_error(req0, u_action)
             # ---
             return req0
         # ---
@@ -354,14 +362,14 @@ class LOGIN_HELPS(PARAMS_HELPS):
             req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
 
         except requests.exceptions.ReadTimeout:
-            self.log_error("ReadTimeout", params.get("action", ""))
+            self.log_error("ReadTimeout", u_action)
             printe.output(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
 
         except Exception as e:
-            self.log_error("Exception", params.get("action", ""))
+            self.log_error("Exception", u_action)
             exception_err(e)
         # ---
-        self._handle_server_error(req0, params.get("action", ""))
+        self._handle_server_error(req0, u_action)
         # ---
         return req0
 
