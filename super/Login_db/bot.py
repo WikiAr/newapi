@@ -7,12 +7,7 @@ from newapi.super.Login_db.bot2 import log_one
 
 """
 import os
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    from ...DB_bots.pymysql_bot import sql_connect_pymysql
-else:
-    from newapi.pymysql_bot import sql_connect_pymysql
-
+from newapi.pymysql_bot import sql_connect_pymysql
 import datetime
 from configparser import ConfigParser
 

@@ -1,20 +1,13 @@
 """
 
-
+from newapi.super.S_Login.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """
 import os
 import stat
 from pathlib import Path
-
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    # from .super.login_bots.cookies_bot import get_cookies
-    from ...api_utils import printe
-else:
-    # from newapi.super.S_Login.cookies_bot import get_cookies
-    from newapi import printe
+from newapi import printe
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
 tool = os.getenv("HOME")

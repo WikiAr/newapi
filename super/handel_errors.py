@@ -1,22 +1,15 @@
 """
+from newapi.super.handel_errors import HANDEL_ERRORS
 
 """
 import sys
-
-import os
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    # from .super.bots.handel_errors import HANDEL_ERRORS
-    from ..api_utils import printe
-else:
-    # from newapi.super.handel_errors import HANDEL_ERRORS
-    from newapi import printe
+from newapi import printe
 
 
 class HANDEL_ERRORS:
     def __init__(self):
-        printe.output("class HANDEL_ERRORS:")
-        # pass
+        printe("class HANDEL_ERRORS:")
+        pass
 
     def handel_err(self, error: dict, function: str = "", params: dict = None, do_error: bool = True):
         """Handle errors based on the provided error dictionary.

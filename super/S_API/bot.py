@@ -1,20 +1,11 @@
 """
 
-
+from newapi.super.S_API.bot import BOTS_APIS
 
 """
 import sys
-
-import os
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    # from .super.botapi_bots.bot import BOTS_APIS
-    from ...api_utils import printe
-    from ..handel_errors import HANDEL_ERRORS
-else:
-    # from newapi.super.S_API.bot import BOTS_APIS
-    from newapi import printe
-    from newapi.super.handel_errors import HANDEL_ERRORS
+from newapi import printe
+from newapi.super.handel_errors import HANDEL_ERRORS
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 Save_Edit_Pages = {1: False}

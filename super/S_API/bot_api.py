@@ -1,5 +1,5 @@
 """
-from wikiapi_new.page import NEW_API  / from newapi.page import NEW_API
+from newapi.page import NEW_API
 # api_new  = NEW_API('ar', family='wikipedia')
 # login    = api_new.Login_to_wiki()
 # cxtoken  = api_new.get_cxtoken()
@@ -29,7 +29,7 @@ from wikiapi_new.page import NEW_API  / from newapi.page import NEW_API
 # titles   = api_new.get_pageassessments(titles)
 # users    = api_new.users_infos(ususers=["Mr. Ibrahem"])
 Usage:
-from newapi.page import NEW_API / from wikiapi_new.page import NEW_API
+from newapi.page import NEW_API
 # ---
 login_done_lang = {1:''}
 # ---
@@ -46,19 +46,9 @@ import time
 import sys
 import datetime
 from datetime import timedelta
-import os
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    # from .super.bots.handel_errors import HANDEL_ERRORS
-    from ...api_utils import printe
-    from .bot import BOTS_APIS
-    from ..S_Login.super_login import Login
-else:
-    # from newapi.super.handel_errors import HANDEL_ERRORS
-    from newapi import printe
-    from newapi.super.S_API.bot import BOTS_APIS
-    from newapi.super.S_Login.super_login import Login
-
+from newapi import printe
+from newapi.super.S_API.bot import BOTS_APIS
+from newapi.super.S_Login.super_login import Login
 
 change_codes = {
     "bat_smg": "bat-smg",
@@ -76,6 +66,7 @@ change_codes = {
 }
 
 User_tables = {}
+
 
 def add_Usertables(table, family):
     User_tables[family] = table

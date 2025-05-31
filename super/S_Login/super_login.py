@@ -1,6 +1,6 @@
 # ---
 """
-
+from newapi.super.S_Login import super_login
 # ---
 # bot   = Login(lang, family="wikipedia")
 # login = bot.Log_to_wiki()
@@ -19,28 +19,14 @@ import sys
 import time
 import urllib.parse
 
-botname = os.getenv("BOTNAME", "newapi")
-if botname == "wikiapi_new":
-    # from .super import super_login
-    from ...api_utils import printe
-    from ..handel_errors import HANDEL_ERRORS
-    from ...api_utils.except_err import warn_err
+from newapi import printe
+from newapi.super.handel_errors import HANDEL_ERRORS
+from newapi.except_err import warn_err
 
-    if "nomwclient" in sys.argv:
-        from .bot import LOGIN_HELPS
-    else:
-        from .bot_new import LOGIN_HELPS
+if "nomwclient" in sys.argv:
+    from newapi.super.S_Login.bot import LOGIN_HELPS
 else:
-    # from newapi.super.S_Login import super_login
-    from newapi import printe
-    from newapi.super.handel_errors import HANDEL_ERRORS
-    from newapi.except_err import warn_err
-
-    if "nomwclient" in sys.argv:
-        from newapi.super.S_Login.bot import LOGIN_HELPS
-    else:
-        from newapi.super.S_Login.bot_new import LOGIN_HELPS
-
+    from newapi.super.S_Login.bot_new import LOGIN_HELPS
 
 file_name = os.path.basename(__file__)
 print_test = {1: False}

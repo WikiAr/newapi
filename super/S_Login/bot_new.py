@@ -1,6 +1,6 @@
 """
 
-
+from newapi.super.S_Login.bot_new import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
@@ -13,30 +13,24 @@ import copy
 import requests
 from http.cookiejar import MozillaCookieJar
 
-botname = os.getenv("BOTNAME", "newapi")
+from newapi import printe
+from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
+from newapi.except_err import exception_err
+from newapi.super.S_Login.params_help import PARAMS_HELPS
+from newapi.super.Login_db.bot import log_one
 
-if botname == "wikiapi_new":
-    # from .super.login_bots.bot_new import LOGIN_HELPS
-    from ...api_utils import printe
-    from ...api_utils.except_err import exception_err
-    from .cookies_bot import get_file_name, del_cookies_file
+# import mwclient
 
-    from .params_help import PARAMS_HELPS
-    from ..Login_db.bot import log_one
-    from .mwclient.client import Site
-else:
-    # from newapi.super.S_Login.bot_new import LOGIN_HELPS
-    from newapi import printe
-    from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
-    from newapi.except_err import exception_err
-    from newapi.super.S_Login.params_help import PARAMS_HELPS
-    from newapi.super.Login_db.bot import log_one
-    from newapi.super.S_Login.mwclient.client import Site
+# from mwclient.client import Site
+from newapi.super.S_Login.mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
 users_by_lang = {}
 logins_count = {1: 0}
+
+
 User_tables = {}
+
 
 def add_Usertables(table, family):
     User_tables[family] = table
@@ -81,8 +75,7 @@ class MwClientSite:
 
         self.__initialize_connection()
         self.__initialize_site()
-        if botname == "wikiapi_new":
-            self.do_login()
+        self.do_login()
 
     def __initialize_connection(self):
         cookies_file = get_file_name(self.lang, self.family, self.username)
