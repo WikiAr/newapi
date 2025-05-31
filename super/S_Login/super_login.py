@@ -33,7 +33,7 @@ print_test = {1: False}
 User_tables = {"mdwiki": {}, "wikidata": {}, "wikipedia": {}, "nccommons": {}}
 seasons_by_lang = {}
 ar_lag = {1: 3}
-
+urls_prints = {"all": 0}
 
 def default_user_agent():
     tool = os.getenv("HOME")
@@ -82,11 +82,20 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         Print the URL for debugging purposes.
         """
         if print_test[1] or "printurl" in sys.argv:
+            # ---
             no_url = ["lgpassword", "format"]
             no_remove = ["titles", "title"]
+            # ---
             pams2 = {k: v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v for k, v in params.items() if k not in no_url}
+            # ---
             self.url_o_print = f"{self.endpoint}?{urllib.parse.urlencode(pams2)}".replace("&format=json", "")
-            printe.output(self.url_o_print)
+            # ---
+            if self.url_o_print in urls_prints:
+                urls_prints[self.url_o_print] += 1
+            else:
+                urls_prints[self.url_o_print] = 1
+            # ---
+            printe.output(f"c: {urls_prints[self.url_o_print]}\t {self.url_o_print}")
 
     def make_response(self, params, files=None, timeout=30, do_error=True):
         """
