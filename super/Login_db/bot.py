@@ -70,10 +70,8 @@ main_args, credentials = jls_extract_def()
 
 def log_one(site, user, result, action=""):
 
-    timestamp = datetime.datetime.now().isoformat()
-
     # Create table query
-    create_table_query = """
+    _create_table_query = """
         CREATE TABLE IF NOT EXISTS login_attempts (
             id INT AUTO_INCREMENT PRIMARY KEY,
             site VARCHAR(255) NOT NULL,
@@ -84,8 +82,27 @@ def log_one(site, user, result, action=""):
             INDEX idx_site_user (site, username),
             INDEX idx_timestamp (timestamp)
         )
+        """
+    # Create table query
+    create_table_query = """
+        CREATE TABLE IF NOT EXISTS `logins` (
+            `id` int NOT NULL AUTO_INCREMENT,
+            `site` varchar(255) NOT NULL,
+            `username` varchar(255) NOT NULL,
+            `result` varchar(50) NOT NULL,
+            `action` varchar(100) DEFAULT NULL,
+            `count` int NOT NULL DEFAULT '1',
+            `first` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `last` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `site_username_result_action` (`site`,`username`,`result`,`action`),
+            KEY `idx_site_user` (`site`,`username`),
+            KEY `idx_timestamp` (`first`)
+        )
     """
     # print(f"create_table_query: {create_table_query}")
+
+    timestamp = datetime.datetime.now().isoformat()
 
     # Execute table creation
     sql_connect_pymysql(
@@ -96,15 +113,16 @@ def log_one(site, user, result, action=""):
 
     # Insert login attempt
     insert_query = """
-        INSERT INTO login_attempts (site, username, result, timestamp, action)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO logins (site, username, result, action, count, first, last)
+        VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE count = count + 1, last = NOW()
     """
 
     # print(f"insert_query: {insert_query}")
 
     sql_connect_pymysql(
         insert_query,
-        values=(site, user, result, timestamp, action),
+        values=(site, user, result, action, 1),
         main_args=main_args,
         credentials=credentials,
     )
