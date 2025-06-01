@@ -360,7 +360,6 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def post_it(self, params, files=None, timeout=30) -> any or None:
         # ---
-        # ---
         params = self.params_w(params)
         # ---
         session = seasons_by_lang.get(self.sea_key)
