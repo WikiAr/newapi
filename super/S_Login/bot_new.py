@@ -8,8 +8,6 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 import sys
 import os
 import copy
-
-# import json
 import requests
 from http.cookiejar import MozillaCookieJar
 
@@ -28,9 +26,7 @@ from newapi.super.S_Login.mwclient.client import Site
 users_by_lang = {}
 logins_count = {1: 0}
 
-
 User_tables = {}
-
 
 def add_Usertables(table, family):
     User_tables[family] = table
@@ -46,7 +42,6 @@ def default_user_agent():
     # printe.output(f"default_user_agent: {li}")
     # ---
     return li
-
 
 class MwClientSite:
     def __init__(self, lang, family):
@@ -173,6 +168,12 @@ class MwClientSite:
         return {}
 
 
+# -----
+# -----
+# -----
+# -----
+# -----
+
 class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def __init__(self) -> None:
         # ---
@@ -218,28 +219,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         return self.make_new_r3_token()
 
-    def post_it_2(self, params, files=None, timeout=30) -> any or None:
-        """Send a POST request to a specified endpoint with given parameters and
-        files.
-
-        This method constructs a POST request using the provided parameters and
-        optional files. It includes error handling for various scenarios, such
-        as checking if the user table is ready and managing request timeouts. If
-        the request is successful, it returns the response object.
-
-        Args:
-            params (dict): A dictionary of parameters to include in the POST request.
-            files (dict?): A dictionary of files to upload with the request. Defaults to None.
-            timeout (int?): The timeout for the request in seconds. Defaults to 30.
-
-        Returns:
-            any or None: The response object from the POST request, or None if the
-                request fails.
-
-        Raises:
-            Exception: If the user table is not ready when attempting to send the request.
-            requests.exceptions.ReadTimeout: If the request times out.
-        """
+    def raw_request(self, params, files=None, timeout=30) -> any or None:
         # ---
         if not self.user_table_done:
             printe.output("<<green>> user_table_done == False!")
@@ -257,7 +237,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         params = self.params_w(params)
         # ---
-        req0 = self.post_it_2(params, files=files, timeout=timeout)
+        req0 = self.raw_request(params, files=files, timeout=timeout)
         # ---
         return req0
 
