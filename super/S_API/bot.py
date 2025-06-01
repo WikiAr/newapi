@@ -23,7 +23,7 @@ class BOTS_APIS(HANDEL_ERRORS):
         self.username = ""
         super().__init__()
 
-    def ask_put(self, nodiff=False, newtext="", text=""):
+    def ask_put(self, nodiff=False, newtext="", text="", message=""):
         yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
         # ---
         if "ask" in sys.argv and not Save_Edit_Pages[1]:
@@ -36,7 +36,7 @@ class BOTS_APIS(HANDEL_ERRORS):
                     printe.output(f"diference in bytes: {len(newtext) - len(text)}")
                     printe.output(f"length of text: {len(text)}, length of newtext: {len(newtext)}")
             # ---
-            printe.output(f"<<lightyellow>>bot_api.py: save (yes, no)? {self.username=}")
+            printe.output(f"<<lightyellow>>bot_api.py: save {message} (yes, no)? {self.username=}")
             sa = input("([y]es, [N]o, [a]ll)?")
             # ---
             if sa == "a":
@@ -64,7 +64,7 @@ class BOTS_APIS(HANDEL_ERRORS):
         test_print(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
-        ask = self.ask_put(newtext=text, text="")
+        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ")
         # ---
         if ask is False:
             return False
