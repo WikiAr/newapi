@@ -22,12 +22,12 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     print_s = kwargs.get("print_s", True)
     # ---
-    priffixs = {"ar": "تصنيف:", "en": "Category:", "www": "Category:"}
+    prefixes = {"ar": "تصنيف:", "en": "Category:", "www": "Category:"}
     # ---
-    start_priffix = priffixs.get(sitecode)
+    start_prefixes = prefixes.get(sitecode)
     # ---
-    if start_priffix and not title.startswith(start_priffix):
-        title = start_priffix + title
+    if start_prefixes and not title.startswith(start_prefixes):
+        title = start_prefixes + title
     # ---
     args2 = {
         "title": title,
