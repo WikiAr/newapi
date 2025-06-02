@@ -1,11 +1,9 @@
 # ---
 """
-from wikiapi_new.ncc_page import CatDepth, CatDepthLogin
 from newapi.ncc_page import CatDepth, CatDepthLogin
 # CatDepthLogin(sitecode="www", family="nccommons")
 # cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
 
-from wikiapi_new.ncc_page import MainPage as ncc_MainPage
 from newapi.ncc_page import MainPage as ncc_MainPage
 '''
 page      = ncc_MainPage(title, 'www', family='nccommons')
@@ -15,7 +13,6 @@ if not exists: return
 '''
 
 
-from wikiapi_new.ncc_page import NEW_API
 from newapi.ncc_page import NEW_API
 # api_new  = NEW_API('www', family='nccommons')
 # login    = api_new.Login_to_wiki()

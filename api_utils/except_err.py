@@ -1,6 +1,5 @@
 """
 
-python3 bots/new/wikiapi_new/except_err.py
 python3 bots/new/newapi/except_err.py
 
 from .except_err import exception_err

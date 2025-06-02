@@ -1,11 +1,9 @@
 # ---
 """
-from wikiapi_new.mdwiki_page import MainPage as md_MainPage, CatDepth, CatDepthLogin
 from newapi.mdwiki_page import MainPage as md_MainPage, CatDepth, CatDepthLogin
 # CatDepthLogin(sitecode="en", family="wikipedia")
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], onlyns=False, without_lang="", with_lang="", tempyes=[])
 
-# from wikiapi_new.mdwiki_page import MainPage as md_MainPage
 # from newapi.mdwiki_page import MainPage as md_MainPage
 '''
 page      = md_MainPage(title, 'www', family='mdwiki')

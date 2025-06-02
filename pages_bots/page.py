@@ -1,15 +1,12 @@
 """
 from newapi.page import MainPage, NEW_API, CatDepth, CatDepthLogin
-from wikiapi_new.page import MainPage, NEW_API, CatDepth, CatDepthLogin
 
 Usage:
 
-from wikiapi_new.page import CatDepth, CatDepthLogin
 from newapi.page import CatDepth, CatDepthLogin
 # CatDepthLogin(sitecode="en", family="wikipedia")
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], without_lang="", with_lang="", tempyes=[])
 
-from wikiapi_new.page import MainPage, NEW_API
 from newapi.page import MainPage, NEW_API
 # api_new = NEW_API('en', family='wikipedia')
 # json1    = api_new.post_params(params, addtoken=False)

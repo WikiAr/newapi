@@ -1,7 +1,6 @@
 """
 
 from newapi.ncc_page import CatDepth, CatDepthLogin
-from wikiapi_new.ncc_page import CatDepth, CatDepthLogin
 # CatDepthLogin(sitecode="www", family="nccommons")
 # cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
 

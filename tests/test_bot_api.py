@@ -6,15 +6,6 @@ python3 core8/pwb.py newapi/tests/test_bot_api test:13 printresult
 python3 core8/pwb.py newapi/tests/test_bot_api test:4
 python3 core8/pwb.py newapi/tests/test_bot_api test:14
 python3 core8/pwb.py newapi/tests/test_bot_api noprr test:9
-
-wikiapi_new:
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new test:13 printresult
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new test:4
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new test:14
-python3 core8/pwb.py newapi/tests/test_bot_api wikiapi_new noprr test:9
-
 """
 import sys
 import time
@@ -22,14 +13,8 @@ import time
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-if "wikiapi_new" in sys.argv:
-    from wikiapi_new.page import NEW_API
-    from wikiapi_new import printe
-else:
-    from newapi.page import NEW_API
-    from newapi import printe
-
-
+from newapi.page import NEW_API
+from newapi import printe
 
 class testmybot:
     def __init__(self):

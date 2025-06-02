@@ -1,11 +1,9 @@
 """
 
-python3 core8/pwb.py wikiapi_new/tests/test_bot_edit
-
-I:/core/bots/new/wikiapi_new/tests/‏‏test_bot_edit.py
+python3 core8/pwb.py newapi/tests/test_bot_edit
 
 """
-from wikiapi_new.page import MainPage
+from newapi.page import MainPage
 
 # ---
 titles = [

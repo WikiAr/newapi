@@ -1,5 +1,4 @@
 """
-from wikiapi_new.page import NEW_API
 from newapi.page import NEW_API
 # api_new  = NEW_API('ar', family='wikipedia')
 # login    = api_new.Login_to_wiki()
@@ -30,7 +29,6 @@ from newapi.page import NEW_API
 # titles   = api_new.get_pageassessments(titles)
 # users    = api_new.users_infos(ususers=["Mr. Ibrahem"])
 Usage:
-from wikiapi_new.page import NEW_API
 from newapi.page import NEW_API
 # ---
 login_done_lang = {1:''}

@@ -4,20 +4,13 @@ python3 core8/pwb.py newapi/tests/test_mdwiki_page nomwclient
 python3 core8/pwb.py newapi/tests/test_mdwiki_page nomwclient
 python3 core8/pwb.py newapi/tests/test_mdwiki_page
 
-wikiapi_new:
-python3 core8/pwb.py newapi/tests/test_mdwiki_page wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_mdwiki_page wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_mdwiki_page wikiapi_new
 """
 import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-if "wikiapi_new" in sys.argv:
-    from wikiapi_new.mdwiki_page import MainPage, CatDepth
-else:
-    from newapi.mdwiki_page import MainPage, CatDepth
+from newapi.mdwiki_page import MainPage, CatDepth
 
 """
 page      = MainPage(title, 'ar', family='wikipedia')

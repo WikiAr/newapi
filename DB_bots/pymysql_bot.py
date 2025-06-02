@@ -1,5 +1,4 @@
 """
-from wikiapi_new import pymysql_bot
 from newapi import pymysql_bot
 # result = pymysql_bot.sql_connect_pymysql(query, return_dict=False, values=None, main_args={}, credentials={}, conversions=None)
 """

@@ -3,20 +3,13 @@
 python3 core8/pwb.py newapi/tests/test_langs nomwclient
 python3 core8/pwb.py newapi/tests/test_langs
 
-wikiapi_new:
-python3 core8/pwb.py newapi/tests/test_langs wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_langs wikiapi_new
-
 """
 import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-if "wikiapi_new" in sys.argv:
-    from wikiapi_new.page import MainPage
-else:
-    from newapi.page import MainPage
+from newapi.page import MainPage
 
 page = MainPage('وب:ملعب', 'ar')
 exists = page.exists()

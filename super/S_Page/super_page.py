@@ -2,11 +2,9 @@
 Usage:
 # ---
 from newapi.mdwiki_page import MainPage
-from wikiapi_new.mdwiki_page import MainPage
 page      = MainPage(title, 'www', family='mdwiki')
 # ---
 from newapi.page import MainPage
-from wikiapi_new.page import MainPage
 page      = MainPage(title, 'ar', family='wikipedia')
 # ---
 '''

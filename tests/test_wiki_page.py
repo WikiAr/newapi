@@ -3,21 +3,13 @@
 python3 core8/pwb.py newapi/tests/test_wiki_page nomwclient
 python3 core8/pwb.py newapi/tests/test_wiki_page nomwclient
 python3 core8/pwb.py newapi/tests/test_wiki_page
-
-wikiapi_new:
-python3 core8/pwb.py newapi/tests/test_wiki_page wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_wiki_page wikiapi_new nomwclient
-python3 core8/pwb.py newapi/tests/test_wiki_page wikiapi_new
 """
 import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-if "wikiapi_new" in sys.argv:
-    from wikiapi_new.wiki_page import MainPage, CatDepth
-else:
-    from newapi.wiki_page import MainPage, CatDepth
+from newapi.wiki_page import MainPage, CatDepth
 
 """
 page      = MainPage(title, 'ar', family='wikipedia')
@@ -71,5 +63,4 @@ print(f"{len(red)=}")
 # pages   = api_new.Get_Newpages()
 
 
-# python3 core8/pwb.py wikiapi_new/wiki_page
 # python3 core8/pwb.py newapi/wiki_page

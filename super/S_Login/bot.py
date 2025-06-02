@@ -23,10 +23,9 @@ logins_count = {1: 0}
 User_tables = {}
 
 botname = "newapi"
-if __file__.find("wikiapi_new") != -1:
-    botname = "wikiapi_new"
 
 def add_Usertables(table, family):
+
     User_tables[family] = table
 
 
