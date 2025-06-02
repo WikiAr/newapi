@@ -1,5 +1,6 @@
 # ---
 """
+
 from newapi.ncc_page import CatDepth, CatDepthLogin
 # CatDepthLogin(sitecode="www", family="nccommons")
 # cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
@@ -36,7 +37,7 @@ from ..super.S_API import bot_api
 from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
 
-print_test = {1: True if "test" in sys.argv else False}
+print_test = {1: "test" in sys.argv}
 
 def printt(s):
     if print_test[1]:
