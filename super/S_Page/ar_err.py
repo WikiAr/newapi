@@ -2,7 +2,7 @@
 
 """
 
-from newapi.super.S_Page.ar_err import find_edit_error
+from .super.S_Page.ar_err import find_edit_error
 if find_edit_error(old, new): return
 """
 

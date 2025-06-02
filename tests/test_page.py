@@ -1,12 +1,20 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page ask nomwclient printurl
-python3 core8/pwb.py newapi/tests/test_page ask nomwclient
-
+python3 core8/pwb.py newapi/tests/test_page nomwclient
 python3 core8/pwb.py newapi/tests/test_page
 
+wikiapi_new:
+python3 core8/pwb.py newapi/tests/test_page wikiapi_new nomwclient
+python3 core8/pwb.py newapi/tests/test_page wikiapi_new
 """
-from newapi.page import MainPage
+import sys
+# sys.argv.append("printurl")
+sys.argv.append("ask")
+
+if "wikiapi_new" in sys.argv:
+    from wikiapi_new.page import MainPage
+else:
+    from newapi.page import MainPage
 
 # ---
 page = MainPage("وب:ملعب", "ar")
@@ -64,4 +72,7 @@ newtext = "تجربة!\n" * 6
 save = page.save(newtext=newtext)
 
 
-pageen.save(newtext="!!!")
+pageen.save(newtext="!!!", nocreate=0)
+
+
+save = page.save(newtext="!")

@@ -1,11 +1,11 @@
 """
 
-from newapi.super.S_Login.params_help import PARAMS_HELPS
+from .super.S_Login.params_help import PARAMS_HELPS
 
 """
 import sys
 import json
-from newapi.except_err import exception_err
+from ...api_utils.except_err import exception_err
 
 
 class PARAMS_HELPS:

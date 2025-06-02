@@ -1,9 +1,23 @@
+"""
 
+python3 core8/pwb.py newapi/tests/test_db_bot
+python3 core8/pwb.py newapi/tests/test_db_bot wikiapi_new
+
+"""
 import os
+import sys
 from datetime import datetime
-from newapi.db_bot import LiteDB
 
 
+sys.argv.append("printurl")
+sys.argv.append("ask")
+
+if "wikiapi_new" in sys.argv:
+    from wikiapi_new import db_bot
+else:
+    from newapi import db_bot
+
+LiteDB = db_bot.LiteDB
 def test():
     db_path = "/data/mdwiki/public_html/ncc/Tables/nc_files.db"
     if not os.path.exists(db_path):
