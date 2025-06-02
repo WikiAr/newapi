@@ -41,7 +41,6 @@ ns_list = {
     "1729": "نقاش الفعالية",
 }
 
-
 User_tables = {}
 
 def add_Usertables(table, family):
