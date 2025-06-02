@@ -7,8 +7,6 @@ from .pages_bots.mdwiki_page import (
     user_agent,
     NEW_API,
     CatDepth,
-    CatDepthLogin,
-    CategoryDepth,
     change_codes
 )
 
@@ -19,7 +17,5 @@ __all__ = [
     "md_MainPage",
     "NEW_API",
     "CatDepth",
-    "CatDepthLogin",
-    "CategoryDepth",
     "change_codes",
 ]

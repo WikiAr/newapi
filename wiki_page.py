@@ -8,8 +8,6 @@ from .pages_bots.wiki_page import (
     user_agent,
     NEW_API,
     CatDepth,
-    CatDepthLogin,
-    CategoryDepth,
     change_codes
 )
 
@@ -19,7 +17,5 @@ __all__ = [
     "MainPage",
     "NEW_API",
     "CatDepth",
-    "CatDepthLogin",
-    "CategoryDepth",
     "change_codes",
 ]

@@ -8,14 +8,12 @@ import sys
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.ncc_page import MainPage, CatDepth, CatDepthLogin
+from newapi.ncc_page import MainPage, CatDepth
 
 title = "Category:Pages_with_script_errors"
 
-# CatDepthLogin()
 # cat_members = CatDepth(title, depth=0, ns="10", nslist=[], tempyes=[])
 
-CatDepthLogin(sitecode="www", family="nccommons")
 cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, onlyns=10)
 
 # print(cat_members)

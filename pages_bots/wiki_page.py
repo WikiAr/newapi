@@ -1,8 +1,8 @@
 """
 Usage:
 
-from newapi.wiki_page import CatDepth, CatDepthLogin
-# CatDepthLogin(sitecode="en", family="wikipedia")
+from newapi.wiki_page import CatDepth
+
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], without_lang="", with_lang="", tempyes=[])
 
 from newapi.wiki_page import MainPage, NEW_API
@@ -64,9 +64,7 @@ catdepth_new1.add_Usertables(User_tables, "wikidata")
 NEW_API = bot_api1.NEW_API
 MainPage = super_page1.MainPage
 change_codes = super_page1.change_codes
-CategoryDepth = catdepth_new1.CategoryDepth
 CatDepth = catdepth_new1.subcatquery
-CatDepthLogin = catdepth_new1.login_wiki
 
 __all__ = [
     'home_dir',
@@ -74,7 +72,5 @@ __all__ = [
     'MainPage',
     'NEW_API',
     'CatDepth',
-    'CatDepthLogin',
-    'CategoryDepth',
     'change_codes',
 ]
