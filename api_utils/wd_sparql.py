@@ -1,6 +1,6 @@
 """
 
-from newapi import wd_sparql
+from newapi.api_utils import wd_sparql
 
 get_query_result = wd_sparql.get_query_result
 get_query_data = wd_sparql.get_query_data

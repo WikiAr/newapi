@@ -1,6 +1,6 @@
 """
 # ---
-from newapi import user_account_new
+from . import user_account_new
 # ---
 username = user_account_new.bot_username     #user_account_new.my_username
 password = user_account_new.bot_password     #user_account_new.mdwiki_pass
@@ -13,10 +13,10 @@ import os
 import configparser
 
 home_dir = os.getenv("HOME")
-dir2 = home_dir if home_dir else "I:/mdwiki/mdwiki"
+project = home_dir if home_dir else "I:/mdwiki/mdwiki"
 # ---
 config = configparser.ConfigParser()
-config.read(f"{dir2}/confs/user.ini")
+config.read(f"{project}/confs/user.ini")
 
 username = config["DEFAULT"].get("botusername", "")
 password = config["DEFAULT"].get("botpassword", "")

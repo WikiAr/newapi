@@ -7,9 +7,10 @@ from newapi.super.Login_db.bot2 import log_one
 
 """
 import os
-from newapi.pymysql_bot import sql_connect_pymysql
 import datetime
 from configparser import ConfigParser
+
+from ...DB_bots.pymysql_bot import sql_connect_pymysql
 
 def local_host():
     main_args = {

@@ -1,11 +1,11 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page ask nomwclient printurl
-python3 core8/pwb.py newapi/tests/test_page ask nomwclient
-
+python3 core8/pwb.py newapi/tests/test_page nomwclient
 python3 core8/pwb.py newapi/tests/test_page
-
 """
+import sys
+# sys.argv.append("printurl")
+sys.argv.append("ask")
 from newapi.page import MainPage
 
 # ---
@@ -64,4 +64,7 @@ newtext = "تجربة!\n" * 6
 save = page.save(newtext=newtext)
 
 
-pageen.save(newtext="!!!")
+pageen.save(newtext="!!!", nocreate=0)
+
+
+save = page.save(newtext="!")

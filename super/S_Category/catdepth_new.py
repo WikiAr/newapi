@@ -9,9 +9,10 @@ import copy
 import time
 import sys
 import tqdm
-from newapi import printe
-from newapi.super.S_API.bot import BOTS_APIS
-from newapi.super.S_Login.super_login import Login
+
+from ...api_utils import printe
+from ..S_API.bot import BOTS_APIS
+from ..S_Login.super_login import Login
 
 SITECODE = "en"
 FAMILY = "wikipedia"

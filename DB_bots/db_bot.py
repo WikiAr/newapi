@@ -1,7 +1,7 @@
 """
 
 Usage:
-# from newapi.db_bot import LiteDB
+# from .db_bot import LiteDB
 # db = LiteDB(db_path)
 # db.create_table(table_name, fields, pk="id", **kwargs)
 # db.show_tables(self)
@@ -61,15 +61,37 @@ class LiteDB:
         return self.db[table_name].rows
 
     def select(self, table_name, args):
-        where = " and ".join([f"{k} = '{v}'" for k, v in args.items()])
+        # ---
+        where_conditions = []
+        params = []
+        # ---
+        for k, v in args.items():
+            where_conditions.append(f"{k} = ?")
+            params.append(v)
+        # ---
+        where = " and ".join(where_conditions)
+        # where = " and ".join([f"{k} = '{v}'" for k, v in args.items()])
         lista = []
-        for row in self.db[table_name].rows_where(where):
+        # ---
+        # for row in self.db[table_name].rows_where(where):
+        for row in self.db[table_name].rows_where(where, params):
             lista.append(row)
+        # ---
         return lista
 
     def select_or(self, table_name, args):
-        where = " or ".join([f"{k} = '{v}'" for k, v in args.items()])
+        # ---
+        where_conditions = []
+        params = []
+        # ---
+        for k, v in args.items():
+            where_conditions.append(f"{k} = ?")
+            params.append(v)
+        # ---
+        where = " or ".join(where_conditions)
         lista = []
-        for row in self.db[table_name].rows_where(where):
+        # ---
+        for row in self.db[table_name].rows_where(where, params):
             lista.append(row)
+        # ---
         return lista

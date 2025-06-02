@@ -5,7 +5,7 @@ from newapi import pymysql_bot
 import copy
 import pymysql
 import pymysql.cursors
-from newapi.except_err import exception_err
+from ..api_utils.except_err import exception_err
 
 
 def sql_connect_pymysql(query, return_dict=False, values=None, main_args={}, credentials={}, conversions=None, many=False, **kwargs):

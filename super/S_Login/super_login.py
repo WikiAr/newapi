@@ -1,6 +1,6 @@
 # ---
 """
-from newapi.super.S_Login import super_login
+from .super.S_Login import super_login
 # ---
 # bot   = Login(lang, family="wikipedia")
 # login = bot.Log_to_wiki()
@@ -19,14 +19,14 @@ import sys
 import time
 import urllib.parse
 
-from newapi import printe
-from newapi.super.handel_errors import HANDEL_ERRORS
-from newapi.except_err import warn_err
+from ...api_utils import printe
+from ..handel_errors import HANDEL_ERRORS
+from ...api_utils.except_err import warn_err
 
 if "nomwclient" in sys.argv:
-    from newapi.super.S_Login.bot import LOGIN_HELPS
+    from .bot import LOGIN_HELPS
 else:
-    from newapi.super.S_Login.bot_new import LOGIN_HELPS
+    from .bot_new import LOGIN_HELPS
 
 file_name = os.path.basename(__file__)
 print_test = {1: False}
@@ -145,9 +145,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         return params
 
     def post(self, params, Type="get", addtoken=False, CSRF=True, files=None):
-        return self.post_params(params, Type=Type, addtoken=addtoken, CSRF=CSRF, files=files)
+        return self.post_params(params, Type=Type, addtoken=addtoken, GET_CSRF=CSRF, files=files)
 
-    def post_params(self, params, Type="get", addtoken=False, CSRF=True, files=None, do_error=False, max_retry=0):
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         """
         Make a POST request to the API endpoint with authentication token.
         """
@@ -205,11 +205,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             if Invalid == "Invalid CSRF token.":
                 printe.output(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
-                if CSRF:
+                if GET_CSRF:
                     # ---
                     self.r3_token = self.make_new_r3_token()
                     # ---
-                    return self.post_params(params, Type=Type, addtoken=addtoken, CSRF=False)
+                    return self.post_params(params, Type=Type, addtoken=addtoken, GET_CSRF=False)
             # ---
             error_code = error.get("code", "")
             # ---
@@ -227,7 +227,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 params["maxlag"] = ar_lag[1]
                 # ---
                 return self.post_params(params, Type=Type, addtoken=addtoken, max_retry=max_retry + 1)
-            # ---
+        # ---
         if "printdata" in sys.argv:
             printe.output(data)
 

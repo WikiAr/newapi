@@ -1,9 +1,19 @@
+"""
 
+python3 core8/pwb.py newapi/tests/test_db_bot
+
+"""
 import os
+import sys
 from datetime import datetime
-from newapi.db_bot import LiteDB
 
 
+sys.argv.append("printurl")
+sys.argv.append("ask")
+
+from newapi import db_bot
+
+LiteDB = db_bot.LiteDB
 def test():
     db_path = "/data/mdwiki/public_html/ncc/Tables/nc_files.db"
     if not os.path.exists(db_path):

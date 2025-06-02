@@ -1,15 +1,17 @@
 """
 
 python3 core8/pwb.py newapi/tests/test_login nomwclient
-
 python3 core8/pwb.py newapi/tests/test_login
-
 """
-from newapi import useraccount
+import sys
+
+sys.argv.append("printurl")
+sys.argv.append("ask")
+from newapi.accounts import useraccount
+from newapi.super.S_Login import super_login
 
 User_tables = {"username": useraccount.username, "password": useraccount.password}
 # ---
-from newapi.super.S_Login import super_login
 
 Login = super_login.Login
 # ---

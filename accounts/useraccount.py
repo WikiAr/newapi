@@ -2,11 +2,9 @@ import sys
 import os
 import configparser
 
-home_dir = os.getenv("HOME")
+project = '/data/project/himo'
 # ---
-if os.getenv("HOME"):
-    project = "/data/project/himo"
-else:
+if not os.path.isdir(project):
     project = 'I:/core/bots/core1'
 # ---
 config = configparser.ConfigParser()

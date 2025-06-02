@@ -50,14 +50,12 @@ import os
 from warnings import warn
 import sys
 import wikitextparser as wtp
-from newapi import printe
-from newapi import txtlib
-from newapi import botEdit
 
-from newapi.super.S_Page.ar_err import find_edit_error
-from newapi.super.S_Page.bot import APIS
-from newapi.super.S_Login.super_login import Login
-from newapi.except_err import exception_err, warn_err
+from ...api_utils import printe, txtlib, botEdit
+from .ar_err import find_edit_error
+from ...api_utils.except_err import exception_err, warn_err
+from .bot import APIS
+from ..S_Login.super_login import Login
 
 file_name = os.path.basename(__file__)
 

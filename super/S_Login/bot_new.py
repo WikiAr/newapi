@@ -1,6 +1,6 @@
 """
 
-from newapi.super.S_Login.bot_new import LOGIN_HELPS
+from .super.S_Login.bot_new import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
@@ -8,29 +8,26 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 import sys
 import os
 import copy
-
-# import json
 import requests
 from http.cookiejar import MozillaCookieJar
 
-from newapi import printe
-from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
-from newapi.except_err import exception_err
-from newapi.super.S_Login.params_help import PARAMS_HELPS
-from newapi.super.Login_db.bot import log_one
+from ...api_utils import printe
+from ...api_utils.except_err import exception_err
+from .cookies_bot import get_file_name, del_cookies_file
+
+from .params_help import PARAMS_HELPS
+from ..Login_db.bot import log_one
 
 # import mwclient
 
 # from mwclient.client import Site
-from newapi.super.S_Login.mwclient.client import Site
+from .mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
 users_by_lang = {}
 logins_count = {1: 0}
 
-
 User_tables = {}
-
 
 def add_Usertables(table, family):
     User_tables[family] = table
@@ -46,7 +43,6 @@ def default_user_agent():
     # printe.output(f"default_user_agent: {li}")
     # ---
     return li
-
 
 class MwClientSite:
     def __init__(self, lang, family):
@@ -85,7 +81,7 @@ class MwClientSite:
         self.connection = requests.Session()
 
         self.connection.headers["User-Agent"] = default_user_agent()
-
+        # ---
         if os.path.exists(cookies_file) and self.family != "mdwiki":
             # printe.output("<<yellow>>loading cookies")
             try:
@@ -110,6 +106,7 @@ class MwClientSite:
     def do_login(self):
 
         if not self.force_login:
+            printe.output("<<red>> do_login(): not self.force_login ")
             return
 
         if not self.site_mwclient:
@@ -119,10 +116,12 @@ class MwClientSite:
         if not self.site_mwclient.logged_in:
             logins_count[1] += 1
             printe.output(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
+            # ---
             try:
                 login_result = self.site_mwclient.login(username=self.username, password=self.password)
 
                 self.log_error(login_result, "login")
+                self.login_done = True
 
             except Exception as e:
                 printe.output(f"Could not login to ({self.domain}): %s" % e)
@@ -137,7 +136,6 @@ class MwClientSite:
         # ---
         if not self.login_done:
             self.do_login()
-            self.login_done = True
         # ---
         params = copy.deepcopy(params)
         # ---
@@ -172,6 +170,12 @@ class MwClientSite:
         # ---
         return {}
 
+
+# -----
+# -----
+# -----
+# -----
+# -----
 
 class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def __init__(self) -> None:
@@ -218,28 +222,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         return self.make_new_r3_token()
 
-    def post_it_2(self, params, files=None, timeout=30) -> any or None:
-        """Send a POST request to a specified endpoint with given parameters and
-        files.
-
-        This method constructs a POST request using the provided parameters and
-        optional files. It includes error handling for various scenarios, such
-        as checking if the user table is ready and managing request timeouts. If
-        the request is successful, it returns the response object.
-
-        Args:
-            params (dict): A dictionary of parameters to include in the POST request.
-            files (dict?): A dictionary of files to upload with the request. Defaults to None.
-            timeout (int?): The timeout for the request in seconds. Defaults to 30.
-
-        Returns:
-            any or None: The response object from the POST request, or None if the
-                request fails.
-
-        Raises:
-            Exception: If the user table is not ready when attempting to send the request.
-            requests.exceptions.ReadTimeout: If the request times out.
-        """
+    def raw_request(self, params, files=None, timeout=30) -> any or None:
         # ---
         if not self.user_table_done:
             printe.output("<<green>> user_table_done == False!")
@@ -257,7 +240,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         params = self.params_w(params)
         # ---
-        req0 = self.post_it_2(params, files=files, timeout=timeout)
+        req0 = self.raw_request(params, files=files, timeout=timeout)
         # ---
         return req0
 

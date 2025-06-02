@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 """
 
-from newapi import txtlib
+from . import txtlib
 # txtlib.get_one_temp_params( text, templates=[], lowers=False )
 # alltemp = txtlib.get_all_temps_params( text, templates=[], lowers=False )
 # for tab in alltemp: for namestrip, params in tab.keys():
 # ---
-from newapi import txtlib
+from . import txtlib
 # temps = txtlib.extract_templates_and_params(text)
 # for temp in temps: name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
 
 """
-# from newapi import printe
+# from ..other_bots import printe
 
 import wikitextparser as wtp
 
@@ -75,7 +75,8 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
     # ---
     for temp in ingr:
         # ---
-        name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
+        # name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
+        namestrip, params = temp['namestrip'], temp['params']
         # ---
         if lowers:
             namestrip = namestrip.lower()
@@ -94,8 +95,13 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
     return named
 
 
-def get_all_temps_params(text, templates=[], lowers=False):
+def get_all_temps_params(text, templates=None, lowers=False):
+    # ---
+    if templates is None:
+        templates = []
+    # ---
     tab = get_one_temp_params(text, templates=templates, lowers=lowers, get_all_temps=True)
+    # ---
     return tab
 
 

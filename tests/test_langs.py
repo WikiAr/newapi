@@ -1,9 +1,13 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_langs ask nomwclient
-python3 core8/pwb.py newapi/tests/test_langs ask
+python3 core8/pwb.py newapi/tests/test_langs nomwclient
+python3 core8/pwb.py newapi/tests/test_langs
 
 """
+import sys
+
+sys.argv.append("printurl")
+sys.argv.append("ask")
 
 from newapi.page import MainPage
 
