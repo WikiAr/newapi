@@ -26,6 +26,84 @@ stop_edit_temps = {
     "portal": ["لا لربط البوابات المعادل", "لا لصيانة البوابات"],
 }
 
+def _handle_nobots_template(params, title_page, botjob, _template):
+    """Handle nobots template logic."""
+    # ---
+    # {{nobots}}                منع جميع البوتات
+    # منع جميع البوتات
+    if not params:
+        printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+        # printe.output( 'return False 2 ' )
+        Bot_Cache[botjob][title_page] = False
+        return False
+    elif params.get("1"):
+        List = [x.strip() for x in params.get("1", "").split(",")]
+        # if 'all' in List or pywikibot.calledModuleName() in List or edit_username[1] in List:
+        if "all" in List or edit_username[1] in List:
+            printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+            # printe.output( 'return False 3 ' )
+            # Bot_Cache[title_page] = False
+            Bot_Cache[botjob][title_page] = False
+            return False
+    # ---
+    # no restricting template found
+    Bot_Cache[botjob][title_page] = True
+    # ---
+    return True
+
+def _handle_bots_template(params, title_page, botjob, title):
+    """Handle bots template logic."""
+    # ---
+    # printe.output( 'title == (%s) ' % title )
+    # {{bots}}                  السماح لجميع البوتات
+    if not params:
+        Bot_Cache[botjob][title_page] = False
+        return False
+    else:
+        printe.output(f"botEdit.py title:({title}), params:({str(params)}).")
+        # for param in params:
+        # value = params[param]
+        # value = [ x.strip() for x in value.split(',') ]
+        # ---
+        # {{bots|allow=all}}      السماح لجميع البوتات
+        # {{bots|allow=none}}     منع جميع البوتات
+        allow = params.get("allow")
+        if allow:
+            value = [x.strip() for x in allow.split(",")]
+            # if param == 'allow':
+            # 'all' in value or edit_username[1] in value is True
+            sd = "all" in value or edit_username[1] in value
+            if not sd:
+                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+            else:
+                printe.output(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+            Bot_Cache[botjob][title_page] = sd
+            return sd
+            # ---
+        # ---
+        # {{bots|deny=all}}      منع جميع البوتات
+        deny = params.get("deny")
+        if deny:
+            value = [x.strip() for x in deny.split(",")]
+            # {{bots|deny=all}}
+            # if param == 'deny':
+            sd = "all" not in value and edit_username[1] not in value
+            if not sd:
+                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
+            Bot_Cache[botjob][title_page] = sd
+            return sd
+        # ---
+        # ---
+        # if param == 'allowscript':
+        # return ('all' in value or pywikibot.calledModuleName() in value)
+        # if param == 'denyscript':
+        # return not ('all' in value or pywikibot.calledModuleName() in value)
+        # ---
+    # ---
+    # no restricting template found
+    Bot_Cache[botjob][title_page] = True
+    # ---
+    return True
 
 def bot_May_Edit_do(text="", title_page="", botjob="all"):
     # ---
@@ -71,79 +149,16 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
             Bot_Cache[botjob][title_page] = False
             return False
         # ---
-        # if title == 'Nobots' or title == 'nobots':
-        if title.lower() in ["bots", "nobots"]:
-            # ---
-            # printe.output( '<<lightred>>botEdit.py title:(%s), params:(%s).' % ( title,str(params) ) )
-            # ---
-            if title.lower() == "nobots":
-                # ---
-                # {{nobots}}                منع جميع البوتات
-                # منع جميع البوتات
-                if not params:
-                    printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
-                    # printe.output( 'return False 2 ' )
-                    Bot_Cache[botjob][title_page] = False
-                    return False
-                elif params.get("1"):
-                    List = [x.strip() for x in params.get("1", "").split(",")]
-                    # if 'all' in List or pywikibot.calledModuleName() in List or edit_username[1] in List:
-                    if "all" in List or edit_username[1] in List:
-                        printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
-                        # printe.output( 'return False 3 ' )
-                        # Bot_Cache[title_page] = False
-                        Bot_Cache[botjob][title_page] = False
-                        return False
-            # ---
-            # {{bots|allow=<botlist>}}  منع جميع البوتات غير الموجودة في القائمة
-            # {{bots|deny=<botlist>}}   منع جميع البوتات الموجودة في القائمة
-            # ---
-            elif title.lower() == "bots":
-                # printe.output( 'title == (%s) ' % title )
-                # {{bots}}                  السماح لجميع البوتات
-                if not params:
-                    Bot_Cache[botjob][title_page] = False
-                    return False
-                else:
-                    printe.output(f"botEdit.py title:({title}), params:({str(params)}).")
-                    # for param in params:
-                    # value = params[param]
-                    # value = [ x.strip() for x in value.split(',') ]
-                    # ---
-                    # {{bots|allow=all}}      السماح لجميع البوتات
-                    # {{bots|allow=none}}     منع جميع البوتات
-                    allow = params.get("allow")
-                    if allow:
-                        value = [x.strip() for x in allow.split(",")]
-                        # if param == 'allow':
-                        # 'all' in value or edit_username[1] in value is True
-                        sd = "all" in value or edit_username[1] in value
-                        if not sd:
-                            printe.output(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
-                        else:
-                            printe.output(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
-                        Bot_Cache[botjob][title_page] = sd
-                        return sd
-                        # ---
-                    # ---
-                    # {{bots|deny=all}}      منع جميع البوتات
-                    deny = params.get("deny")
-                    if deny:
-                        value = [x.strip() for x in deny.split(",")]
-                        # {{bots|deny=all}}
-                        # if param == 'deny':
-                        sd = "all" not in value and edit_username[1] not in value
-                        if not sd:
-                            printe.output(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
-                        Bot_Cache[botjob][title_page] = sd
-                        return sd
-                    # ---
-                    # ---
-                    # if param == 'allowscript':
-                    # return ('all' in value or pywikibot.calledModuleName() in value)
-                    # if param == 'denyscript':
-                    # return not ('all' in value or pywikibot.calledModuleName() in value)
-                    # ---
+        # printe.output( '<<lightred>>botEdit.py title:(%s), params:(%s).' % ( title,str(params) ) )
+        # ---
+        if title.lower() == "nobots":
+            return _handle_nobots_template(params, title_page, botjob, _template)
+        # ---
+        # {{bots|allow=<botlist>}}  منع جميع البوتات غير الموجودة في القائمة
+        # {{bots|deny=<botlist>}}   منع جميع البوتات الموجودة في القائمة
+        # ---
+        elif title.lower() == "bots":
+            return _handle_bots_template(params, title_page, botjob, title)
     # ---
     # no restricting template found
     Bot_Cache[botjob][title_page] = True
