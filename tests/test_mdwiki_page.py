@@ -7,7 +7,7 @@ python3 core8/pwb.py newapi/tests/test_mdwiki_page
 """
 import sys
 
-sys.argv.append("printurl")
+# sys.argv.append("printurl")
 sys.argv.append("ask")
 
 from newapi.mdwiki_page import MainPage, CatDepth
@@ -26,6 +26,7 @@ save_page = page.save(newtext='', summary='', nocreate=1, minor='')
 create    = page.Create(text='', summary='')
 """
 # ---
+'''
 page = MainPage("Category:RTT", "www", family="mdwiki")
 # ---
 text = page.get_text()
@@ -40,17 +41,22 @@ page_backlinks = page.page_backlinks()
 print("---------------------------")
 print(f"{len(page_backlinks)=}")
 
+red = page.page_links()
+print(f"{len(red)=}")
+# ---
+'''
 # ---
 # hidden_categories= page.get_hidden_categories()
 # print('---------------------------')
 # print(f'hidden_categories:{hidden_categories}')
 # ---
-cat_members = CatDepth("RTT", sitecode="www", family="mdwiki", depth=0, ns="14")
+cat_members = CatDepth("RTT", sitecode="www", family="mdwiki", depth=3, ns="0")
 # ---
-print(f"{len(cat_members)=}")
+print(f"RTT: {len(cat_members)=}")
 # ---
-red = page.page_links()
-print(f"{len(red)=}")
+cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
+# ---
+print(f"RTTNEURO: {len(cat_members)=}")
 # ---
 # save = page.save(newtext='')
 # api_new = NEW_API('en', family='mdwiki')

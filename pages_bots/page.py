@@ -1,10 +1,10 @@
 """
-from newapi.page import MainPage, NEW_API, CatDepth, CatDepthLogin
+from newapi.page import MainPage, NEW_API, CatDepth
 
 Usage:
 
-from newapi.page import CatDepth, CatDepthLogin
-# CatDepthLogin(sitecode="en", family="wikipedia")
+from newapi.page import CatDepth
+
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], without_lang="", with_lang="", tempyes=[])
 
 from newapi.page import MainPage, NEW_API
@@ -69,9 +69,7 @@ catdepth_new.add_Usertables(User_tables, "wikidata")
 NEW_API = bot_api.NEW_API
 MainPage = super_page.MainPage
 change_codes = super_page.change_codes
-CategoryDepth = catdepth_new.CategoryDepth
 CatDepth = catdepth_new.subcatquery
-CatDepthLogin = catdepth_new.login_wiki
 
 __all__ = [
     'home_dir',
@@ -79,7 +77,5 @@ __all__ = [
     'MainPage',
     'NEW_API',
     'CatDepth',
-    'CatDepthLogin',
-    'CategoryDepth',
     'change_codes',
 ]

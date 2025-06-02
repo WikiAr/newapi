@@ -1,7 +1,7 @@
 # ---
 """
-from newapi.mdwiki_page import MainPage as md_MainPage, CatDepth, CatDepthLogin
-# CatDepthLogin(sitecode="en", family="wikipedia")
+from newapi.mdwiki_page import MainPage as md_MainPage, CatDepth
+
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], onlyns=False, without_lang="", with_lang="", tempyes=[])
 
 # from newapi.mdwiki_page import MainPage as md_MainPage
@@ -47,6 +47,7 @@ if "mwclient" not in sys.argv:
 
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
+
 from ..super.S_Category import catdepth_new
 
 from ..accounts import user_account_new
@@ -72,9 +73,7 @@ MainPage = super_page.MainPage
 md_MainPage = super_page.MainPage
 
 change_codes = super_page.change_codes
-CategoryDepth = catdepth_new.CategoryDepth
 CatDepth = catdepth_new.subcatquery
-CatDepthLogin = catdepth_new.login_wiki
 # ---
 # xxxxxxxxxxx
 home_dir = os.getenv("HOME")
@@ -86,7 +85,5 @@ __all__ = [
     'md_MainPage',
     'NEW_API',
     'CatDepth',
-    'CatDepthLogin',
-    'CategoryDepth',
     'change_codes',
 ]

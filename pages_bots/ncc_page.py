@@ -1,8 +1,8 @@
 # ---
 """
 
-from newapi.ncc_page import CatDepth, CatDepthLogin
-# CatDepthLogin(sitecode="www", family="nccommons")
+from newapi.ncc_page import CatDepth
+
 # cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
 
 from newapi.ncc_page import MainPage as ncc_MainPage
@@ -92,9 +92,7 @@ MainPage = super_page.MainPage
 ncc_MainPage = super_page.MainPage
 # ---
 change_codes = super_page.change_codes
-CategoryDepth = catdepth_new.CategoryDepth
 CatDepth = catdepth_new.subcatquery
-CatDepthLogin = catdepth_new.login_wiki
 # ---
 # xxxxxxxxxxx
 home_dir = os.getenv("HOME")
@@ -106,7 +104,5 @@ __all__ = [
     'MainPage',
     'NEW_API',
     'CatDepth',
-    'CatDepthLogin',
-    'CategoryDepth',
     'change_codes',
 ]
