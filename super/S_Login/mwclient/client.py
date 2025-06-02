@@ -12,7 +12,7 @@ from . import errors
 from . import listing
 from .sleep import Sleepers
 from .util import parse_timestamp, read_in_chunks, handle_limit
-from newapi.super.Login_db.bot import log_one
+from ...Login_db.bot import log_one
 
 __version__ = '0.11.0'
 
@@ -586,7 +586,8 @@ class Site:
                 u_action += "_" + data['type']
 
         try:
-            data = json.loads(res, object_pairs_hook=OrderedDict)
+            # data = json.loads(res, object_pairs_hook=OrderedDict)
+            data = json.loads(res)
             # ---
             self.log_error("success", u_action)
             # ---

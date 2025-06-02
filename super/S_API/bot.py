@@ -1,11 +1,11 @@
 """
 
-from newapi.super.S_API.bot import BOTS_APIS
+from .super.S_API.bot import BOTS_APIS
 
 """
 import sys
-from newapi import printe
-from newapi.super.handel_errors import HANDEL_ERRORS
+from ...api_utils import printe
+from ..handel_errors import HANDEL_ERRORS
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 Save_Edit_Pages = {1: False}

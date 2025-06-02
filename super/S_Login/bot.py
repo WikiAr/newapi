@@ -1,28 +1,30 @@
 """
 
-from newapi.super.S_Login.bot import LOGIN_HELPS
+from .super.S_Login.bot import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
 """
 import sys
 import os
-import copy
 import requests
 from http.cookiejar import MozillaCookieJar
 
-from newapi import printe
-from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
-from newapi.except_err import exception_err
-from newapi.super.S_Login.params_help import PARAMS_HELPS
-from newapi.super.Login_db.bot import log_one
+from ...api_utils import printe
+from .cookies_bot import get_file_name, del_cookies_file
+from ...api_utils.except_err import exception_err
+from .params_help import PARAMS_HELPS
+from ..Login_db.bot import log_one
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
 users_by_lang = {}
 logins_count = {1: 0}
-
 User_tables = {}
+
+botname = "newapi"
+if __file__.find("wikiapi_new") != -1:
+    botname = "wikiapi_new"
 
 def add_Usertables(table, family):
     User_tables[family] = table
@@ -116,8 +118,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         Bot_passwords = self.password.find("@") != -1
         logins_count[1] += 1
-        printe.output(f"<<{color}>> newapi/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
-        printe.output(f"newapi/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
+        printe.output(f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
+        printe.output(f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
 
         logintoken = self.get_logintoken()
 
@@ -140,7 +142,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             "type": "login",
         }
 
-        # WARNING: /data/project/himo/core/bots/newapi/page.py:101: UserWarning: Exception:502 Server Error: Server Hangup for url: https://ar.wikipedia.org/w/api.php
+        # WARNING: /data/project/himo/core/bots/{botname}/page.py:101: UserWarning: Exception:502 Server Error: Server Hangup for url: https://ar.wikipedia.org/w/api.php
 
         try:
             r11 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r1_params, headers=self.headers)
@@ -148,7 +150,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(r11.status_code, "logintoken")
             # ---
             if not str(r11.status_code).startswith("2"):
-                printe.output(f"<<red>> newapi {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                printe.output(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
             # ---
         except Exception as e:
             exception_err(e)
@@ -299,7 +301,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(req0.status_code, action)
             # ---
             if not str(req0.status_code).startswith("2"):
-                printe.output(f"<<red>> newapi {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
 
     def raw_request(self, params, files=None, timeout=30) -> any or None:
         # ---
@@ -382,7 +384,6 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         if req0.headers and req0.headers.get("x-database-lag"):
             printe.output("<<red>> x-database-lag.. ")
-
             print(req0.headers)
             # raise
         # ---
@@ -405,6 +406,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
             code = error.get("code", "")
             # ---
             if code == "assertnameduserfailed":
+                # ---
+                print("assertnameduserfailed" * 10)
                 # ---
                 del_cookies_file(self.cookies_file)
                 # ---

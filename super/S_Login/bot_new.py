@@ -1,6 +1,6 @@
 """
 
-from newapi.super.S_Login.bot_new import LOGIN_HELPS
+from .super.S_Login.bot_new import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
@@ -11,16 +11,17 @@ import copy
 import requests
 from http.cookiejar import MozillaCookieJar
 
-from newapi import printe
-from newapi.super.S_Login.cookies_bot import get_file_name, del_cookies_file
-from newapi.except_err import exception_err
-from newapi.super.S_Login.params_help import PARAMS_HELPS
-from newapi.super.Login_db.bot import log_one
+from ...api_utils import printe
+from ...api_utils.except_err import exception_err
+from .cookies_bot import get_file_name, del_cookies_file
+
+from .params_help import PARAMS_HELPS
+from ..Login_db.bot import log_one
 
 # import mwclient
 
 # from mwclient.client import Site
-from newapi.super.S_Login.mwclient.client import Site
+from .mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
 users_by_lang = {}
@@ -80,7 +81,7 @@ class MwClientSite:
         self.connection = requests.Session()
 
         self.connection.headers["User-Agent"] = default_user_agent()
-
+        # ---
         if os.path.exists(cookies_file) and self.family != "mdwiki":
             # printe.output("<<yellow>>loading cookies")
             try:
@@ -105,6 +106,7 @@ class MwClientSite:
     def do_login(self):
 
         if not self.force_login:
+            printe.output("<<red>> do_login(): not self.force_login ")
             return
 
         if not self.site_mwclient:
@@ -114,10 +116,12 @@ class MwClientSite:
         if not self.site_mwclient.logged_in:
             logins_count[1] += 1
             printe.output(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
+            # ---
             try:
                 login_result = self.site_mwclient.login(username=self.username, password=self.password)
 
                 self.log_error(login_result, "login")
+                self.login_done = True
 
             except Exception as e:
                 printe.output(f"Could not login to ({self.domain}): %s" % e)
@@ -132,7 +136,6 @@ class MwClientSite:
         # ---
         if not self.login_done:
             self.do_login()
-            self.login_done = True
         # ---
         params = copy.deepcopy(params)
         # ---

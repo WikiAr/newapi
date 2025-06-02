@@ -1,13 +1,14 @@
 """
 
-from newapi.super.S_Login.cookies_bot import get_cookies
+from .super.S_Login.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """
+import sys
 import os
 import stat
 from pathlib import Path
-from newapi import printe
+from ...api_utils import printe
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
 tool = os.getenv("HOME")
@@ -42,6 +43,10 @@ def del_cookies_file(file_path):
 
 
 def get_file_name(lang, family, username):
+    # ---
+    if "nocookies" in sys.argv:
+        randome = os.urandom(8).hex()
+        return ta_dir /f"{randome}.txt"
     # ---
     lang = lang.lower()
     family = family.lower()
