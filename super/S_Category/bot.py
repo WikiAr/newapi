@@ -73,7 +73,7 @@ class CategoryDepth(Login, BOTS_APIS):
         # ---
         kwargs["title"] = title
         # ---
-        self.prase_prams(**kwargs)
+        self.prase_params(**kwargs)
 
     def get_revids(self):
         return self.revids
@@ -81,7 +81,7 @@ class CategoryDepth(Login, BOTS_APIS):
     def get_len_pages(self):
         return self.len_pages
 
-    def prase_prams(self, **kwargs):
+    def prase_params(self, **kwargs):
         # ---
         if not kwargs:
             return
@@ -331,7 +331,7 @@ class CategoryDepth(Login, BOTS_APIS):
 
     def subcatquery_(self, **kwargs):
         # ---
-        self.prase_prams(**kwargs)
+        self.prase_params(**kwargs)
         # ---
         tablemember = self.get_cat_new(self.title)
         # ---
