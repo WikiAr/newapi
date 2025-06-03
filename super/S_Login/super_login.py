@@ -28,7 +28,10 @@ from ...api_utils.except_err import warn_err
 # else:
 #     from .bot_new import LOGIN_HELPS
 
-from .bot import LOGIN_HELPS
+if "mwclient" in sys.argv:
+    from .bot_new import LOGIN_HELPS
+else:
+    from .bot import LOGIN_HELPS
 
 file_name = os.path.basename(__file__)
 print_test = {1: False}
