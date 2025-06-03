@@ -76,12 +76,13 @@ def log_one(site, user, result, action="", params={}):
     # ---
     params = params or {}
     # ---
-    if params.get('meta', "") == "tokens":
-        action = "tokens"
-        if params.get('type'):
-            action += "_" + params['type']
-    elif params.get('meta', "").find("userinfo") != -1:
-        action = "userinfo"
+    if action == "query":
+        if params.get('meta', "") == "tokens":
+            action = "tokens"
+            if params.get('type'):
+                action += "_" + params['type']
+        elif params.get('meta', "").find("userinfo") != -1:
+            action = "userinfo"
     # ---
     # if params.get('meta', "").find("userinfo") != -1:
     #     userinfo += 1
