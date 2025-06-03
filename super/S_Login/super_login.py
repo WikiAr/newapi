@@ -23,10 +23,15 @@ from ...api_utils import printe
 from ..handel_errors import HANDEL_ERRORS
 from ...api_utils.except_err import warn_err
 
-if "nomwclient" in sys.argv:
-    from .bot import LOGIN_HELPS
-else:
+# if "nomwclient" in sys.argv:
+#     from .bot import LOGIN_HELPS
+# else:
+#     from .bot_new import LOGIN_HELPS
+
+if "mwclient" in sys.argv:
     from .bot_new import LOGIN_HELPS
+else:
+    from .bot import LOGIN_HELPS
 
 file_name = os.path.basename(__file__)
 print_test = {1: False}

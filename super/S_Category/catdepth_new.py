@@ -46,18 +46,19 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
         printe.output(f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}")
     # ---
     start = time.time()
-    final = time.time()
     # ---
     for k, v in kwargs.items():
         if k not in args2 or args2[k] is None:
             args2[k] = v
     # ---
-    if cat_bots_login.get(sitecode + family):
-        bot = cat_bots_login[sitecode + family]
+    cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
+    # ---
+    if cat_bots_login.get(cache_key):
+        bot = cat_bots_login[cache_key]
     else:
         bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
         # ---
-        cat_bots_login[sitecode + family] = bot
+        cat_bots_login[cache_key] = bot
     # ---
     result = bot.subcatquery_(**args2)
     # ---

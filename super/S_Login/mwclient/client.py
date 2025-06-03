@@ -365,8 +365,8 @@ class Site:
         self.handle_api_result(info)#, sleeper=sleeper
         return info
 
-    def log_error(self, result, action) -> None:
-        log_one(site=self.host, user=self.username, result=result, action=action)
+    def log_error(self, result, action, params=None) -> None:
+        log_one(site=self.host, user=self.username, result=result, action=action, params=params)
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if
@@ -577,24 +577,16 @@ class Site:
         data = self._query_string(*args, **kwargs)
         res = self.raw_call('api', data, retry_on_error=retry_on_error,
                             http_method=http_method)
-
-        u_action = action
-        if data.get('meta') == "tokens":
-
-            u_action = "tokens"
-            if data.get('type'):
-                u_action += "_" + data['type']
-
         try:
             # data = json.loads(res, object_pairs_hook=OrderedDict)
-            data = json.loads(res)
+            data2 = json.loads(res)
             # ---
-            self.log_error("success", u_action)
+            self.log_error("success", action, params=data)
             # ---
-            return data
+            return data2
 
         except ValueError:
-            self.log_error("ValueError", u_action)
+            self.log_error("ValueError", action, params=data)
             # ---
             if res.startswith('MediaWiki API is not enabled for this site.'):
                 print(errors.APIDisabledError)

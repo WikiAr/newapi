@@ -94,7 +94,7 @@ class NEW_API(Login, BOTS_APIS):
         self.cxtoken_expiration = 0
         self.cxtoken = ""
         # ---
-        if User_tables != {}:
+        if User_tables:
             for f, tab in User_tables.items():
                 self.add_User_tables(f, tab)
 

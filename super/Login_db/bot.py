@@ -9,7 +9,7 @@ from newapi.super.Login_db.bot2 import log_one
 import os
 import datetime
 from configparser import ConfigParser
-
+from ...api_utils import printe
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
 
 def local_host():
@@ -69,8 +69,33 @@ def jls_extract_def():
 
 main_args, credentials = jls_extract_def()
 
-def log_one(site, user, result, action=""):
+userinfo = 0
 
+def log_one(site, user, result, action="", params={}):
+    # global userinfo
+    # ---
+    params = params or {}
+    # ---
+    if action == "query":
+        if params.get('meta', "") == "tokens":
+            action = "tokens"
+            if params.get('type'):
+                action += "_" + params['type']
+        elif params.get('meta', "").find("userinfo") != -1:
+            action = "userinfo"
+    # ---
+    # if params.get('meta', "").find("userinfo") != -1:
+    #     userinfo += 1
+    #     if userinfo > 3:
+    #         raise Exception("too much")
+    # ---
+    if action == "query" and params.get('prop'):
+        action += "_" + "_".join(params['prop'].split("|"))
+    # ---
+    if action == "query":
+        printe.output(f"<<yellow>> {action=}")
+        print(dict(params))
+    # ---
     # Create table query
     _create_table_query = """
         CREATE TABLE IF NOT EXISTS login_attempts (
