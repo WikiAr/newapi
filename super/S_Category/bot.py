@@ -47,7 +47,7 @@ class CategoryDepth(Login, BOTS_APIS):
         # ---
         super().__init__(sitecode, family)
         # ---
-        if User_tables != {}:
+        if User_tables:
             for f, tab in User_tables.items():
                 self.add_User_tables(f, tab)
         # ---
