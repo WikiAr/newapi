@@ -62,8 +62,8 @@ class MwClientSite:
         self.connection = None
         # self._start_()
 
-    def log_error(self, result, action) -> None:
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action)
+    def log_error(self, result, action, params=None) -> None:
+        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
 
     def _start_(self, username, password):
         self.username = username
@@ -161,7 +161,7 @@ class MwClientSite:
 
         except Exception as e:
             # ---
-            self.log_error("Exception", action)
+            self.log_error("Exception", action, params=params)
             # ---
             if "text" in params:
                 params["text"] = params["text"][:100]
