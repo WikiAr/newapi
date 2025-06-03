@@ -72,7 +72,7 @@ main_args, credentials = jls_extract_def()
 userinfo = 0
 
 def log_one(site, user, result, action="", params={}):
-    global userinfo
+    # global userinfo
     # ---
     params = params or {}
     # ---
@@ -83,10 +83,10 @@ def log_one(site, user, result, action="", params={}):
     elif params.get('meta', "").find("userinfo") != -1:
         action = "userinfo"
     # ---
-    if params.get('meta', "").find("userinfo") != -1:
-        userinfo += 1
-        if userinfo > 3:
-            raise Exception("too much")
+    # if params.get('meta', "").find("userinfo") != -1:
+    #     userinfo += 1
+    #     if userinfo > 3:
+    #         raise Exception("too much")
     # ---
     if action == "query" and params.get('prop'):
         action += "_" + "_".join(params['prop'].split("|"))
