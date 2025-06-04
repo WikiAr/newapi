@@ -34,3 +34,16 @@ my_password = lgpass_enwiki
 qs_token = config["DEFAULT"].get("qs_token", "")
 
 user_agent = config["DEFAULT"].get("user_agent", "")
+
+User_tables = {
+    "username": my_username,
+    "password": mdwiki_pass,
+}
+
+User_tables_wiki = {
+    "username": bot_username,
+    "password": bot_password,
+}
+
+SITECODE = "www"
+FAMILY = "mdwiki"

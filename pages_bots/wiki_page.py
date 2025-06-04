@@ -27,52 +27,50 @@ from newapi.wiki_page import MainPage, NEW_API
 import os
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
-from ..accounts import user_account_new as useraccount
-from ..super.S_Page.page_wrap import MainPageWrap
+
+from ..super.S_Page import super_page
+from ..super.S_Login.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
 
+from ..accounts.user_account_new import User_tables_wiki
+
 home_dir = os.getenv("HOME")
-tool = home_dir.split("/")[-1] if home_dir else None
 # ---
-pyy_file = __file__.replace("\\", "/").split("/")[-1]
+User_tables = User_tables_wiki
 # ---
-# User_tables = {
-#     "username": useraccount.my_username,
-#     "password": useraccount.my_password,
-# }
-# ---
-# if "botuser" in sys.argv:
-User_tables = {
-    "username": useraccount.bot_username,
-    "password": useraccount.bot_password,
-}
-# ---
-print(f"{pyy_file} use {User_tables['username']} account.")
+print(f"wiki_page.py use {User_tables['username']} account.")
 # ---
 user_agent = default_user_agent()
 # ---
 bot_api.add_Usertables(User_tables, "wikipedia")
-catdepth_new.add_Usertables(User_tables, "wikipedia")
-# ---
 bot_api.add_Usertables(User_tables, "wikidata")
-catdepth_new.add_Usertables(User_tables, "wikidata")
-# ---
-# super_page.add_Usertables(User_tables, "wikipedia")
-# super_page.add_Usertables(User_tables, "wikidata")
 # ---
 NEW_API = bot_api.NEW_API
 change_codes = lang_codes.change_codes
-CatDepth = catdepth_new.subcatquery
+# CatDepth = catdepth_new.subcatquery
 
-cat_bots_login = {}
+logins_cache = {}
 
 def MainPage(title, lang, family="wikipedia"):
     # ---
-    page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables)
-    cat_bots_login.update(cat_bots_login2)
+    login_bot, logins_cache2 = LoginWrap(title, lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
     return page
+
+def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(title, sitecode, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
 
 __all__ = [
     'home_dir',

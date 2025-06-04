@@ -13,7 +13,6 @@ from .bot import CategoryDepth
 SITECODE = "en"
 FAMILY = "wikipedia"
 
-cat_bots_login = {}
 hases = {}
 
 def add_Usertables(table, family):

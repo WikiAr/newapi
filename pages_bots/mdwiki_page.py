@@ -48,45 +48,43 @@ if "mwclient" not in sys.argv:
     print("sys.argv.append('nomwclient')")
 
 from ..super.S_API import bot_api
-from ..super.S_Page.page_wrap import MainPageWrap
 from ..super.S_Category import catdepth_new
-from ..accounts import user_account_new
+from ..super.S_Page import super_page
+from ..super.S_Login.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
 
-# catdepth_new.SITECODE = "www"
-# catdepth_new.FAMILY = "mdwiki"
-
-# ---
-User_tables_x = {
-    "username": user_account_new.my_username,
-    "password": user_account_new.mdwiki_pass,
-}
+from ..accounts.user_account_new import User_tables, SITECODE, FAMILY
 # ---
 user_agent = default_user_agent()
 # ---
-# super_page.add_Usertables(User_tables_x, "mdwiki")
-bot_api.add_Usertables(User_tables_x, "mdwiki")
-catdepth_new.add_Usertables(User_tables_x, "mdwiki")
+bot_api.add_Usertables(User_tables, FAMILY)
 # ---
 NEW_API = bot_api.NEW_API
-
-# MainPage = super_page.MainPage
-# md_MainPage = super_page.MainPage
-
 change_codes = lang_codes.change_codes
-CatDepth = catdepth_new.subcatquery
-# ---
-# xxxxxxxxxxx
+# CatDepth = catdepth_new.subcatquery
 
-cat_bots_login = {}
+logins_cache = {}
 
-def MainPage(title, lang, family="wikipedia"):
+def MainPage(title, lang, family=FAMILY):
     # ---
-    page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables_x)
-    cat_bots_login.update(cat_bots_login2)
+    login_bot, logins_cache2 = LoginWrap(title, lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
     return page
+
+def CatDepth(title, sitecode=SITECODE, family=FAMILY, **kwargs):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(title, sitecode, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
 
 md_MainPage = MainPage
 

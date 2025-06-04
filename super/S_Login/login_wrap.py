@@ -2,8 +2,8 @@
 
 from ..super.S_Login.login_wrap import LoginWrap
 
-# login_bot, cat_bots_login2 = LoginWrap(title, sitecode, family, bots_login_cache, User_tables)
-# bots_login_cache.update(cat_bots_login2)
+# login_bot, catbots_login2 = LoginWrap(title, sitecode, family, bots_login_cache, User_tables)
+# bots_login_cache.update(catbots_login2)
 
 """
 from ...api_utils import printe
