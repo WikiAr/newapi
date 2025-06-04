@@ -15,51 +15,9 @@ class PAGE_APIS(HANDEL_ERRORS):
         self.family = getattr(self, "family", "")
         self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
         # ---
-        self.is_Disambig = getattr(self, "is_Disambig", False)
-        self.can_be_edit = getattr(self, "can_be_edit", False)
-        self.ns = getattr(self, "ns", False)
-        # ---
-        self.userinfo = getattr(self, "userinfo", {})
-        self.create_data = getattr(self, "create_data", {})
-        self.info = getattr(self, "info", {})
-        # ---
-        self.username = getattr(self, "username", "")
-        self.Exists = getattr(self, "Exists", "")
-        self.is_redirect = getattr(self, "is_redirect", "")
-        self.flagged = getattr(self, "flagged", "")
-        # ---
-        self.wikibase_item = getattr(self, "wikibase_item", "")
-        self.text = getattr(self, "text", "")
-        self.text_html = getattr(self, "text_html", "")
-        # ---
-        self.touched = getattr(self, "touched", "")
-        self.revid = getattr(self, "revid", "")
-        self.newrevid = getattr(self, "newrevid", "")
-        # ---
-        self.pageid = getattr(self, "pageid", "")
-        self.user = getattr(self, "user", "")
-        # ---
-        self.timestamp = getattr(self, "timestamp", "")
-        self.summary = getattr(self, "summary", "")
-        self.newtext = getattr(self, "newtext", "")
-        # ---
         self.revisions = getattr(self, "revisions", [])
         self.back_links = getattr(self, "back_links", [])
-        self.extlinks = getattr(self, "extlinks", [])
         self.links = getattr(self, "links", [])
-        self.iwlinks = getattr(self, "iwlinks", [])
-        self.links_here = getattr(self, "links_here", [])
-        # ---
-        self.categories = getattr(self, "categories", {})
-        self.hidden_categories = getattr(self, "hidden_categories", {})
-        self.all_categories_with_hidden = getattr(self, "all_categories_with_hidden", {})
-        # ---
-        self.langlinks = getattr(self, "langlinks", {})
-        self.templates = getattr(self, "templates", {})
-        self.templates_API = getattr(self, "templates_API", {})
-        # ---
-        self.words = getattr(self, "words", 0)
-        self.length = getattr(self, "length", 0)
         # ---
         super().__init__()
 
