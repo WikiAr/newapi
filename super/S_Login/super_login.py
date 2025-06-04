@@ -13,7 +13,6 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 # ----
 
 """
-import os
 import copy
 import sys
 import time
@@ -34,10 +33,7 @@ if "mwclient" in sys.argv:
 else:
     from .bot import LOGIN_HELPS
 
-file_name = os.path.basename(__file__)
 print_test = {1: "test" in sys.argv}
-User_tables = {"mdwiki": {}, "wikidata": {}, "wikipedia": {}, "nccommons": {}}
-seasons_by_lang = {}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
 

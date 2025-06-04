@@ -29,16 +29,16 @@ from newapi.page import MainPage, NEW_API
 import os
 import sys
 from ..super.S_API import bot_api
-from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
-from ..accounts import useraccount
+
+from ..super.S_Page import super_page
+from ..super.S_Login.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
 
+from ..accounts import useraccount
+
 home_dir = os.getenv("HOME")
-tool = home_dir.split("/")[-1] if home_dir else None
-# ---
-pyy_file = __file__.replace("\\", "/").split("/")[-1]
 # ---
 User_tables = {
     "username": useraccount.username,
@@ -50,28 +50,46 @@ if "workibrahem" in sys.argv:
         "username": useraccount.hiacc,
         "password": useraccount.hipass,
     }
-    super_page.Edit_summary_line[1] = " -Edit summary: %s: (will be removed)"
     # ---
-    print(f"{pyy_file} use {User_tables['username']} account.")
+    print(f"page.py use {User_tables['username']} account.")
 # ---
 user_agent = default_user_agent()
 # ---
-super_page.add_Usertables(User_tables, "wikipedia")
-bot_api.add_Usertables(User_tables, "wikipedia")
-catdepth_new.add_Usertables(User_tables, "wikipedia")
-# ---
-super_page.add_Usertables(User_tables, "wikisource")
-bot_api.add_Usertables(User_tables, "wikisource")
-catdepth_new.add_Usertables(User_tables, "wikisource")
-# ---
-super_page.add_Usertables(User_tables, "wikidata")
-bot_api.add_Usertables(User_tables, "wikidata")
-catdepth_new.add_Usertables(User_tables, "wikidata")
-# ---
-NEW_API = bot_api.NEW_API
-MainPage = super_page.MainPage
 change_codes = lang_codes.change_codes
-CatDepth = catdepth_new.subcatquery
+
+logins_cache = {}
+
+def log_it(lang, family):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    return login_bot
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
+
+def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
+    # ---
+    login_bot = log_it(sitecode, family)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
+
+def NEW_API(lang="", family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    result = bot_api.NEW_API(login_bot, lang=lang, family=family)
+    # ---
+    return result
 
 __all__ = [
     'home_dir',

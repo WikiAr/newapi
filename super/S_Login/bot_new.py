@@ -24,26 +24,20 @@ from ...api_utils.user_agent import default_user_agent
 from .mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
-users_by_lang = {}
 logins_count = {1: 0}
-
-User_tables = {}
-
-def add_Usertables(table, family):
-    User_tables[family] = table
 
 class MwClientSite:
     def __init__(self, lang, family):
         self.lang = lang
         self.family = family
-        self.username = getattr(self, "username") if hasattr(self, "username") else None
+        self.username = getattr(self, "username", None)
         self.password = None
         # ---
         self.login_done = False
         # ---
         self.force_login = "nologin" not in sys.argv
         self.user_agent = default_user_agent()
-        self.domain = getattr(self, "domain") if hasattr(self, "domain") else ""
+        self.domain = getattr(self, "domain", "")
 
         self.site_mwclient = None
         self.jar_cookie = None
@@ -169,12 +163,12 @@ class MwClientSite:
 class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def __init__(self) -> None:
         # ---
-        self.family = getattr(self, "family") if hasattr(self, "family") else ""
-        self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
+        self.family = getattr(self, "family", "")
+        self.lang = getattr(self, "lang", "")
         # ---
-        self.cookies_file = getattr(self, "cookies_file") if hasattr(self, "cookies_file") else ""
+        self.cookies_file = getattr(self, "cookies_file", "")
         # ---
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        self.username = getattr(self, "username", "")
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
@@ -184,7 +178,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
-        langx = getattr(self, "lang") if hasattr(self, "lang") else lang
+        langx = self.lang
         # ---
         # for example family=toolforge, lang in (medwiki, mdwikicx)
         if lang and not self.family.startswith("wik"):
@@ -197,8 +191,6 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             # ---
             if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
-                # ---
-                User_tables[family] = table
                 # ---
                 self.username = table["username"]
                 self.password = table["password"]

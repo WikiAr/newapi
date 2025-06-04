@@ -24,12 +24,8 @@ from ...api_utils.user_agent import default_user_agent
 seasons_by_lang = {}
 users_by_lang = {}
 logins_count = {1: 0}
-User_tables = {}
 
 botname = "newapi"
-
-def add_Usertables(table, family):
-    User_tables[family] = table
 
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
@@ -38,10 +34,10 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.session = requests.Session()
         # ---
         # check if self has username before writeself.username = ""
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
-        self.family = getattr(self, "family") if hasattr(self, "family") else ""
-        self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
-        self.endpoint = getattr(self, "endpoint") if hasattr(self, "endpoint") else f"https://{self.lang}.{self.family}.org/w/api.php"
+        self.username = getattr(self, "username", "")
+        self.family = getattr(self, "family", "")
+        self.lang = getattr(self, "lang", "")
+        self.endpoint = getattr(self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php")
         # ---
         self.password = ""
         self.username_in = ""
@@ -72,8 +68,6 @@ class LOGIN_HELPS(PARAMS_HELPS):
             # ---
             if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
-                # ---
-                User_tables[family] = table
                 # ---
                 self.username = table["username"]
                 self.password = table["password"]
