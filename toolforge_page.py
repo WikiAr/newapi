@@ -6,7 +6,7 @@ from .pages_bots.toolforge_page import (
     # super_page,
     catdepth_new,
     MainPage,
-    add_Usertables,
+    add_User_table,
     CatDepth,
 )
 
@@ -15,6 +15,6 @@ __all__ = [
     # "super_page",
     "catdepth_new",
     "MainPage",
-    "add_Usertables",
+    "add_User_table",
     "CatDepth",
 ]

@@ -15,9 +15,6 @@ FAMILY = "wikipedia"
 
 hases = {}
 
-def add_Usertables(table, family):
-    return
-
 def title_process(title, sitecode):
     # ---
     prefixes = {"ar": "تصنيف:", "en": "Category:", "www": "Category:"}

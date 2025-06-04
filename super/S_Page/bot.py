@@ -10,56 +10,56 @@ class PAGE_APIS(HANDEL_ERRORS):
         # print("class PAGE_APIS:")
         self.login_bot = login_bot
         # ---
-        self.title = getattr(self, "title") if hasattr(self, "title") else ""
-        self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
-        self.family = getattr(self, "family") if hasattr(self, "family") else ""
+        self.title = getattr(self, "title", "")
+        self.lang = getattr(self, "lang", "")
+        self.family = getattr(self, "family", "")
         self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
         # ---
-        self.is_Disambig = getattr(self, "is_Disambig") if hasattr(self, "is_Disambig") else False
-        self.can_be_edit = getattr(self, "can_be_edit") if hasattr(self, "can_be_edit") else False
-        self.ns = getattr(self, "ns") if hasattr(self, "ns") else False
+        self.is_Disambig = getattr(self, "is_Disambig", False)
+        self.can_be_edit = getattr(self, "can_be_edit", False)
+        self.ns = getattr(self, "ns", False)
         # ---
-        self.userinfo = getattr(self, "userinfo") if hasattr(self, "userinfo") else {}
-        self.create_data = getattr(self, "create_data") if hasattr(self, "create_data") else {}
-        self.info = getattr(self, "info") if hasattr(self, "info") else {}
+        self.userinfo = getattr(self, "userinfo", {})
+        self.create_data = getattr(self, "create_data", {})
+        self.info = getattr(self, "info", {})
         # ---
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
-        self.Exists = getattr(self, "Exists") if hasattr(self, "Exists") else ""
-        self.is_redirect = getattr(self, "is_redirect") if hasattr(self, "is_redirect") else ""
-        self.flagged = getattr(self, "flagged") if hasattr(self, "flagged") else ""
+        self.username = getattr(self, "username", "")
+        self.Exists = getattr(self, "Exists", "")
+        self.is_redirect = getattr(self, "is_redirect", "")
+        self.flagged = getattr(self, "flagged", "")
         # ---
-        self.wikibase_item = getattr(self, "wikibase_item") if hasattr(self, "wikibase_item") else ""
-        self.text = getattr(self, "text") if hasattr(self, "text") else ""
-        self.text_html = getattr(self, "text_html") if hasattr(self, "text_html") else ""
+        self.wikibase_item = getattr(self, "wikibase_item", "")
+        self.text = getattr(self, "text", "")
+        self.text_html = getattr(self, "text_html", "")
         # ---
-        self.touched = getattr(self, "touched") if hasattr(self, "touched") else ""
-        self.revid = getattr(self, "revid") if hasattr(self, "revid") else ""
-        self.newrevid = getattr(self, "newrevid") if hasattr(self, "newrevid") else ""
+        self.touched = getattr(self, "touched", "")
+        self.revid = getattr(self, "revid", "")
+        self.newrevid = getattr(self, "newrevid", "")
         # ---
-        self.pageid = getattr(self, "pageid") if hasattr(self, "pageid") else ""
-        self.user = getattr(self, "user") if hasattr(self, "user") else ""
+        self.pageid = getattr(self, "pageid", "")
+        self.user = getattr(self, "user", "")
         # ---
-        self.timestamp = getattr(self, "timestamp") if hasattr(self, "timestamp") else ""
-        self.summary = getattr(self, "summary") if hasattr(self, "summary") else ""
-        self.newtext = getattr(self, "newtext") if hasattr(self, "newtext") else ""
+        self.timestamp = getattr(self, "timestamp", "")
+        self.summary = getattr(self, "summary", "")
+        self.newtext = getattr(self, "newtext", "")
         # ---
-        self.revisions = getattr(self, "revisions") if hasattr(self, "revisions") else []
-        self.back_links = getattr(self, "back_links") if hasattr(self, "back_links") else []
-        self.extlinks = getattr(self, "extlinks") if hasattr(self, "extlinks") else []
-        self.links = getattr(self, "links") if hasattr(self, "links") else []
-        self.iwlinks = getattr(self, "iwlinks") if hasattr(self, "iwlinks") else []
-        self.links_here = getattr(self, "links_here") if hasattr(self, "links_here") else []
+        self.revisions = getattr(self, "revisions", [])
+        self.back_links = getattr(self, "back_links", [])
+        self.extlinks = getattr(self, "extlinks", [])
+        self.links = getattr(self, "links", [])
+        self.iwlinks = getattr(self, "iwlinks", [])
+        self.links_here = getattr(self, "links_here", [])
         # ---
-        self.categories = getattr(self, "categories") if hasattr(self, "categories") else {}
-        self.hidden_categories = getattr(self, "hidden_categories") if hasattr(self, "hidden_categories") else {}
-        self.all_categories_with_hidden = getattr(self, "all_categories_with_hidden") if hasattr(self, "all_categories_with_hidden") else {}
+        self.categories = getattr(self, "categories", {})
+        self.hidden_categories = getattr(self, "hidden_categories", {})
+        self.all_categories_with_hidden = getattr(self, "all_categories_with_hidden", {})
         # ---
-        self.langlinks = getattr(self, "langlinks") if hasattr(self, "langlinks") else {}
-        self.templates = getattr(self, "templates") if hasattr(self, "templates") else {}
-        self.templates_API = getattr(self, "templates_API") if hasattr(self, "templates_API") else {}
+        self.langlinks = getattr(self, "langlinks", {})
+        self.templates = getattr(self, "templates", {})
+        self.templates_API = getattr(self, "templates_API", {})
         # ---
-        self.words = getattr(self, "words") if hasattr(self, "words") else 0
-        self.length = getattr(self, "length") if hasattr(self, "length") else 0
+        self.words = getattr(self, "words", 0)
+        self.length = getattr(self, "length", 0)
         # ---
         super().__init__()
 

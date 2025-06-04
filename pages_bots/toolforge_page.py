@@ -6,7 +6,7 @@ User_tables_md = {
     "password": medwiki_account.password,
 }
 # ---
-toolforge_page.add_Usertables(User_tables_md, "toolforge", "medwiki")
+toolforge_page.add_User_table(User_tables_md, "toolforge", "medwiki")
 # ---
 CatDepth = toolforge_page.subcatquery
 MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
@@ -20,15 +20,12 @@ from ..super.S_Page import super_page
 from ..super.S_Login.login_wrap import LoginWrap
 
 User_tables = {}
+logins_cache = {}
 
-def add_Usertables(table, family, lang):
+def add_User_table(table, family, lang):
     # ---
     User_tables[(lang, family)] = table
     User_tables[("*", family)] = table
-    # ---
-    catdepth_new.add_Usertables(table, family)
-
-logins_cache = {}
 
 def log_it(lang, family):
     # ---
@@ -69,6 +66,6 @@ __all__ = [
     # "super_page",
     "catdepth_new",
     "MainPage",
-    "add_Usertables",
+    "add_User_table",
     "CatDepth",
 ]

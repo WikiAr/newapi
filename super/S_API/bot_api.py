@@ -48,14 +48,7 @@ import datetime
 from datetime import timedelta
 from ...api_utils import printe
 from .bot import BOTS_APIS
-# from ..S_Login.super_login import Login
 from ...api_utils.lang_codes import change_codes
-
-User_tables = {}
-
-def add_Usertables(table, family):
-    User_tables[family] = table
-
 
 def test_print(s):
     if "test_print" in sys.argv:
@@ -67,7 +60,7 @@ class NEW_API(BOTS_APIS):
         # ---
         self.login_bot = login_bot
         # ---
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        self.username = getattr(self, "username", "")
         # self.family = family
         self.lang = change_codes.get(lang) or lang
         # ---
@@ -78,12 +71,6 @@ class NEW_API(BOTS_APIS):
         self.cxtoken = ""
         # ---
         super().__init__()
-        # ---
-        '''
-        if User_tables:
-            for f, tab in User_tables.items():
-                self.add_User_tables(f, tab)
-        '''
 
     def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---

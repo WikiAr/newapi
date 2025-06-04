@@ -22,9 +22,9 @@ User_tables_mdcx = {
     "password": medwiki_account.password_cx,
 }
 # ---
-toolforge_page.add_Usertables(User_tables_md, "toolforge", "medwiki")
+toolforge_page.add_User_table(User_tables_md, "toolforge", "medwiki")
 # ---
-toolforge_page.add_Usertables(User_tables_mdcx, "toolforge", "mdwikicx")
+toolforge_page.add_User_table(User_tables_mdcx, "toolforge", "mdwikicx")
 # ---
 CatDepth = toolforge_page.CatDepth
 MainPage = toolforge_page.MainPage
