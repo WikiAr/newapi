@@ -4,7 +4,6 @@ from .super.S_Page.bot import PAGE_APIS
 
 """
 from ..handel_errors import HANDEL_ERRORS
-# from ..S_Login.super_login import Login
 
 class PAGE_APIS(HANDEL_ERRORS):
     def __init__(self, login_bot):

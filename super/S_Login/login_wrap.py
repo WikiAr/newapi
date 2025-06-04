@@ -2,7 +2,7 @@
 
 from ..super.S_Login.login_wrap import LoginWrap
 
-# login_bot, catbots_login2 = LoginWrap(title, sitecode, family, bots_login_cache, User_tables)
+# login_bot, catbots_login2 = LoginWrap(sitecode, family, bots_login_cache, User_tables)
 # bots_login_cache.update(catbots_login2)
 
 """
@@ -11,7 +11,7 @@ from .super_login import Login
 
 hases = {}
 
-def LoginWrap(title, sitecode, family, bots_login_cache, User_tables):
+def LoginWrap(sitecode, family, bots_login_cache, User_tables):
     # ---
     cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
     # ---

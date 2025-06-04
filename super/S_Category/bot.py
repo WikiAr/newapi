@@ -7,8 +7,6 @@ import copy
 import tqdm
 
 from ...api_utils import printe
-# from ..S_API.bot import BOTS_APIS
-# from ..S_Login.super_login import Login
 
 ns_list = {
     "0": "",

@@ -48,7 +48,7 @@ import datetime
 from datetime import timedelta
 from ...api_utils import printe
 from .bot import BOTS_APIS
-from ..S_Login.super_login import Login
+# from ..S_Login.super_login import Login
 from ...api_utils.lang_codes import change_codes
 
 User_tables = {}
@@ -62,8 +62,10 @@ def test_print(s):
         printe.output(s)
 
 
-class NEW_API(Login, BOTS_APIS):
-    def __init__(self, lang, family="wikipedia"):
+class NEW_API(BOTS_APIS):
+    def __init__(self, login_bot, lang, family="wikipedia"):
+        # ---
+        self.login_bot = login_bot
         # ---
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
         # self.family = family
@@ -75,18 +77,43 @@ class NEW_API(Login, BOTS_APIS):
         self.cxtoken_expiration = 0
         self.cxtoken = ""
         # ---
-        super().__init__(lang, family)
+        super().__init__()
         # ---
+        '''
         if User_tables:
             for f, tab in User_tables.items():
                 self.add_User_tables(f, tab)
+        '''
 
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+        # ---
+        return self.login_bot.post_params(
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry
+        )
+
+    def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
+        return self.login_bot.post_continue(
+            params,
+            action,
+            _p_=_p_,
+            p_empty=p_empty,
+            Max=Max,
+            first=first,
+            _p_2=_p_2,
+            _p_2_empty=_p_2_empty
+        )
     def get_username(self):
         return self.username
 
     def Login_to_wiki(self):
         # ---
-        self.log_to_wiki_1()
+        # self.log_to_wiki_1()
         return
 
     def Find_pages_exists_or_not(self, liste, get_redirect=False, noprint=False):

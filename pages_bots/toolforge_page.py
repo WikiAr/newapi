@@ -15,6 +15,7 @@ MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
 # ---
 from ..super.S_Category import catdepth_new
 
+from ..super.S_API import bot_api
 from ..super.S_Page import super_page
 from ..super.S_Login.login_wrap import LoginWrap
 
@@ -29,13 +30,19 @@ def add_Usertables(table, family, lang):
 
 logins_cache = {}
 
-def MainPage(title, lang, family="wikipedia"):
+def log_it(lang, family):
     # ---
     table = User_tables.get((lang, family)) or User_tables.get(("*", family))
     # ---
-    login_bot, logins_cache2 = LoginWrap(title, lang, family, logins_cache, table)
+    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, table)
     # ---
     logins_cache.update(logins_cache2)
+    # ---
+    return login_bot
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
     # ---
     page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
@@ -43,13 +50,17 @@ def MainPage(title, lang, family="wikipedia"):
 
 def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
-    table = User_tables.get((sitecode, family)) or User_tables.get(("*", family))
-    # ---
-    login_bot, logins_cache2 = LoginWrap(title, sitecode, family, logins_cache, table)
-    # ---
-    logins_cache.update(logins_cache2)
+    login_bot = log_it(sitecode, family)
     # ---
     result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
+
+def NEW_API(lang="", family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    result = bot_api.NEW_API(login_bot, lang=lang, family=family)
     # ---
     return result
 

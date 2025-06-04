@@ -55,21 +55,21 @@ if "workibrahem" in sys.argv:
 # ---
 user_agent = default_user_agent()
 # ---
-bot_api.add_Usertables(User_tables, "wikipedia")
-bot_api.add_Usertables(User_tables, "wikisource")
-bot_api.add_Usertables(User_tables, "wikidata")
-# ---
-NEW_API = bot_api.NEW_API
 change_codes = lang_codes.change_codes
-# CatDepth = catdepth_new.subcatquery
 
 logins_cache = {}
 
-def MainPage(title, lang, family="wikipedia"):
+def log_it(lang, family):
     # ---
-    login_bot, logins_cache2 = LoginWrap(title, lang, family, logins_cache, User_tables)
+    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
     # ---
     logins_cache.update(logins_cache2)
+    # ---
+    return login_bot
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
     # ---
     page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
@@ -77,11 +77,17 @@ def MainPage(title, lang, family="wikipedia"):
 
 def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
-    login_bot, logins_cache2 = LoginWrap(title, sitecode, family, logins_cache, User_tables)
-    # ---
-    logins_cache.update(logins_cache2)
+    login_bot = log_it(sitecode, family)
     # ---
     result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
+
+def NEW_API(lang="", family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    result = bot_api.NEW_API(login_bot, lang=lang, family=family)
     # ---
     return result
 
