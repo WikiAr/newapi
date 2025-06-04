@@ -33,6 +33,7 @@ from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
 from ..accounts import useraccount
 from .api_utils.user_agent import default_user_agent
+from .api_utils import lang_codes
 
 home_dir = os.getenv("HOME")
 tool = home_dir.split("/")[-1] if home_dir else None
@@ -69,7 +70,7 @@ catdepth_new.add_Usertables(User_tables, "wikidata")
 # ---
 NEW_API = bot_api.NEW_API
 MainPage = super_page.MainPage
-change_codes = super_page.change_codes
+change_codes = lang_codes.change_codes
 CatDepth = catdepth_new.subcatquery
 
 __all__ = [

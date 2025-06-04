@@ -51,7 +51,7 @@ from .api_utils.user_agent import default_user_agent
 from ..super.S_Category import catdepth_new
 
 from ..accounts import user_account_new
-
+from .api_utils import lang_codes
 catdepth_new.SITECODE = "www"
 catdepth_new.FAMILY = "mdwiki"
 
@@ -72,7 +72,7 @@ NEW_API = bot_api.NEW_API
 MainPage = super_page.MainPage
 md_MainPage = super_page.MainPage
 
-change_codes = super_page.change_codes
+change_codes = lang_codes.change_codes
 CatDepth = catdepth_new.subcatquery
 # ---
 # xxxxxxxxxxx
