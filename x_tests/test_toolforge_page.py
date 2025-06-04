@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_toolforge_page mwclient
-python3 core8/pwb.py newapi/tests/test_toolforge_page
+python3 core8/pwb.py newapi/x_tests/test_toolforge_page mwclient
+python3 core8/pwb.py newapi/x_tests/test_toolforge_page
 
 """
 import sys
