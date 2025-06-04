@@ -15,6 +15,7 @@ MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
 # ---
 from ..super.S_Page import super_page
 from ..super.S_Login.super_login import Login
+from ..super.S_Page.page_wrap import MainPageWrap
 from ..super.S_Category import catdepth_new
 from ..api_utils import printe
 
@@ -28,6 +29,13 @@ def add_Usertables(table, family, lang):
     catdepth_new.add_Usertables(table, family)
 
 cat_bots_login = {}
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables_x)
+    cat_bots_login.update(cat_bots_login2)
+    # ---
+    return page
 
 def MainPage(title, lang, family="toolforge"):
     # ---

@@ -40,6 +40,7 @@ from pathlib import Path
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
 from ..super.S_Login.super_login import Login
+from ..super.S_Page.page_wrap import MainPageWrap
 
 from ..super.S_Category import catdepth_new
 from ..api_utils import printe
@@ -105,22 +106,10 @@ CatDepth = catdepth_new.subcatquery
 
 cat_bots_login = {}
 
-def MainPage(title, lang, family="nccommons"):
+def MainPage(title, lang, family="wikipedia"):
     # ---
-    cache_key = (lang, family)  # Consider adding relevant kwargs to key
-    # ---
-    if cat_bots_login.get(cache_key):
-        login_bot = cat_bots_login[cache_key]
-    else:
-        login_bot = Login(lang, family=family)
-        # ---
-        printe.output(f"<<purple>> MainPage make new bot for ({lang}.{family}.org)")
-        # ---
-        login_bot.add_users({family: User_tables})
-        # ---
-        cat_bots_login[cache_key] = login_bot
-    # ---
-    page = super_page.MainPage(login_bot, title, lang, family=family)
+    page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables)
+    cat_bots_login.update(cat_bots_login2)
     # ---
     return page
 
