@@ -7,7 +7,7 @@ import copy
 import tqdm
 
 from ...api_utils import printe
-from ..S_API.bot import BOTS_APIS
+# from ..S_API.bot import BOTS_APIS
 from ..S_Login.super_login import Login
 
 SITECODE = "en"
@@ -42,7 +42,8 @@ User_tables = {}
 def add_Usertables(table, family):
     User_tables[family] = table
 
-class CategoryDepth(Login, BOTS_APIS):
+# class CategoryDepth(Login, BOTS_APIS):
+class CategoryDepth(Login):
     def __init__(self, title, sitecode=SITECODE, family=FAMILY, **kwargs):
         # ---
         if User_tables:
@@ -69,9 +70,9 @@ class CategoryDepth(Login, BOTS_APIS):
         self.ns = "all"
         self.nslist = []
         # ---
-        kwargs["title"] = title
-        # ---
         super().__init__(sitecode, family)
+        # ---
+        kwargs["title"] = title
         # ---
         self.prase_params(**kwargs)
 

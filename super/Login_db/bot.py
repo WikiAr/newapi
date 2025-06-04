@@ -6,6 +6,7 @@ from newapi.super.Login_db.bot2 import log_one
 # log_one(site="", user="", result="", db_type="sqlite", db_path="login_logs.db", credentials=None)
 
 """
+import sys
 import os
 import datetime
 from configparser import ConfigParser
@@ -92,7 +93,7 @@ def log_one(site, user, result, action="", params={}):
     if action == "query" and params.get('prop'):
         action += "_" + "_".join(params['prop'].split("|"))
     # ---
-    if action == "query":
+    if action == "query" and "test" in sys.argv:
         printe.output(f"<<yellow>> {action=}")
         print(dict(params))
     # ---

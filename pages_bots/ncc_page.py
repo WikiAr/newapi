@@ -36,6 +36,7 @@ from pathlib import Path
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
+from .api_utils.user_agent import default_user_agent
 
 print_test = {1: "test" in sys.argv}
 
@@ -80,7 +81,7 @@ User_tables = {
     "password": password,
 }
 # ---
-user_agent = super_page.default_user_agent()
+user_agent = default_user_agent()
 # ---
 super_page.add_Usertables(User_tables, "nccommons")
 bot_api.add_Usertables(User_tables, "nccommons")

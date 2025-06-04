@@ -31,7 +31,7 @@ from ..super.S_API import bot_api as bot_api1
 from ..super.S_Page import super_page as super_page1
 from ..super.S_Category import catdepth_new as catdepth_new1
 from ..accounts import user_account_new
-
+from .api_utils.user_agent import default_user_agent
 # ---
 home_dir = os.getenv("HOME")
 tool = home_dir.split("/")[-1] if home_dir else None
@@ -51,7 +51,7 @@ User_tables = {
 # ---
 print(f"{pyy_file} use {User_tables['username']} account.")
 # ---
-user_agent = super_page1.default_user_agent()
+user_agent = default_user_agent()
 # ---
 super_page1.add_Usertables(User_tables, "wikipedia")
 bot_api1.add_Usertables(User_tables, "wikipedia")

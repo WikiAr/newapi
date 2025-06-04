@@ -22,6 +22,7 @@ import urllib.parse
 from ...api_utils import printe
 from ..handel_errors import HANDEL_ERRORS
 from ...api_utils.except_err import warn_err
+from ...api_utils.user_agent import default_user_agent
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS
@@ -34,23 +35,11 @@ else:
     from .bot import LOGIN_HELPS
 
 file_name = os.path.basename(__file__)
-print_test = {1: False}
+print_test = {1: "test" in sys.argv}
 User_tables = {"mdwiki": {}, "wikidata": {}, "wikipedia": {}, "nccommons": {}}
 seasons_by_lang = {}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
 
 def test_print(s):
     if "test_print" in sys.argv:
@@ -75,6 +64,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
         # ---
         super().__init__()
+
+    def add_users(self, Users_tables, lang=""):
+        if Users_tables:
+            for family, user_tab in Users_tables.items():
+                self.add_User_tables(family, user_tab, lang=lang)
 
     def Log_to_wiki(self):
         """

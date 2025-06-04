@@ -8,6 +8,13 @@ import sys
 sys.argv.append("ask")
 from newapi.page import MainPage
 
+page = MainPage("وبxx:ملعب", "ar")
+print(page.exists())
+
+pageen = MainPage("الصفحة الرxئيسة", 'ar')
+print(pageen.exists())
+
+
 # ---
 page = MainPage("وب:ملعب", "ar")
 pageen = MainPage("User:Mr. Ibrahem/sandbox", 'simple')

@@ -32,6 +32,7 @@ from ..super.S_API import bot_api
 from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
 from ..accounts import useraccount
+from .api_utils.user_agent import default_user_agent
 
 home_dir = os.getenv("HOME")
 tool = home_dir.split("/")[-1] if home_dir else None
@@ -52,7 +53,7 @@ if "workibrahem" in sys.argv:
     # ---
     print(f"{pyy_file} use {User_tables['username']} account.")
 # ---
-user_agent = super_page.default_user_agent()
+user_agent = default_user_agent()
 # ---
 super_page.add_Usertables(User_tables, "wikipedia")
 bot_api.add_Usertables(User_tables, "wikipedia")

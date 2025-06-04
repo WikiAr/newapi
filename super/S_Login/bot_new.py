@@ -17,7 +17,7 @@ from .cookies_bot import get_file_name, del_cookies_file
 
 from .params_help import PARAMS_HELPS
 from ..Login_db.bot import log_one
-
+from ...api_utils.user_agent import default_user_agent
 # import mwclient
 
 # from mwclient.client import Site
@@ -32,23 +32,11 @@ User_tables = {}
 def add_Usertables(table, family):
     User_tables[family] = table
 
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
 class MwClientSite:
     def __init__(self, lang, family):
         self.lang = lang
         self.family = family
-        self.username = None
+        self.username = getattr(self, "username") if hasattr(self, "username") else None
         self.password = None
         # ---
         self.login_done = False
@@ -129,8 +117,8 @@ class MwClientSite:
             if self.site_mwclient.logged_in:
                 printe.output(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
 
+            # Save cookies to file, including session cookies
             if self.jar_cookie:
-                # Save cookies to file, including session cookies
                 self.jar_cookie.save(ignore_discard=True, ignore_expires=True)
 
     def do_request(self, params=None, method="POST"):
@@ -186,7 +174,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         self.cookies_file = getattr(self, "cookies_file") if hasattr(self, "cookies_file") else ""
         # ---
-        self.username = ""
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
@@ -194,14 +182,20 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         super().__init__(self.lang, self.family)
 
-    def add_User_tables(self, family, table) -> None:
+    def add_User_tables(self, family, table, lang="") -> None:
+        # ---
+        langx = self.lang
+        # ---
+        # for example family=toolforge, lang in (medwiki, mdwikicx)
+        if lang and not self.family.startswith("wik"):
+            langx = lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table['username'] != "" and table['password'] != "":
             # ---
-            if self.family == family or (self.lang == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
                 # ---
                 User_tables[family] = table
@@ -228,8 +222,6 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def raw_request(self, params, files=None, timeout=30) -> any or None:
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
-            printe.output("<<green>> user_table_done == False!")
             printe.output("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:
