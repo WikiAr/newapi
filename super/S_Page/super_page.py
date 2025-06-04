@@ -56,22 +56,12 @@ from .ar_err import find_edit_error
 from ...api_utils.except_err import exception_err, warn_err
 from .bot import PAGE_APIS
 from ...api_utils.ask_bot import ASK_BOT
-from ..S_Login.super_login import Login
 from ...api_utils.lang_codes import change_codes
 
-file_name = os.path.basename(__file__)
-
 print_test = {1: "test" in sys.argv}
-# ---
-not_loged_m = {1: ""}
 
-User_tables = {}
-
-def add_Usertables(table, family):
-    User_tables[family] = table
-
-class MainPage(Login, PAGE_APIS, ASK_BOT):
-    def __init__(self, title, lang, family="wikipedia"):
+class MainPage(PAGE_APIS, ASK_BOT):
+    def __init__(self, login_bot, title, lang, family="wikipedia"):
         # print(f"class MainPage: {lang=}")
         # ---
         """
@@ -79,6 +69,8 @@ class MainPage(Login, PAGE_APIS, ASK_BOT):
 
         Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
         """
+        # ---
+        self.login_bot = login_bot
         # ---
         self.title = title
         self.lang = change_codes.get(lang) or lang
@@ -93,7 +85,7 @@ class MainPage(Login, PAGE_APIS, ASK_BOT):
         self.create_data = {}
         self.info = {"done": False}
         # ---
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        self.username = getattr(self, "username", "")
         self.Exists = ""
         self.is_redirect = ""
         self.flagged = ""
@@ -131,17 +123,19 @@ class MainPage(Login, PAGE_APIS, ASK_BOT):
         self.words = 0
         self.length = 0
         # ---
-        super().__init__(lang, family)
+        super().__init__(login_bot)
+
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
-        if User_tables:
-            for f, tab in User_tables.items():
-                self.add_User_tables(f, tab)
-        # ---
-        if self.lang not in ["", not_loged_m[1]]:
-            # ---
-            self.Log_to_wiki()
-            # ---
-            not_loged_m[1] = self.lang
+        return self.login_bot.post_params(
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry
+        )
 
     def false_edit(self):
         # self.newtext

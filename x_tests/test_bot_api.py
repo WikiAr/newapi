@@ -1,12 +1,12 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_bot_api mwclient
-python3 core8/pwb.py newapi/tests/test_bot_api
-python3 core8/pwb.py newapi/tests/test_bot_api test:13 printresult
-python3 core8/pwb.py newapi/tests/test_bot_api test:11 test_move
-python3 core8/pwb.py newapi/tests/test_bot_api test:4
-python3 core8/pwb.py newapi/tests/test_bot_api test:14
-python3 core8/pwb.py newapi/tests/test_bot_api noprr test:9
+python3 core8/pwb.py newapi/x_tests/test_bot_api mwclient
+python3 core8/pwb.py newapi/x_tests/test_bot_api
+python3 core8/pwb.py newapi/x_tests/test_bot_api test:13 printresult
+python3 core8/pwb.py newapi/x_tests/test_bot_api test:11 test_move
+python3 core8/pwb.py newapi/x_tests/test_bot_api test:4
+python3 core8/pwb.py newapi/x_tests/test_bot_api test:14
+python3 core8/pwb.py newapi/x_tests/test_bot_api noprr test:9
 """
 import sys
 import time

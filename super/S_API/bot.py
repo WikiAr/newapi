@@ -20,7 +20,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
     def __init__(self):
         # print("class BOTS_APIS:")
         # ---
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        self.username = getattr(self, "username", "")
         # ---
         super().__init__()
 

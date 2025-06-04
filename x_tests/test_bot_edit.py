@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_bot_edit mwclient
-python3 core8/pwb.py newapi/tests/test_bot_edit
+python3 core8/pwb.py newapi/x_tests/test_bot_edit mwclient
+python3 core8/pwb.py newapi/x_tests/test_bot_edit
 
 """
 from newapi.page import MainPage

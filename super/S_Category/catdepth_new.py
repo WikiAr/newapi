@@ -8,15 +8,12 @@ import time
 import sys
 
 from ...api_utils import printe
-from .bot import CategoryDepth, add_Usertables as su_add_Usertables
+from .bot import CategoryDepth
 
 SITECODE = "en"
 FAMILY = "wikipedia"
 
-def add_Usertables(table, family):
-    return su_add_Usertables(table, family)
-
-cat_bots_login = {}
+hases = {}
 
 def title_process(title, sitecode):
     # ---
@@ -28,29 +25,6 @@ def title_process(title, sitecode):
         title = start_prefixes + title
     # ---
     return title
-
-hases = {}
-
-def subcatquery_wrap(title, sitecode=SITECODE, family=FAMILY, **kwargs):
-    # ---
-    cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
-    # ---
-    hases.setdefault(cache_key, 0)
-    # ---
-    if cat_bots_login.get(cache_key):
-        bot = cat_bots_login[cache_key]
-        # ---
-        hases[cache_key] += 1
-        # ---
-        printe.output(f"### <<green>> subcatquery_wrap has bot for ({sitecode}.{family}.org) count: {hases[cache_key]}")
-    else:
-        bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
-        # ---
-        printe.output(f"### <<purple>> subcatquery_wrap make new bot for ({sitecode}.{family}.org)")
-        # ---
-        cat_bots_login[cache_key] = bot
-    # ---
-    return bot
 
 def args_group(title, kwargs):
     # ---
@@ -73,7 +47,7 @@ def args_group(title, kwargs):
     # ---
     return args2
 
-def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
+def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     print_s = kwargs.get("print_s", True)
     # ---
@@ -88,9 +62,9 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     start = time.time()
     # ---
-    bot = subcatquery_wrap(title, sitecode=sitecode, family=family, **kwargs)
+    bot = CategoryDepth(login_bot, title, **kwargs)
     # ---
-    result = bot.subcatquery_(**args2)
+    result = bot.subcatquery_()
     # ---
     if get_revids:
         result = bot.get_revids()

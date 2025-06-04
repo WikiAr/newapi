@@ -10,11 +10,11 @@ from ...api_utils.except_err import exception_err
 
 class PARAMS_HELPS:
     def __init__(self) -> None:
-        self.lang = getattr(self, "lang") if hasattr(self, "lang") else ""
-        self.family = getattr(self, "family") if hasattr(self, "family") else ""
-        self.username = getattr(self, "username") if hasattr(self, "username") else ""
-        self.Bot_or_himo = getattr(self, "Bot_or_himo") if hasattr(self, "Bot_or_himo") else ""
-        self.url_o_print = getattr(self, "url_o_print") if hasattr(self, "url_o_print") else ""
+        self.lang = getattr(self, "lang", "")
+        self.family = getattr(self, "family", "")
+        self.username = getattr(self, "username", "")
+        self.Bot_or_himo = getattr(self, "Bot_or_himo", "")
+        self.url_o_print = getattr(self, "url_o_print", "")
         # pass
 
     def params_w(self, params) -> dict:

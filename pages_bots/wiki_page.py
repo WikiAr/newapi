@@ -7,10 +7,9 @@ from newapi.wiki_page import CatDepth
 
 from newapi.wiki_page import MainPage, NEW_API
 # api_new = NEW_API('en', family='wikipedia')
-# login    = api_new.Login_to_wiki()
+# json1    = api_new.post_params(params, addtoken=False)
 # move_it  = api_new.move(old_title, to, reason="", noredirect=False, movesubpages=False)
 # pages    = api_new.Find_pages_exists_or_not(liste, get_redirect=False)
-# json1    = api_new.post_params(params, addtoken=False)
 # pages    = api_new.Get_All_pages(start='', namespace="0", limit="max", apfilterredir='', limit_all=0)
 # search   = api_new.Search(value='', ns="", offset='', srlimit="max", RETURN_dict=False, addparams={})
 # newpages = api_new.Get_Newpages(limit="max", namespace="0", rcstart="", user='')
@@ -26,36 +25,59 @@ from newapi.wiki_page import MainPage, NEW_API
 """
 # ---
 import os
+from ..super.S_API import bot_api
+from ..super.S_Category import catdepth_new
 
-from ..super.S_API import bot_api as bot_api1
-from ..super.S_Page import super_page as super_page1
-from ..super.S_Category import catdepth_new as catdepth_new1
-from ..accounts import user_account_new
+from ..super.S_Page import super_page
+from ..super.S_Login.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
-# ---
+from ..api_utils import lang_codes
+
+from ..accounts.user_account_new import User_tables_wiki
+
 home_dir = os.getenv("HOME")
 # ---
-User_tables = {
-    "username": user_account_new.bot_username,
-    "password": user_account_new.bot_password,
-}
+User_tables = User_tables_wiki
 # ---
 print(f"wiki_page.py use {User_tables['username']} account.")
 # ---
 user_agent = default_user_agent()
 # ---
-super_page1.add_Usertables(User_tables, "wikipedia")
-bot_api1.add_Usertables(User_tables, "wikipedia")
-catdepth_new1.add_Usertables(User_tables, "wikipedia")
-# ---
-super_page1.add_Usertables(User_tables, "wikidata")
-bot_api1.add_Usertables(User_tables, "wikidata")
-catdepth_new1.add_Usertables(User_tables, "wikidata")
-# ---
-NEW_API = bot_api1.NEW_API
-MainPage = super_page1.MainPage
-change_codes = super_page1.change_codes
-CatDepth = catdepth_new1.subcatquery
+change_codes = lang_codes.change_codes
+
+logins_cache = {}
+
+def log_it(lang, family):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    return login_bot
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
+
+def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
+    # ---
+    login_bot = log_it(sitecode, family)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
+
+def NEW_API(lang="", family="wikipedia"):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    result = bot_api.NEW_API(login_bot, lang=lang, family=family)
+    # ---
+    return result
 
 __all__ = [
     'home_dir',

@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_langs mwclient
-python3 core8/pwb.py newapi/tests/test_langs
+python3 core8/pwb.py newapi/x_tests/test_langs mwclient
+python3 core8/pwb.py newapi/x_tests/test_langs
 
 """
 import sys
@@ -22,7 +22,7 @@ from newapi.page import NEW_API
 # ---
 en_api_new = NEW_API('simple', family='wikipedia')
 # ---
-en_api_new.Login_to_wiki()
+# en_api_new.Login_to_wiki()
 # ---
 pages = en_api_new.Find_pages_exists_or_not(['yemen'])
 # ---

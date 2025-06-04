@@ -1,7 +1,8 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page mwclient
-python3 core8/pwb.py newapi/tests/test_page
+python3 core8/pwb.py newapi/x_tests/test_page printurl mwclient
+python3 core8/pwb.py newapi/x_tests/test_page printurl
+
 """
 import sys
 # sys.argv.append("printurl")
@@ -75,3 +76,4 @@ pageen.save(newtext="!!!", nocreate=0)
 
 
 save = page.save(newtext="!")
+

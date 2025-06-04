@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_mdwiki_page mwclient
-python3 core8/pwb.py newapi/tests/test_mdwiki_page
+python3 core8/pwb.py newapi/x_tests/test_mdwiki_page mwclient
+python3 core8/pwb.py newapi/x_tests/test_mdwiki_page
 
 """
 import sys
