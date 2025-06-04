@@ -76,14 +76,18 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
-        lang = lang or self.lang
+        langx = self.lang
+        # ---
+        # for example family=toolforge, lang in (medwiki, mdwikicx)
+        if lang and not self.family.startswith("wik"):
+            langx = lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table['username'] != "" and table['password'] != "":
             # ---
-            if self.family == family or (lang == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
                 # ---
                 User_tables[family] = table
@@ -91,7 +95,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 self.username = table["username"]
                 self.password = table["password"]
                 # ---
-                self.sea_key = f"{lang}-{self.family}-{self.username}"
+                self.sea_key = f"{langx}-{self.family}-{self.username}"
 
     def make_new_r3_token(self) -> str:
         # ---
