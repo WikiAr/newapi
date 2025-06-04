@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page1 printurl nomwclient
-python3 core8/pwb.py newapi/tests/test_page1 printurl
+python3 core8/pwb.py newapi/tests/test_page printurl nomwclient
+python3 core8/pwb.py newapi/tests/test_page printurl
 
 """
 import sys
