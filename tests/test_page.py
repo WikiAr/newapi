@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page printurl nomwclient
+python3 core8/pwb.py newapi/tests/test_page printurl mwclient
 python3 core8/pwb.py newapi/tests/test_page printurl
 
 """
