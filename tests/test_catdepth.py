@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_catdepth nomwclient
+python3 core8/pwb.py newapi/tests/test_catdepth mwclient
 python3 core8/pwb.py newapi/tests/test_catdepth
 """
 import sys

@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_mdwiki_page nomwclient
+python3 core8/pwb.py newapi/tests/test_mdwiki_page mwclient
 python3 core8/pwb.py newapi/tests/test_mdwiki_page
 
 """

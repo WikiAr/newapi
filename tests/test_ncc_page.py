@@ -1,5 +1,5 @@
 """
-python3 core8/pwb.py newapi/tests/test_ncc_page nomwclient
+python3 core8/pwb.py newapi/tests/test_ncc_page mwclient
 python3 core8/pwb.py newapi/tests/test_ncc_page
 
 """
