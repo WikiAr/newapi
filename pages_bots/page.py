@@ -30,6 +30,7 @@ import os
 import sys
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
+from ..super.S_Category1 import catdepth_new as catdepth_new1
 from ..accounts import useraccount
 from ..super.S_Page.page_wrap import MainPageWrap
 from ..api_utils.user_agent import default_user_agent
@@ -71,6 +72,7 @@ catdepth_new.add_Usertables(User_tables, "wikidata")
 NEW_API = bot_api.NEW_API
 change_codes = lang_codes.change_codes
 CatDepth = catdepth_new.subcatquery
+CatDepth1 = catdepth_new1.subcatquery
 
 cat_bots_login = {}
 
@@ -87,5 +89,6 @@ __all__ = [
     'MainPage',
     'NEW_API',
     'CatDepth',
+    'CatDepth1',
     'change_codes',
 ]

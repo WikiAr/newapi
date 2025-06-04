@@ -81,8 +81,6 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         self.login_bot = login_bot
         # ---
-        super().__init__(login_bot)
-        # ---
         self.title = title
         self.lang = change_codes.get(lang) or lang
         self.family = family
@@ -133,6 +131,8 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         self.words = 0
         self.length = 0
+        # ---
+        super().__init__(login_bot)
         # ---
         '''
         if User_tables:

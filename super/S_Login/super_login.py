@@ -53,17 +53,17 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
 
     def __init__(self, lang, family="wikipedia"):
         # print(f"class Login:{lang=}")
-
-        super().__init__()
-
+        # ---
         self.lang = lang
         self.family = family
         self.r3_token = ""
         self.url_o_print = ""
         self.user_agent = default_user_agent()
         # self.headers = {"User-Agent": self.user_agent}
-
+        # ---
         self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
+        # ---
+        super().__init__()
 
     def add_users(self, Users_tables, lang=""):
         if Users_tables:

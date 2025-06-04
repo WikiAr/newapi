@@ -8,7 +8,6 @@ from ..handel_errors import HANDEL_ERRORS
 
 class PAGE_APIS(HANDEL_ERRORS):
     def __init__(self, login_bot):
-        super().__init__()
         # print("class PAGE_APIS:")
         self.login_bot = login_bot
         # ---
@@ -62,6 +61,8 @@ class PAGE_APIS(HANDEL_ERRORS):
         # ---
         self.words = getattr(self, "words") if hasattr(self, "words") else 0
         self.length = getattr(self, "length") if hasattr(self, "length") else 0
+        # ---
+        super().__init__()
 
     def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
         return self.login_bot.post_continue(

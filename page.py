@@ -7,7 +7,8 @@ from .pages_bots.page import (
     user_agent,
     NEW_API,
     CatDepth,
-    change_codes
+    change_codes,
+    CatDepth1,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "NEW_API",
     "CatDepth",
     "change_codes",
+    "CatDepth1",
 ]

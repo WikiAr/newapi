@@ -118,7 +118,8 @@ class MwClientSite:
                 printe.output(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
 
             # Save cookies to file, including session cookies
-            self.jar_cookie.save(ignore_discard=True, ignore_expires=True)
+            if self.jar_cookie:
+                self.jar_cookie.save(ignore_discard=True, ignore_expires=True)
 
     def do_request(self, params=None, method="POST"):
         # ---
@@ -173,13 +174,13 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         self.cookies_file = getattr(self, "cookies_file") if hasattr(self, "cookies_file") else ""
         # ---
-        super().__init__(self.lang, self.family)
-        # ---
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
         self.user_table_done = False
+        # ---
+        super().__init__(self.lang, self.family)
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
@@ -221,8 +222,6 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def raw_request(self, params, files=None, timeout=30) -> any or None:
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
-            printe.output("<<green>> user_table_done == False!")
             printe.output("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:

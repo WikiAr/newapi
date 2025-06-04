@@ -674,7 +674,7 @@ def output(textm, *uargs, **kwargs):
 
     :param textm: The text to print. Can contain color tags.
     """
-    if "noprint" in sys.argv:
+    if "noprint" in sys.argv and not kwargs.get("p", False):
         return
     end = kwargs.get("end", "\n")
     toprint = make_str(textm)

@@ -21,6 +21,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # print("class BOTS_APIS:")
         # ---
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
+        # ---
         super().__init__()
 
     def Add_To_Bottom(self, text, summary, title, poss="Head|Bottom"):
