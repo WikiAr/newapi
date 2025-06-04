@@ -7,10 +7,9 @@ from newapi.wiki_page import CatDepth
 
 from newapi.wiki_page import MainPage, NEW_API
 # api_new = NEW_API('en', family='wikipedia')
-# login    = api_new.Login_to_wiki()
+# json1    = api_new.post_params(params, addtoken=False)
 # move_it  = api_new.move(old_title, to, reason="", noredirect=False, movesubpages=False)
 # pages    = api_new.Find_pages_exists_or_not(liste, get_redirect=False)
-# json1    = api_new.post_params(params, addtoken=False)
 # pages    = api_new.Get_All_pages(start='', namespace="0", limit="max", apfilterredir='', limit_all=0)
 # search   = api_new.Search(value='', ns="", offset='', srlimit="max", RETURN_dict=False, addparams={})
 # newpages = api_new.Get_Newpages(limit="max", namespace="0", rcstart="", user='')
@@ -26,45 +25,67 @@ from newapi.wiki_page import MainPage, NEW_API
 """
 # ---
 import os
+from ..super.S_API import bot_api
+from ..super.S_Category import catdepth_new
+from ..accounts import user_account_new as useraccount
 
-from ..super.S_API import bot_api as bot_api1
-from ..super.S_Page import super_page as super_page1
-from ..super.S_Category import catdepth_new as catdepth_new1
-from ..accounts import user_account_new
+from ..super.S_Page import super_page
+from ..super.S_Login.super_login import Login
+from ..api_utils import printe
 
-# ---
 home_dir = os.getenv("HOME")
 tool = home_dir.split("/")[-1] if home_dir else None
 # ---
 pyy_file = __file__.replace("\\", "/").split("/")[-1]
 # ---
 # User_tables = {
-#     "username": user_account_new.my_username,
-#     "password": user_account_new.my_password,
+#     "username": useraccount.my_username,
+#     "password": useraccount.my_password,
 # }
 # ---
 # if "botuser" in sys.argv:
 User_tables = {
-    "username": user_account_new.bot_username,
-    "password": user_account_new.bot_password,
+    "username": useraccount.bot_username,
+    "password": useraccount.bot_password,
 }
 # ---
 print(f"{pyy_file} use {User_tables['username']} account.")
 # ---
-user_agent = super_page1.default_user_agent()
+user_agent = super_page.default_user_agent()
 # ---
-super_page1.add_Usertables(User_tables, "wikipedia")
-bot_api1.add_Usertables(User_tables, "wikipedia")
-catdepth_new1.add_Usertables(User_tables, "wikipedia")
+bot_api.add_Usertables(User_tables, "wikipedia")
+catdepth_new.add_Usertables(User_tables, "wikipedia")
 # ---
-super_page1.add_Usertables(User_tables, "wikidata")
-bot_api1.add_Usertables(User_tables, "wikidata")
-catdepth_new1.add_Usertables(User_tables, "wikidata")
+bot_api.add_Usertables(User_tables, "wikidata")
+catdepth_new.add_Usertables(User_tables, "wikidata")
 # ---
-NEW_API = bot_api1.NEW_API
-MainPage = super_page1.MainPage
-change_codes = super_page1.change_codes
-CatDepth = catdepth_new1.subcatquery
+# super_page.add_Usertables(User_tables, "wikipedia")
+# super_page.add_Usertables(User_tables, "wikidata")
+# ---
+NEW_API = bot_api.NEW_API
+change_codes = super_page.change_codes
+CatDepth = catdepth_new.subcatquery
+
+cat_bots_login = {}
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    cache_key = (lang, family)  # Consider adding relevant kwargs to key
+    # ---
+    if cat_bots_login.get(cache_key):
+        login_bot = cat_bots_login[cache_key]
+    else:
+        login_bot = Login(lang, family=family)
+        # ---
+        printe.output(f"<<purple>> MainPage make new bot for ({lang}.{family}.org)")
+        # ---
+        login_bot.add_users({family: User_tables})
+        # ---
+        cat_bots_login[cache_key] = login_bot
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
 
 __all__ = [
     'home_dir',

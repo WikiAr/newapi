@@ -19,7 +19,7 @@ def test_print(s):
 
 class BOTS_APIS(HANDEL_ERRORS):
     def __init__(self):
-        # print("class APIS:")
+        # print("class BOTS_APIS:")
         self.username = ""
         super().__init__()
 

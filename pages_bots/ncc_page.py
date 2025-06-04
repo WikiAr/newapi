@@ -29,13 +29,20 @@ from newapi.ncc_page import NEW_API
 # revisions= api_new.get_revisions(title)
 
 """
-import sys
+
 import os
+import sys
+# ---
+home_dir = os.getenv("HOME")
+# ---
 import configparser
 from pathlib import Path
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
+from ..super.S_Login.super_login import Login
+
 from ..super.S_Category import catdepth_new
+from ..api_utils import printe
 
 print_test = {1: "test" in sys.argv}
 
@@ -82,26 +89,48 @@ User_tables = {
 # ---
 user_agent = super_page.default_user_agent()
 # ---
-super_page.add_Usertables(User_tables, "nccommons")
+# super_page.add_Usertables(User_tables, "nccommons")
 bot_api.add_Usertables(User_tables, "nccommons")
 catdepth_new.add_Usertables(User_tables, "nccommons")
 # ---
 NEW_API = bot_api.NEW_API
 # ---
-MainPage = super_page.MainPage
-ncc_MainPage = super_page.MainPage
+# MainPage = super_page.MainPage
+# ncc_MainPage = super_page.MainPage
 # ---
 change_codes = super_page.change_codes
 CatDepth = catdepth_new.subcatquery
 # ---
 # xxxxxxxxxxx
-home_dir = os.getenv("HOME")
+
+cat_bots_login = {}
+
+def MainPage(title, lang, family="nccommons"):
+    # ---
+    cache_key = (lang, family)  # Consider adding relevant kwargs to key
+    # ---
+    if cat_bots_login.get(cache_key):
+        login_bot = cat_bots_login[cache_key]
+    else:
+        login_bot = Login(lang, family=family)
+        # ---
+        printe.output(f"<<purple>> MainPage make new bot for ({lang}.{family}.org)")
+        # ---
+        login_bot.add_users({family: User_tables})
+        # ---
+        cat_bots_login[cache_key] = login_bot
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
+
+ncc_MainPage = MainPage
 
 __all__ = [
     'home_dir',
     'user_agent',
-    'ncc_MainPage',
     'MainPage',
+    'ncc_MainPage',
     'NEW_API',
     'CatDepth',
     'change_codes',

@@ -76,6 +76,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
 
         self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
 
+    def add_users(self, Users_tables, lang=""):
+        if Users_tables:
+            for f, tab in Users_tables.items():
+                self.add_User_tables(f, tab, lang=lang)
+
     def Log_to_wiki(self):
         """
         Log in to the wiki.

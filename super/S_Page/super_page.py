@@ -54,8 +54,7 @@ import wikitextparser as wtp
 from ...api_utils import printe, txtlib, botEdit
 from .ar_err import find_edit_error
 from ...api_utils.except_err import exception_err, warn_err
-from .bot import APIS
-from ..S_Login.super_login import Login
+from .bot import PAGE_APIS
 
 file_name = os.path.basename(__file__)
 
@@ -100,8 +99,8 @@ def default_user_agent():
     return li
 
 
-class MainPage(Login, APIS):
-    def __init__(self, title, lang, family="wikipedia"):
+class MainPage(PAGE_APIS):
+    def __init__(self, login_bot, title, lang, family="wikipedia"):
         # print(f"class MainPage: {lang=}")
         # ---
         """
@@ -109,23 +108,28 @@ class MainPage(Login, APIS):
 
         Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
         """
-        self.username = ""
         # ---
-        super().__init__(lang, family)
+        self.login_bot = login_bot
+        # ---
+        super().__init__(login_bot)
         # ---
         self.title = title
-        # ---
         self.lang = change_codes.get(lang) or lang
-        # ---
         self.family = family
-        self.endpoint = f"https://{lang}.{family}.org/w/api.php"
+        self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
+        # ---
+        self.is_Disambig = False
+        self.can_be_edit = False
+        self.ns = False
         # ---
         self.userinfo = {}
+        self.create_data = {}
+        self.info = {"done": False}
+        # ---
+        self.username = ""
         self.Exists = ""
         self.is_redirect = ""
-        self.is_Disambig = False
         self.flagged = ""
-        self.can_be_edit = False
         # ---
         self.wikibase_item = ""
         self.text = ""
@@ -138,8 +142,9 @@ class MainPage(Login, APIS):
         self.pageid = ""
         self.user = ""
         # ---
-        self.create_data = {}
         self.timestamp = ""
+        self.summary = ""
+        self.newtext = ""
         # ---
         self.revisions = []
         self.back_links = []
@@ -148,8 +153,6 @@ class MainPage(Login, APIS):
         self.iwlinks = []
         self.links_here = []
         # ---
-        self.info = {"done": False}
-        # ---
         self.categories = {}
         self.hidden_categories = {}
         self.all_categories_with_hidden = {}
@@ -157,14 +160,12 @@ class MainPage(Login, APIS):
         self.langlinks = {}
         self.templates = {}
         self.templates_API = {}
-
-        self.summary = ""
+        # ---
         self.words = 0
         self.length = 0
-        self.ns = False
-        self.newtext = ""
         # ---
-        if User_tables != {}:
+        '''
+        if User_tables:
             for f, tab in User_tables.items():
                 self.add_User_tables(f, tab)
         # ---
@@ -173,49 +174,20 @@ class MainPage(Login, APIS):
             self.Log_to_wiki()
             # ---
             not_loged_m[1] = self.lang
-
-    def ask_put(self, nodiff=False, ASK=False):
-        """
-        Prompts the user to confirm saving changes to a page, optionally displaying a diff.
-
-        If enabled by command-line arguments or parameters, shows the difference between the current and new text, displays summary information, and asks the user to accept or reject the changes. Supports skipping further prompts for subsequent edits.
-
-        Args:
-            nodiff: If True, skips displaying the diff.
-            ASK: If True, forces the prompt regardless of command-line arguments.
-
-        Returns:
-            True if the user accepts the changes or prompting is not required; False otherwise.
-        """
-        yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
         # ---
-        if "ask" in sys.argv and not Save_Edit_Pages[1] or print_test[1] or ASK:
-            # ---
-            if "nodiff" not in sys.argv and not nodiff:
-                if len(self.newtext) < 70000 and len(self.text) < 70000 or "diff" in sys.argv:
-                    printe.showDiff(self.text, self.newtext)
-                else:
-                    printe.output("showDiff error..")
-            # ---
-            printe.output(f"diference in bytes: {len(self.newtext) - len(self.text):,}")
-            printe.output(f"len of text: {len(self.text):,}, len of newtext: {len(self.newtext):,}")
-            # ---
-            printe.output(Edit_summary_line[1] % self.summary)
-            # ---
-            printe.output(f"<<lightyellow>>page.py: Do you want to accept these changes? (yes, no): for page {self.lang}:{self.title}? {self.username=}")
-            sa = input("([y]es, [N]o, [a]ll)?")
-            # ---
-            if sa == "a":
-                printe.output("<<lightgreen>> ---------------------------------")
-                printe.output(f"<<lightgreen>> {file_name} save all without asking.")
-                printe.output("<<lightgreen>> ---------------------------------")
-                Save_Edit_Pages[1] = True
-            # ---
-            if sa not in yes_answer:
-                printe.output("wrong answer")
-                return False
+        '''
+
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
-        return True
+        return self.login_bot.post_params(
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry
+        )
 
     def false_edit(self):
         # self.newtext

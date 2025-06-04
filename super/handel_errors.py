@@ -9,8 +9,8 @@ from ..api_utils import printe
 
 class HANDEL_ERRORS:
     def __init__(self):
-        printe.output("class HANDEL_ERRORS:")
-        # pass
+        # printe.output("class HANDEL_ERRORS:")
+        pass
 
     def handel_err(self, error: dict, function: str = "", params: dict = None, do_error: bool = True):
         """Handle errors based on the provided error dictionary.

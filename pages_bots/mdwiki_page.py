@@ -41,12 +41,16 @@ purge       = page.purge()
 import os
 import sys
 # ---
+home_dir = os.getenv("HOME")
+# ---
 if "mwclient" not in sys.argv:
     sys.argv.append("nomwclient")
     print("sys.argv.append('nomwclient')")
 
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
+from ..super.S_Login.super_login import Login
+from ..api_utils import printe
 
 from ..super.S_Category import catdepth_new
 
@@ -63,20 +67,42 @@ User_tables_x = {
 # ---
 user_agent = super_page.default_user_agent()
 # ---
-super_page.add_Usertables(User_tables_x, "mdwiki")
+# super_page.add_Usertables(User_tables_x, "mdwiki")
 bot_api.add_Usertables(User_tables_x, "mdwiki")
 catdepth_new.add_Usertables(User_tables_x, "mdwiki")
 # ---
 NEW_API = bot_api.NEW_API
 
-MainPage = super_page.MainPage
-md_MainPage = super_page.MainPage
+# MainPage = super_page.MainPage
+# md_MainPage = super_page.MainPage
 
 change_codes = super_page.change_codes
 CatDepth = catdepth_new.subcatquery
 # ---
 # xxxxxxxxxxx
-home_dir = os.getenv("HOME")
+
+cat_bots_login = {}
+
+def MainPage(title, lang, family="mdwiki"):
+    # ---
+    cache_key = (lang, family)  # Consider adding relevant kwargs to key
+    # ---
+    if cat_bots_login.get(cache_key):
+        login_bot = cat_bots_login[cache_key]
+    else:
+        login_bot = Login(lang, family=family)
+        # ---
+        printe.output(f"<<purple>> MainPage make new bot for ({lang}.{family}.org)")
+        # ---
+        login_bot.add_users({family: User_tables_x})
+        # ---
+        cat_bots_login[cache_key] = login_bot
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
+
+md_MainPage = MainPage
 
 __all__ = [
     'home_dir',

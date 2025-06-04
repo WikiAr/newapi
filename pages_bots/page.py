@@ -29,9 +29,11 @@ from newapi.page import MainPage, NEW_API
 import os
 import sys
 from ..super.S_API import bot_api
-from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
 from ..accounts import useraccount
+from ..super.S_Page import super_page
+from ..super.S_Login.super_login import Login
+from ..api_utils import printe
 
 home_dir = os.getenv("HOME")
 tool = home_dir.split("/")[-1] if home_dir else None
@@ -54,22 +56,43 @@ if "workibrahem" in sys.argv:
 # ---
 user_agent = super_page.default_user_agent()
 # ---
-super_page.add_Usertables(User_tables, "wikipedia")
 bot_api.add_Usertables(User_tables, "wikipedia")
 catdepth_new.add_Usertables(User_tables, "wikipedia")
 # ---
-super_page.add_Usertables(User_tables, "wikisource")
 bot_api.add_Usertables(User_tables, "wikisource")
 catdepth_new.add_Usertables(User_tables, "wikisource")
 # ---
-super_page.add_Usertables(User_tables, "wikidata")
 bot_api.add_Usertables(User_tables, "wikidata")
 catdepth_new.add_Usertables(User_tables, "wikidata")
 # ---
+# super_page.add_Usertables(User_tables, "wikipedia")
+# super_page.add_Usertables(User_tables, "wikisource")
+# super_page.add_Usertables(User_tables, "wikidata")
+# ---
 NEW_API = bot_api.NEW_API
-MainPage = super_page.MainPage
 change_codes = super_page.change_codes
 CatDepth = catdepth_new.subcatquery
+
+cat_bots_login = {}
+
+def MainPage(title, lang, family="wikipedia"):
+    # ---
+    cache_key = (lang, family)  # Consider adding relevant kwargs to key
+    # ---
+    if cat_bots_login.get(cache_key):
+        login_bot = cat_bots_login[cache_key]
+    else:
+        login_bot = Login(lang, family=family)
+        # ---
+        printe.output(f"<<purple>> MainPage make new bot for ({lang}.{family}.org)")
+        # ---
+        login_bot.add_users({family: User_tables})
+        # ---
+        cat_bots_login[cache_key] = login_bot
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
 
 __all__ = [
     'home_dir',

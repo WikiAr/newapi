@@ -193,14 +193,16 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         self.Bot_or_himo = 0
         self.user_table_done = False
 
-    def add_User_tables(self, family, table) -> None:
+    def add_User_tables(self, family, table, lang="") -> None:
+        # ---
+        lang = lang or self.lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table['username'] != "" and table['password'] != "":
             # ---
-            if self.family == family or (self.lang == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (lang == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
                 # ---
                 User_tables[family] = table

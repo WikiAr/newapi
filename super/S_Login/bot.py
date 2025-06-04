@@ -1,4 +1,5 @@
 """
+(_handle_server_error|add_User_tables|get_login_result|get_logintoken|get_rest_result|log_error|log_in|log_to_wiki_1|loged_in|make_new_r3_token|make_new_session|post_it|post_it_parse_data|raw_request)
 
 from .super.S_Login.bot import LOGIN_HELPS
 
@@ -73,14 +74,16 @@ class LOGIN_HELPS(PARAMS_HELPS):
     def log_error(self, result, action, params=None) -> None:
         log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
 
-    def add_User_tables(self, family, table) -> None:
+    def add_User_tables(self, family, table, lang="") -> None:
+        # ---
+        lang = lang or self.lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table['username'] != "" and table['password'] != "":
             # ---
-            if self.family == family or (self.lang == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (lang == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
                 # ---
                 User_tables[family] = table
@@ -88,7 +91,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 self.username = table["username"]
                 self.password = table["password"]
                 # ---
-                self.sea_key = f"{self.lang}-{self.family}-{self.username}"
+                self.sea_key = f"{lang}-{self.family}-{self.username}"
 
     def make_new_r3_token(self) -> str:
         # ---
@@ -265,7 +268,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def make_new_session(self) -> None:
         # ---
-        print("make_new_session:")
+        printe.output("make_new_session:")
         # ---
         seasons_by_lang[self.sea_key] = requests.Session()
         # ---

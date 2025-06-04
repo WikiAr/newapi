@@ -58,6 +58,8 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     else:
         bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
         # ---
+        printe.output(f"<<purple>> subcatquery make new bot for ({sitecode}.{family}.org)")
+        # ---
         cat_bots_login[cache_key] = bot
     # ---
     result = bot.subcatquery_(**args2)
