@@ -1,4 +1,5 @@
 """
+(_handle_server_error|add_User_tables|get_login_result|get_logintoken|get_rest_result|log_error|log_in|log_to_wiki_1|loged_in|make_new_r3_token|make_new_session|post_it|post_it_parse_data|raw_request)
 
 from .super.S_Login.bot import LOGIN_HELPS
 
@@ -8,13 +9,16 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 import sys
 import os
 import requests
+
+from .params_help import PARAMS_HELPS
+
 from http.cookiejar import MozillaCookieJar
 
 from ...api_utils import printe
 from .cookies_bot import get_file_name, del_cookies_file
 from ...api_utils.except_err import exception_err
-from .params_help import PARAMS_HELPS
 from ..Login_db.bot import log_one
+from ...api_utils.user_agent import default_user_agent
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -25,35 +29,13 @@ User_tables = {}
 botname = "newapi"
 
 def add_Usertables(table, family):
-
     User_tables[family] = table
-
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
-
-# -----
-# -----
-# -----
-# -----
-# -----
 
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
         # print("class LOGIN_HELPS:")
         self.cookie_jar = False
         self.session = requests.Session()
-        # ---
-        super().__init__()
         # ---
         # check if self has username before writeself.username = ""
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
@@ -69,18 +51,26 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.user_agent = default_user_agent()
         self.headers = {"User-Agent": self.user_agent}
         self.sea_key = f"{self.lang}-{self.family}-{self.username}"
+        # ---
+        super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
         log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
 
-    def add_User_tables(self, family, table) -> None:
+    def add_User_tables(self, family, table, lang="") -> None:
+        # ---
+        langx = self.lang
+        # ---
+        # for example family=toolforge, lang in (medwiki, mdwikicx)
+        if lang and not self.family.startswith("wik"):
+            langx = lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table['username'] != "" and table['password'] != "":
             # ---
-            if self.family == family or (self.lang == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
                 # ---
                 User_tables[family] = table
@@ -88,7 +78,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 self.username = table["username"]
                 self.password = table["password"]
                 # ---
-                self.sea_key = f"{self.lang}-{self.family}-{self.username}"
+                self.sea_key = f"{langx}-{self.family}-{self.username}"
 
     def make_new_r3_token(self) -> str:
         # ---
@@ -265,7 +255,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def make_new_session(self) -> None:
         # ---
-        print("make_new_session:")
+        printe.output(f"make_new_session:({self.lang}, {self.family}, {self.username})")
         # ---
         seasons_by_lang[self.sea_key] = requests.Session()
         # ---
@@ -309,8 +299,6 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # TODO: ('toomanyvalues', 'Too many values supplied for parameter "titles". The limit is 50.', 'See https://en.wikipedia.org/w/api.php for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes.')
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
-            printe.output("<<green>> user_table_done == False!")
             printe.output("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:

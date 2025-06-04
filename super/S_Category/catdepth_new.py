@@ -18,9 +18,7 @@ def add_Usertables(table, family):
 
 cat_bots_login = {}
 
-def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
-    # ---
-    print_s = kwargs.get("print_s", True)
+def title_process(title, sitecode):
     # ---
     prefixes = {"ar": "تصنيف:", "en": "Category:", "www": "Category:"}
     # ---
@@ -28,6 +26,33 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     if start_prefixes and not title.startswith(start_prefixes):
         title = start_prefixes + title
+    # ---
+    return title
+
+hases = {}
+
+def subcatquery_wrap(title, sitecode=SITECODE, family=FAMILY, **kwargs):
+    # ---
+    cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
+    # ---
+    hases.setdefault(cache_key, 0)
+    # ---
+    if cat_bots_login.get(cache_key):
+        bot = cat_bots_login[cache_key]
+        # ---
+        hases[cache_key] += 1
+        # ---
+        printe.output(f"### <<green>> subcatquery_wrap has bot for ({sitecode}.{family}.org) count: {hases[cache_key]}")
+    else:
+        bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
+        # ---
+        printe.output(f"### <<purple>> subcatquery_wrap make new bot for ({sitecode}.{family}.org)")
+        # ---
+        cat_bots_login[cache_key] = bot
+    # ---
+    return bot
+
+def args_group(title, kwargs):
     # ---
     args2 = {
         "title": title,
@@ -42,40 +67,42 @@ def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
         "only_titles": None
     }
     # ---
+    for k, v in kwargs.items():
+        if k not in args2 or args2[k] is None:
+            args2[k] = v
+    # ---
+    return args2
+
+def subcatquery(title, sitecode=SITECODE, family=FAMILY, **kwargs):
+    # ---
+    print_s = kwargs.get("print_s", True)
+    # ---
+    get_revids = kwargs.get("get_revids", False)
+    # ---
+    title = title_process(title, sitecode)
+    # ---
+    args2 = args_group(title, kwargs)
+    # ---
     if print_s:
         printe.output(f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}")
     # ---
     start = time.time()
     # ---
-    for k, v in kwargs.items():
-        if k not in args2 or args2[k] is None:
-            args2[k] = v
-    # ---
-    cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
-    # ---
-    if cat_bots_login.get(cache_key):
-        bot = cat_bots_login[cache_key]
-    else:
-        bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
-        # ---
-        cat_bots_login[cache_key] = bot
+    bot = subcatquery_wrap(title, sitecode=sitecode, family=family, **kwargs)
     # ---
     result = bot.subcatquery_(**args2)
-    # ---
-    get_revids = kwargs.get("get_revids", False)
     # ---
     if get_revids:
         result = bot.get_revids()
     # ---
-    final = time.time()
-    delta = int(final - start)
+    delta = int(time.time() - start)
     # ---
     if "printresult" in sys.argv:
         printe.output(result)
     # ---
-    lenpages = bot.get_len_pages()
-    # ---
     if print_s:
+        lenpages = bot.get_len_pages()
+        # ---
         printe.output(f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}")
     # ---
     return result

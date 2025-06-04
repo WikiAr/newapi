@@ -1,13 +1,13 @@
 """
 
-from .super.S_Page.bot import APIS
+from .super.S_Page.bot import PAGE_APIS
 
 """
 
 
-class APIS:
+class PAGE_APIS:
     def __init__(self):
-        # print("class APIS:")
+        # print("class PAGE_APIS:")
         pass
 
     def page_backlinks(self, ns=0):

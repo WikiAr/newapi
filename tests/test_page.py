@@ -1,12 +1,19 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_page nomwclient
+python3 core8/pwb.py newapi/tests/test_page mwclient
 python3 core8/pwb.py newapi/tests/test_page
 """
 import sys
 # sys.argv.append("printurl")
 sys.argv.append("ask")
 from newapi.page import MainPage
+
+page = MainPage("وبxx:ملعب", "ar")
+print(page.exists())
+
+pageen = MainPage("الصفحة الرxئيسة", 'ar')
+print(pageen.exists())
+
 
 # ---
 page = MainPage("وب:ملعب", "ar")

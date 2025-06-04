@@ -31,27 +31,18 @@ from ..super.S_API import bot_api as bot_api1
 from ..super.S_Page import super_page as super_page1
 from ..super.S_Category import catdepth_new as catdepth_new1
 from ..accounts import user_account_new
-
+from ..api_utils.user_agent import default_user_agent
 # ---
 home_dir = os.getenv("HOME")
-tool = home_dir.split("/")[-1] if home_dir else None
 # ---
-pyy_file = __file__.replace("\\", "/").split("/")[-1]
-# ---
-# User_tables = {
-#     "username": user_account_new.my_username,
-#     "password": user_account_new.my_password,
-# }
-# ---
-# if "botuser" in sys.argv:
 User_tables = {
     "username": user_account_new.bot_username,
     "password": user_account_new.bot_password,
 }
 # ---
-print(f"{pyy_file} use {User_tables['username']} account.")
+print(f"wiki_page.py use {User_tables['username']} account.")
 # ---
-user_agent = super_page1.default_user_agent()
+user_agent = default_user_agent()
 # ---
 super_page1.add_Usertables(User_tables, "wikipedia")
 bot_api1.add_Usertables(User_tables, "wikipedia")

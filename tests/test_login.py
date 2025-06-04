@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi/tests/test_login nomwclient
+python3 core8/pwb.py newapi/tests/test_login mwclient
 python3 core8/pwb.py newapi/tests/test_login
 """
 import sys

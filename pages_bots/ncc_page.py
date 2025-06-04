@@ -29,79 +29,37 @@ from newapi.ncc_page import NEW_API
 # revisions= api_new.get_revisions(title)
 
 """
-import sys
 import os
-import configparser
-from pathlib import Path
+# ---
+home_dir = os.getenv("HOME")
+# ---
 from ..super.S_API import bot_api
-from ..super.S_Page import super_page
 from ..super.S_Category import catdepth_new
+from ..super.S_Page import super_page
+from ..api_utils.user_agent import default_user_agent
+from ..api_utils import lang_codes
 
-print_test = {1: "test" in sys.argv}
-
-def printt(s):
-    if print_test[1]:
-        print(s)
-
-
-catdepth_new.SITECODE = "www"
-catdepth_new.FAMILY = "nccommons"
-
-
-dir2 = os.getenv("HOME")
-printt(f"HOME:{dir2}")
+from ..accounts.user_account_ncc import User_tables, SITECODE, FAMILY
 # ---
-if not dir2:
-    Dir = str(Path(__file__).parents[0])
-    # ---
-    dir2 = Dir.replace("\\", "/")
-    dir2 = dir2.split("/nccbot/")[0]
-    # ---
-    if dir2.startswith("I:"):
-        dir2 = "I:/ncc"
+user_agent = default_user_agent()
 # ---
-file_path = Path(dir2) / "confs" / "nccommons_user.ini"
-# ---
-printt(f"{file_path=}")
-
-if not file_path.exists():
-    print(f"File not found: {file_path}")
-# ---
-config = configparser.ConfigParser()
-config.read(f"{dir2}/confs/nccommons_user.ini")
-# ---
-username = config["DEFAULT"].get("username", "").strip()
-password = config["DEFAULT"].get("password", "").strip()
-# ---
-printt(f"{username=}")
-# ---
-User_tables = {
-    "username": username,
-    "password": password,
-}
-# ---
-user_agent = super_page.default_user_agent()
-# ---
-super_page.add_Usertables(User_tables, "nccommons")
-bot_api.add_Usertables(User_tables, "nccommons")
-catdepth_new.add_Usertables(User_tables, "nccommons")
+super_page.add_Usertables(User_tables, FAMILY)
+bot_api.add_Usertables(User_tables, FAMILY)
+catdepth_new.add_Usertables(User_tables, FAMILY)
 # ---
 NEW_API = bot_api.NEW_API
+change_codes = lang_codes.change_codes
 # ---
 MainPage = super_page.MainPage
-ncc_MainPage = super_page.MainPage
+ncc_MainPage = MainPage
 # ---
-change_codes = super_page.change_codes
 CatDepth = catdepth_new.subcatquery
-# ---
-# xxxxxxxxxxx
-home_dir = os.getenv("HOME")
 
 __all__ = [
     'home_dir',
     'user_agent',
-    'ncc_MainPage',
     'MainPage',
+    'ncc_MainPage',
     'NEW_API',
     'CatDepth',
     'change_codes',
