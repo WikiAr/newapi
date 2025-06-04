@@ -45,8 +45,6 @@ def add_Usertables(table, family):
 class CategoryDepth(Login, BOTS_APIS):
     def __init__(self, title, sitecode=SITECODE, family=FAMILY, **kwargs):
         # ---
-        super().__init__(sitecode, family)
-        # ---
         if User_tables:
             for f, tab in User_tables.items():
                 self.add_User_tables(f, tab)
@@ -72,6 +70,8 @@ class CategoryDepth(Login, BOTS_APIS):
         self.nslist = []
         # ---
         kwargs["title"] = title
+        # ---
+        super().__init__(sitecode, family)
         # ---
         self.prase_params(**kwargs)
 

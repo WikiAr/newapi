@@ -111,8 +111,6 @@ class MainPage(Login, APIS):
         """
         self.username = ""
         # ---
-        super().__init__(lang, family)
-        # ---
         self.title = title
         # ---
         self.lang = change_codes.get(lang) or lang
@@ -163,6 +161,8 @@ class MainPage(Login, APIS):
         self.length = 0
         self.ns = False
         self.newtext = ""
+        # ---
+        super().__init__(lang, family)
         # ---
         if User_tables != {}:
             for f, tab in User_tables.items():

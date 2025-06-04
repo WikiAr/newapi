@@ -129,8 +129,9 @@ class MwClientSite:
             if self.site_mwclient.logged_in:
                 printe.output(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
 
-            # Save cookies to file, including session cookies
-            self.jar_cookie.save(ignore_discard=True, ignore_expires=True)
+            if self.jar_cookie:
+                # Save cookies to file, including session cookies
+                self.jar_cookie.save(ignore_discard=True, ignore_expires=True)
 
     def do_request(self, params=None, method="POST"):
         # ---
@@ -185,13 +186,13 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         self.cookies_file = getattr(self, "cookies_file") if hasattr(self, "cookies_file") else ""
         # ---
-        super().__init__(self.lang, self.family)
-        # ---
         self.username = ""
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
         self.user_table_done = False
+        # ---
+        super().__init__(self.lang, self.family)
 
     def add_User_tables(self, family, table) -> None:
         # ---

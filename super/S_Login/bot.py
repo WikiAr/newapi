@@ -53,8 +53,6 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.cookie_jar = False
         self.session = requests.Session()
         # ---
-        super().__init__()
-        # ---
         # check if self has username before writeself.username = ""
         self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.family = getattr(self, "family") if hasattr(self, "family") else ""
@@ -69,6 +67,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.user_agent = default_user_agent()
         self.headers = {"User-Agent": self.user_agent}
         self.sea_key = f"{self.lang}-{self.family}-{self.username}"
+        # ---
+        super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
         log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)

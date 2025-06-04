@@ -84,8 +84,6 @@ class NEW_API(Login, BOTS_APIS):
         # self.family = family
         self.lang = change_codes.get(lang) or lang
         # ---
-        super().__init__(lang, family)
-        # ---
         self.save_move = False
         # ---
         # self.family = family
@@ -93,6 +91,8 @@ class NEW_API(Login, BOTS_APIS):
         # ---
         self.cxtoken_expiration = 0
         self.cxtoken = ""
+        # ---
+        super().__init__(lang, family)
         # ---
         if User_tables:
             for f, tab in User_tables.items():
