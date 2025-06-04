@@ -47,11 +47,11 @@ if "mwclient" not in sys.argv:
 
 from ..super.S_API import bot_api
 from ..super.S_Page import super_page
-from .api_utils.user_agent import default_user_agent
+from ..api_utils.user_agent import default_user_agent
 from ..super.S_Category import catdepth_new
 
 from ..accounts import user_account_new
-from .api_utils import lang_codes
+from ..api_utils import lang_codes
 catdepth_new.SITECODE = "www"
 catdepth_new.FAMILY = "mdwiki"
 
