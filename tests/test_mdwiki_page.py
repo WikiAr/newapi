@@ -1,7 +1,6 @@
 """
 
 python3 core8/pwb.py newapi/tests/test_mdwiki_page nomwclient
-python3 core8/pwb.py newapi/tests/test_mdwiki_page nomwclient
 python3 core8/pwb.py newapi/tests/test_mdwiki_page
 
 """
@@ -10,11 +9,13 @@ import sys
 # sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.mdwiki_page import MainPage, CatDepth
+from newapi.mdwiki_page import CatDepth, MainPage
+
+page      = MainPage("Main_Page", 'www', family='mdwiki')
+exists    = page.exists()
+print(f"{exists=}")
 
 """
-page      = MainPage(title, 'ar', family='wikipedia')
-exists    = page.exists()
 text      = page.get_text()
 timestamp = page.get_timestamp()
 user      = page.get_user()
