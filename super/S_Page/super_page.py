@@ -55,51 +55,21 @@ from ...api_utils import printe, txtlib, botEdit
 from .ar_err import find_edit_error
 from ...api_utils.except_err import exception_err, warn_err
 from .bot import PAGE_APIS
+from ...api_utils.ask_bot import ASK_BOT
+from ...api_utils.lang_codes import change_codes
 
 file_name = os.path.basename(__file__)
 
-print_test = {1: False}
-# ---
-Edit_summary_line = {1: " -Edit summary: %s:"}
+print_test = {1: "test" in sys.argv}
 # ---
 not_loged_m = {1: ""}
-Save_Edit_Pages = {1: False}
-# ---
-change_codes = {
-    "bat_smg": "bat-smg",
-    "be-x-old": "be-tarask",
-    "be_x_old": "be-tarask",
-    "cbk_zam": "cbk-zam",
-    "fiu_vro": "fiu-vro",
-    "map_bms": "map-bms",
-    "nb": "no",
-    "nds_nl": "nds-nl",
-    "roa_rup": "roa-rup",
-    "zh_classical": "zh-classical",
-    "zh_min_nan": "zh-min-nan",
-    "zh_yue": "zh-yue",
-}
 
 User_tables = {}
-
 
 def add_Usertables(table, family):
     User_tables[family] = table
 
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
-
-class MainPage(PAGE_APIS):
+class MainPage(PAGE_APIS, ASK_BOT):
     def __init__(self, login_bot, title, lang, family="wikipedia"):
         # print(f"class MainPage: {lang=}")
         # ---
@@ -126,7 +96,7 @@ class MainPage(PAGE_APIS):
         self.create_data = {}
         self.info = {"done": False}
         # ---
-        self.username = ""
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.Exists = ""
         self.is_redirect = ""
         self.flagged = ""
@@ -761,7 +731,6 @@ class MainPage(PAGE_APIS):
         Returns:
         	True if the edit was successful, False otherwise.
         """
-
         # ---
         self.newtext = newtext
         if summary:
@@ -770,8 +739,9 @@ class MainPage(PAGE_APIS):
         if self.false_edit():
             return False
         # ---
-        ask = self.ask_put(nodiff=nodiff, ASK=ASK)
-        if ask is False:
+        message = f"Do you want to save this page? ({self.lang}:{self.title})"
+        # ---
+        if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=self.username, summary=self.summary) is False:
             return False
         # ---
         params = {
@@ -884,9 +854,10 @@ class MainPage(PAGE_APIS):
         self.newtext = text
         # ---
         if not noask:
-            ask = self.ask_put(nodiff=nodiff)
             # ---
-            if ask is False:
+            message = f"Do you want to create this page? ({self.lang}:{self.title})"
+            # ---
+            if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=self.username, summary=summary) is False:
                 return False
         # ---
         params = {

@@ -9,13 +9,16 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 import sys
 import os
 import requests
+
+from .params_help import PARAMS_HELPS
+
 from http.cookiejar import MozillaCookieJar
 
 from ...api_utils import printe
 from .cookies_bot import get_file_name, del_cookies_file
 from ...api_utils.except_err import exception_err
-from .params_help import PARAMS_HELPS
 from ..Login_db.bot import log_one
+from ...api_utils.user_agent import default_user_agent
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -26,27 +29,7 @@ User_tables = {}
 botname = "newapi"
 
 def add_Usertables(table, family):
-
     User_tables[family] = table
-
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
-
-# -----
-# -----
-# -----
-# -----
-# -----
 
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
@@ -272,7 +255,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def make_new_session(self) -> None:
         # ---
-        printe.output("make_new_session:")
+        printe.output(f"make_new_session:({self.lang}, {self.family}, {self.username})")
         # ---
         seasons_by_lang[self.sea_key] = requests.Session()
         # ---

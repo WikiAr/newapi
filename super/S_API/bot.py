@@ -6,9 +6,9 @@ from .super.S_API.bot import BOTS_APIS
 import sys
 from ...api_utils import printe
 from ..handel_errors import HANDEL_ERRORS
+from ...api_utils.ask_bot import ASK_BOT
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
-Save_Edit_Pages = {1: False}
 file_name = "bot_api.py"
 
 
@@ -16,40 +16,12 @@ def test_print(s):
     if "test_print" in sys.argv:
         printe.output(s)
 
-
-class BOTS_APIS(HANDEL_ERRORS):
+class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
     def __init__(self):
         # print("class BOTS_APIS:")
-        self.username = ""
+        # ---
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
         super().__init__()
-
-    def ask_put(self, nodiff=False, newtext="", text="", message=""):
-        yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
-        # ---
-        if "ask" in sys.argv and not Save_Edit_Pages[1]:
-            # ---
-            if "nodiff" not in sys.argv and not nodiff:
-                if len(newtext) < 70000 and len(text) < 70000 or "diff" in sys.argv:
-                    printe.showDiff(text, newtext)
-                else:
-                    printe.output("showDiff error..")
-                    printe.output(f"diference in bytes: {len(newtext) - len(text)}")
-                    printe.output(f"length of text: {len(text)}, length of newtext: {len(newtext)}")
-            # ---
-            printe.output(f"<<lightyellow>>bot_api.py: save {message} (yes, no)? {self.username=}")
-            sa = input("([y]es, [N]o, [a]ll)?")
-            # ---
-            if sa == "a":
-                printe.output("<<lightgreen>> ---------------------------------")
-                printe.output(f"<<lightgreen>> {file_name} save all without asking.")
-                printe.output("<<lightgreen>> ---------------------------------")
-                Save_Edit_Pages[1] = True
-            # ---
-            if sa not in yes_answer:
-                printe.output("wrong answer")
-                return False
-        # ---
-        return True
 
     def Add_To_Bottom(self, text, summary, title, poss="Head|Bottom"):
         # ---
@@ -64,7 +36,7 @@ class BOTS_APIS(HANDEL_ERRORS):
         test_print(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
-        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ")
+        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ", job="Add_To_Bottom", username=self.username, summary=summary)
         # ---
         if ask is False:
             return False
@@ -131,21 +103,10 @@ class BOTS_APIS(HANDEL_ERRORS):
             test_print(f"<<lightred>>** old_title == to {to} ")
             return {}
         # ---
-        if not self.save_move and "ask" in sys.argv:
-            printe.output(f"<<lightyellow>>bot_api: Do you move page:[[{old_title}]] to [[{to}]]? {self.username=}")
-            sa = input("([y]es, [N]o, [a]ll)?")
-            # ---
-            if sa == "a":
-                printe.output("<<lightgreen>> ---------------------------------")
-                printe.output("<<lightgreen>> bot_api.py move all without asking.")
-                printe.output("<<lightgreen>> ---------------------------------")
-                self.save_move = True
-            # ---
-            if sa not in yes_answer:
-                printe.output("<<red>> bot_api: wrong answer")
-                return {}
-            # ---
-            test_print(f"<<lightgreen>> answer: {sa in yes_answer}")
+        message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
+        # ---
+        if not self.ask_put(message=message, job="move", username=self.username):
+            return {}
         # ---
         data = self.post_params(params)
         # { "move": { "from": "d", "to": "d2", "reason": "wrong", "redirectcreated": true, "moveoverredirect": false } }
@@ -271,7 +232,7 @@ class BOTS_APIS(HANDEL_ERRORS):
         upload_result = data.get("upload", {})
         # ---
         success = upload_result.get("result") == "Success"
-        error = data.get("error", {})
+        _error = data.get("error", {})
         # ---
         duplicate = upload_result.get("warnings", {}).get("duplicate", [""])[0].replace("_", " ")
         # ---

@@ -49,24 +49,9 @@ from datetime import timedelta
 from ...api_utils import printe
 from .bot import BOTS_APIS
 from ..S_Login.super_login import Login
-
-change_codes = {
-    "bat_smg": "bat-smg",
-    "be-x-old": "be-tarask",
-    "be_x_old": "be-tarask",
-    "cbk_zam": "cbk-zam",
-    "fiu_vro": "fiu-vro",
-    "map_bms": "map-bms",
-    "nb": "no",
-    "nds_nl": "nds-nl",
-    "roa_rup": "roa-rup",
-    "zh_classical": "zh-classical",
-    "zh_min_nan": "zh-min-nan",
-    "zh_yue": "zh-yue",
-}
+from ...api_utils.lang_codes import change_codes
 
 User_tables = {}
-
 
 def add_Usertables(table, family):
     User_tables[family] = table
@@ -80,13 +65,11 @@ def test_print(s):
 class NEW_API(Login, BOTS_APIS):
     def __init__(self, lang, family="wikipedia"):
         # ---
-        self.username = ""
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
         # self.family = family
         self.lang = change_codes.get(lang) or lang
         # ---
         super().__init__(lang, family)
-        # ---
-        self.save_move = False
         # ---
         # self.family = family
         # self.endpoint = f"https://{lang}.{family}.org/w/api.php"

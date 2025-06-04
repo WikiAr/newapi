@@ -17,7 +17,7 @@ from .cookies_bot import get_file_name, del_cookies_file
 
 from .params_help import PARAMS_HELPS
 from ..Login_db.bot import log_one
-
+from ...api_utils.user_agent import default_user_agent
 # import mwclient
 
 # from mwclient.client import Site
@@ -32,23 +32,11 @@ User_tables = {}
 def add_Usertables(table, family):
     User_tables[family] = table
 
-
-def default_user_agent():
-    tool = os.getenv("HOME")
-    # "/data/project/mdwiki"
-    tool = tool.split("/")[-1] if tool else "himo"
-    # ---
-    li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
-    # ---
-    # printe.output(f"default_user_agent: {li}")
-    # ---
-    return li
-
 class MwClientSite:
     def __init__(self, lang, family):
         self.lang = lang
         self.family = family
-        self.username = None
+        self.username = getattr(self, "username") if hasattr(self, "username") else None
         self.password = None
         # ---
         self.login_done = False
@@ -187,7 +175,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         super().__init__(self.lang, self.family)
         # ---
-        self.username = ""
+        self.username = getattr(self, "username") if hasattr(self, "username") else ""
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0

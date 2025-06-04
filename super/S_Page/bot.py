@@ -3,18 +3,8 @@
 from .super.S_Page.bot import PAGE_APIS
 
 """
-import sys
-import os
-from ...api_utils import printe
 from ..handel_errors import HANDEL_ERRORS
 # from ..S_Login.super_login import Login
-file_name = os.path.basename(__file__)
-
-print_test = {1: False}
-# ---
-Edit_summary_line = {1: " -Edit summary: %s:"}
-# ---
-Save_Edit_Pages = {1: False}
 
 class PAGE_APIS(HANDEL_ERRORS):
     def __init__(self, login_bot):
@@ -190,46 +180,3 @@ class PAGE_APIS(HANDEL_ERRORS):
         self.revisions = revisions
         # ---
         return revisions
-
-    def ask_put(self, nodiff=False, ASK=False):
-        """
-        Prompts the user to confirm saving changes to a page, optionally displaying a diff.
-
-        If enabled by command-line arguments or parameters, shows the difference between the current and new text, displays summary information, and asks the user to accept or reject the changes. Supports skipping further prompts for subsequent edits.
-
-        Args:
-            nodiff: If True, skips displaying the diff.
-            ASK: If True, forces the prompt regardless of command-line arguments.
-
-        Returns:
-            True if the user accepts the changes or prompting is not required; False otherwise.
-        """
-        yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
-        # ---
-        if "ask" in sys.argv and not Save_Edit_Pages[1] or print_test[1] or ASK:
-            # ---
-            if "nodiff" not in sys.argv and not nodiff:
-                if len(self.newtext) < 70000 and len(self.text) < 70000 or "diff" in sys.argv:
-                    printe.showDiff(self.text, self.newtext)
-                else:
-                    printe.output("showDiff error..")
-            # ---
-            printe.output(f"diference in bytes: {len(self.newtext) - len(self.text):,}")
-            printe.output(f"len of text: {len(self.text):,}, len of newtext: {len(self.newtext):,}")
-            # ---
-            printe.output(Edit_summary_line[1] % self.summary)
-            # ---
-            printe.output(f"<<lightyellow>>page.py: Do you want to accept these changes? (yes, no): for page {self.lang}:{self.title}? {self.username=}")
-            sa = input("([y]es, [N]o, [a]ll)?")
-            # ---
-            if sa == "a":
-                printe.output("<<lightgreen>> ---------------------------------")
-                printe.output(f"<<lightgreen>> {file_name} save all without asking.")
-                printe.output("<<lightgreen>> ---------------------------------")
-                Save_Edit_Pages[1] = True
-            # ---
-            if sa not in yes_answer:
-                printe.output("wrong answer")
-                return False
-        # ---
-        return True

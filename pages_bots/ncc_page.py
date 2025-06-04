@@ -38,12 +38,10 @@ home_dir = os.getenv("HOME")
 import configparser
 from pathlib import Path
 from ..super.S_API import bot_api
-from ..super.S_Page import super_page
-from ..super.S_Login.super_login import Login
 from ..super.S_Page.page_wrap import MainPageWrap
-
 from ..super.S_Category import catdepth_new
-from ..api_utils import printe
+from ..api_utils.user_agent import default_user_agent
+from ..api_utils import lang_codes
 
 print_test = {1: "test" in sys.argv}
 
@@ -52,8 +50,8 @@ def printt(s):
         print(s)
 
 
-catdepth_new.SITECODE = "www"
-catdepth_new.FAMILY = "nccommons"
+# catdepth_new.SITECODE = "www"
+# catdepth_new.FAMILY = "nccommons"
 
 
 dir2 = os.getenv("HOME")
@@ -88,7 +86,7 @@ User_tables = {
     "password": password,
 }
 # ---
-user_agent = super_page.default_user_agent()
+user_agent = default_user_agent()
 # ---
 # super_page.add_Usertables(User_tables, "nccommons")
 bot_api.add_Usertables(User_tables, "nccommons")
@@ -99,7 +97,7 @@ NEW_API = bot_api.NEW_API
 # MainPage = super_page.MainPage
 # ncc_MainPage = super_page.MainPage
 # ---
-change_codes = super_page.change_codes
+change_codes = lang_codes.change_codes
 CatDepth = catdepth_new.subcatquery
 # ---
 # xxxxxxxxxxx
