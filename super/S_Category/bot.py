@@ -46,10 +46,7 @@ def add_Usertables(table, family):
 class CategoryDepth(Login):
     def __init__(self, title, sitecode=SITECODE, family=FAMILY, **kwargs):
         # ---
-        if User_tables:
-            for f, tab in User_tables.items():
-                self.add_User_tables(f, tab)
-        # ---
+        self.lang = sitecode
         self.title = title
         # ---
         self.len_pages = 0
@@ -72,6 +69,10 @@ class CategoryDepth(Login):
         # ---
         super().__init__(sitecode, family)
         # ---
+        if User_tables:
+            for f, tab in User_tables.items():
+                self.add_User_tables(f, tab)
+        # ---
         kwargs["title"] = title
         # ---
         self.prase_params(**kwargs)
@@ -86,6 +87,8 @@ class CategoryDepth(Login):
         # ---
         if not kwargs:
             return
+        # ---
+        self.lang = kwargs.get("lang") or self.lang
         # ---
         self.len_pages = 0
         # ---

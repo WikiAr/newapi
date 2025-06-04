@@ -184,7 +184,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
-        langx = self.lang
+        langx = getattr(self, "lang") if hasattr(self, "lang") else lang
         # ---
         # for example family=toolforge, lang in (medwiki, mdwikicx)
         if lang and not self.family.startswith("wik"):
