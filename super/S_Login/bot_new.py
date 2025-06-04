@@ -21,7 +21,7 @@ from ...api_utils.user_agent import default_user_agent
 # import mwclient
 
 # from mwclient.client import Site
-from .mwclient.client import Site
+from ..mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
