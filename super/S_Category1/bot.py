@@ -70,9 +70,9 @@ class CategoryDepth(Login):
         self.ns = "all"
         self.nslist = []
         # ---
-        kwargs["title"] = title
-        # ---
         super().__init__(sitecode, family)
+        # ---
+        kwargs["title"] = title
         # ---
         self.prase_params(**kwargs)
 

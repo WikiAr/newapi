@@ -42,11 +42,11 @@ def subcatquery_wrap(title, sitecode=SITECODE, family=FAMILY, **kwargs):
         # ---
         hases[cache_key] += 1
         # ---
-        printe.output(f"### <<green>> subcatquery_wrap has bot for ({sitecode}.{family}.org) count: {hases[cache_key]}")
+        printe.output(f"### <<green>> subcatquery_wrap has bot for ({sitecode}.{family}.org) count: {hases[cache_key]}", p=True)
     else:
         bot = CategoryDepth(title, sitecode=sitecode, family=family, **kwargs)
         # ---
-        printe.output(f"### <<purple>> subcatquery_wrap make new bot for ({sitecode}.{family}.org)")
+        printe.output(f"### <<purple>> subcatquery_wrap make new bot for ({sitecode}.{family}.org)", p=True)
         # ---
         cat_bots_login[cache_key] = bot
     # ---
