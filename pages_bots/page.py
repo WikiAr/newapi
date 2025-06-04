@@ -29,10 +29,12 @@ from newapi.page import MainPage, NEW_API
 import os
 import sys
 from ..super.S_API import bot_api
+
 from ..super.S_Category import catdepth_new
-from ..super.S_Category1 import catdepth_new as catdepth_new1
+
+from ..super.S_Page import super_page
+from ..super.S_Login.login_wrap import LoginWrap
 from ..accounts import useraccount
-from ..super.S_Page.page_wrap import MainPageWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
 
@@ -57,13 +59,12 @@ if "workibrahem" in sys.argv:
 user_agent = default_user_agent()
 # ---
 bot_api.add_Usertables(User_tables, "wikipedia")
-catdepth_new.add_Usertables(User_tables, "wikipedia")
-# ---
 bot_api.add_Usertables(User_tables, "wikisource")
-catdepth_new.add_Usertables(User_tables, "wikisource")
-# ---
 bot_api.add_Usertables(User_tables, "wikidata")
-catdepth_new.add_Usertables(User_tables, "wikidata")
+# ---
+# catdepth_new.add_Usertables(User_tables, "wikidata")
+# catdepth_new.add_Usertables(User_tables, "wikisource")
+# catdepth_new.add_Usertables(User_tables, "wikipedia")
 # ---
 # super_page.add_Usertables(User_tables, "wikipedia")
 # super_page.add_Usertables(User_tables, "wikisource")
@@ -71,17 +72,29 @@ catdepth_new.add_Usertables(User_tables, "wikidata")
 # ---
 NEW_API = bot_api.NEW_API
 change_codes = lang_codes.change_codes
-CatDepth = catdepth_new.subcatquery
-CatDepth1 = catdepth_new1.subcatquery
+# CatDepth = catdepth_new.subcatquery
 
-cat_bots_login = {}
+logins_cache = {}
 
 def MainPage(title, lang, family="wikipedia"):
     # ---
-    page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables)
-    cat_bots_login.update(cat_bots_login2)
+    login_bot, logins_cache2 = LoginWrap(title, lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
     return page
+
+def CatDepth(title, sitecode="", family="", **kwargs):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(title, sitecode, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
 
 __all__ = [
     'home_dir',
@@ -89,6 +102,5 @@ __all__ = [
     'MainPage',
     'NEW_API',
     'CatDepth',
-    'CatDepth1',
     'change_codes',
 ]

@@ -1,6 +1,6 @@
 """
 
-from ..super.S_Page import page_wrap
+from ..super.S_Page.page_wrap import MainPageWrap
 
 # page, cat_bots_login2 = MainPageWrap(title, lang, family, cat_bots_login, User_tables)
 # cat_bots_login.update(cat_bots_login2)

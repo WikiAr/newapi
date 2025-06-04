@@ -8,10 +8,7 @@ import tqdm
 
 from ...api_utils import printe
 # from ..S_API.bot import BOTS_APIS
-from ..S_Login.super_login import Login
-
-SITECODE = "en"
-FAMILY = "wikipedia"
+# from ..S_Login.super_login import Login
 
 ns_list = {
     "0": "",
@@ -37,18 +34,11 @@ ns_list = {
     "1729": "نقاش الفعالية",
 }
 
-User_tables = {}
 
-def add_Usertables(table, family):
-    User_tables[family] = table
-
-# class CategoryDepth(Login, BOTS_APIS):
-class CategoryDepth(Login):
-    def __init__(self, title, sitecode=SITECODE, family=FAMILY, **kwargs):
+class CategoryDepth:
+    def __init__(self, login_bot, title, **kwargs):
         # ---
-        if User_tables:
-            for f, tab in User_tables.items():
-                self.add_User_tables(f, tab)
+        self.login_bot = login_bot
         # ---
         self.title = title
         # ---
@@ -70,11 +60,21 @@ class CategoryDepth(Login):
         self.ns = "all"
         self.nslist = []
         # ---
-        super().__init__(sitecode, family)
-        # ---
         kwargs["title"] = title
         # ---
         self.prase_params(**kwargs)
+
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+        # ---
+        return self.login_bot.post_params(
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry
+        )
 
     def get_revids(self):
         return self.revids
@@ -332,7 +332,7 @@ class CategoryDepth(Login):
 
     def subcatquery_(self, **kwargs):
         # ---
-        self.prase_params(**kwargs)
+        # self.prase_params(**kwargs)
         # ---
         tablemember = self.get_cat_new(self.title)
         # ---
