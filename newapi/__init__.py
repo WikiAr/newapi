@@ -6,6 +6,7 @@ from .DB_bots import db_bot, pymysql_bot
 from .accounts import useraccount
 from .api_utils import except_err, botEdit
 from .api_utils import printe, txtlib, wd_sparql
+from .super.S_Login.login_wrap import LoginWrap
 from . import page
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "except_err",
     "printe",
     "page",
+    "LoginWrap",
 ]

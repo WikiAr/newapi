@@ -39,6 +39,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.lang = getattr(self, "lang", "")
         self.endpoint = getattr(self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php")
         # ---
+        self.connection = None
+        # ---
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
@@ -273,7 +275,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if len(self.cookie_jar) > 0:
             if self.loged_in():
                 loged_t = True
-                printe.output("<<green>> Already logged in as " + self.username_in)
+                printe.output(f"<<green>>Cookie Already logged in with user:{self.username_in}")
         else:
             loged_t = self.log_in()
         # ---
@@ -341,12 +343,10 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         params = self.params_w(params)
         # ---
-        session = seasons_by_lang.get(self.sea_key)
-        # ---
         if not self.username_in:
             self.username_in = users_by_lang.get(self.lang, "")
         # ---
-        if not session:
+        if not seasons_by_lang.get(self.sea_key):
             self.make_new_session()
         # ---
         if not self.username_in:
@@ -398,6 +398,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
     def get_rest_result(self, url) -> dict:
         # ---
         print("get_rest_result:")
+        # ---
+        if not seasons_by_lang.get(self.sea_key):
+            self.make_new_session()
         # ---
         result = {}
         # ---

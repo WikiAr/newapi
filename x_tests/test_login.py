@@ -7,10 +7,10 @@ import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
-from newapi.accounts import useraccount
+from newapi.accounts.useraccount import User_tables_bot
 from newapi.super.S_Login import super_login
 
-User_tables = {"username": useraccount.username, "password": useraccount.password}
+User_tables = User_tables_bot
 # ---
 
 Login = super_login.Login

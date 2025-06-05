@@ -7,7 +7,8 @@ from .api_utils.printe import (
     debug,
     warn,
     error,
-    info
+    info,
+    test_print,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "warn",
     "error",
     "info",
+    "test_print",
 ]

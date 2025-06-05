@@ -11,11 +11,6 @@ from ...api_utils.ask_bot import ASK_BOT
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
 
-
-def test_print(s):
-    if "test_print" in sys.argv:
-        printe.output(s)
-
 class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
     def __init__(self):
         # print("class BOTS_APIS:")
@@ -34,7 +29,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             printe.output('** Add_To_Bottom ..  text == ""')
             return False
         # ---
-        test_print(f"** Add_To_Bottom .. [[{title}]] ")
+        printe.test_print(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
         ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ", job="Add_To_Bottom", username=self.username, summary=summary)
@@ -101,7 +96,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             params["reason"] = reason
         # ---
         if old_title == to:
-            test_print(f"<<lightred>>** old_title == to {to} ")
+            printe.test_print(f"<<lightred>>** old_title == to {to} ")
             return {}
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"

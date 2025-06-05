@@ -703,6 +703,10 @@ def warn(text):
     log.warning(new_text)
 
 
+def test_print(s):
+    if "test_print" in sys.argv:
+        output(s)
+
 __all__ = [
     "showDiff",
     "output",
@@ -710,6 +714,7 @@ __all__ = [
     "warn",
     "error",
     "info",
+    "test_print",
 ]
 
 if __name__ == "__main__":

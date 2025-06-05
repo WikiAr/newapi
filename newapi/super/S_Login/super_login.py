@@ -37,11 +37,6 @@ print_test = {1: "test" in sys.argv}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
 
-def test_print(s):
-    if "test_print" in sys.argv:
-        printe.output(s)
-
-
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """
     Represents a login session for a wiki.
@@ -49,6 +44,8 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
 
     def __init__(self, lang, family="wikipedia"):
         # print(f"class Login:{lang=}")
+        # ---
+        self.user_login = ""
         # ---
         self.lang = lang
         self.family = family
@@ -64,6 +61,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
     def add_users(self, Users_tables, lang=""):
         if Users_tables:
             for family, user_tab in Users_tables.items():
+                self.user_login = user_tab.get("username")
                 self.add_User_tables(family, user_tab, lang=lang)
 
     def Log_to_wiki(self):
@@ -211,7 +209,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if error_code == "maxlag" and max_retry < 4:
                 lage = int(error.get("lag", "0"))
                 # ---
-                test_print(params)
+                printe.test_print(params)
                 # ---
                 printe.output(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
                 # ---
@@ -230,8 +228,8 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
 
     def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
         # ---
-        test_print("_______________________")
-        test_print(f"post_continue, start. {action=}, {_p_=}")
+        printe.test_print("_______________________")
+        printe.test_print(f"post_continue, start. {action=}, {_p_=}")
         # ---
         if not isinstance(Max, int) and Max.isdigit():
             Max = int(Max)
@@ -256,16 +254,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             if continue_params:
                 # params = {**params, **continue_params}
-                test_print("continue_params:")
+                printe.test_print("continue_params:")
                 for k, v in continue_params.items():
                     params2[k] = v
                 # params2.update(continue_params)
-                test_print(params2)
+                printe.test_print(params2)
             # ---
             json1 = self.post_params(params2)
             # ---
             if not json1:
-                test_print("post_continue, json1 is empty. break")
+                printe.test_print("post_continue, json1 is empty. break")
                 break
             # ---
             continue_params = {}
@@ -273,8 +271,8 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if action == "wbsearchentities":
                 data = json1.get("search", [])
                 # ---
-                # test_print("wbsearchentities json1: ")
-                # test_print(str(json1))
+                # printe.test_print("wbsearchentities json1: ")
+                # printe.test_print(str(json1))
                 # ---
                 # search_continue = json1.get("search-continue")
                 # ---
@@ -294,13 +292,13 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                             data = data.get(_p_2, _p_2_empty)
             # ---
             if not data:
-                test_print("post continue, data is empty. break")
+                printe.test_print("post continue, data is empty. break")
                 break
             # ---
-            test_print(f"post continue, len:{len(data)}, all: {len(results)}")
+            printe.test_print(f"post continue, len:{len(data)}, all: {len(results)}")
             # ---
             if Max <= len(results) and len(results) > 1:
-                test_print(f"post continue, {Max=} <= {len(results)=}. break")
+                printe.test_print(f"post continue, {Max=} <= {len(results)=}. break")
                 break
             # ---
             if isinstance(results, list):
@@ -311,6 +309,6 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 print(f"{type(data)=}")
                 results = {**results, **data}
         # ---
-        test_print(f"post continue, {len(results)=}")
+        printe.test_print(f"post continue, {len(results)=}")
         # ---
         return results

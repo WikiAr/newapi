@@ -1,3 +1,8 @@
+"""
+
+from newapi.accounts.useraccount import User_tables_bot, User_tables_ibrahem
+
+"""
 import sys
 import os
 import configparser
@@ -35,3 +40,13 @@ user_agent = config['DEFAULT'].get('user_agent', "")
 if "workibrahem" in sys.argv:
     username = hiacc
     password = hipass
+
+User_tables_bot = {
+    "username": str(username),
+    "password": str(password),
+}
+# ---
+User_tables_ibrahem = {
+    "username": hiacc,
+    "password": hipass,
+}
