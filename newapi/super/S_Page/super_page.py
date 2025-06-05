@@ -74,6 +74,8 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         self.login_bot = login_bot
         # ---
+        self.user_login = login_bot.user_login
+        # ---
         self.title = title
         self.lang = change_codes.get(lang) or lang
         self.family = family
@@ -689,7 +691,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         message = f"Do you want to save this page? ({self.lang}:{self.title})"
         # ---
-        if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=self.meta.username, summary=self.content.summary) is False:
+        user = self.meta.username or self.user_login
+        # ---
+        if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=user, summary=self.content.summary) is False:
             return False
         # ---
         params = {
@@ -805,7 +809,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
             # ---
-            if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=self.meta.username, summary=summary) is False:
+            user = self.meta.username or self.user_login
+            # ---
+            if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary) is False:
                 return False
         # ---
         params = {

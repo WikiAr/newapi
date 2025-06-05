@@ -1,6 +1,6 @@
 """
-python3 core8/pwb.py newapi/x_tests/test_ncc_page mwclient
-python3 core8/pwb.py newapi/x_tests/test_ncc_page
+python3 core8/pwb.py newapi_bot/x_tests/test_ncc_page mwclient
+python3 core8/pwb.py newapi_bot/x_tests/test_ncc_page
 
 """
 import sys

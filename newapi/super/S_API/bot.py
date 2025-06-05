@@ -32,7 +32,9 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         printe.test_print(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
-        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ", job="Add_To_Bottom", username=self.username, summary=summary)
+        user = self.username or self.user_login
+        # ---
+        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ", job="Add_To_Bottom", username=user, summary=summary)
         # ---
         if ask is False:
             return False
@@ -101,7 +103,9 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
         # ---
-        if not self.ask_put(message=message, job="move", username=self.username):
+        user = self.username or self.user_login
+        # ---
+        if not self.ask_put(message=message, job="move", username=user):
             return {}
         # ---
         data = self.post_params(params)

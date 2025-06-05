@@ -1,12 +1,13 @@
 """
 
-python3 core8/pwb.py newapi/x_tests/test_db_bot
+python3 core8/pwb.py newapi_bot/x_tests/test_db_bot
 
 """
 import os
 import sys
 from datetime import datetime
-
+from pathlib import Path
+Dir = Path(__file__).resolve().parent
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
@@ -14,10 +15,12 @@ sys.argv.append("ask")
 from newapi import db_bot
 
 LiteDB = db_bot.LiteDB
+
 def test():
-    db_path = "/data/mdwiki/public_html/ncc/Tables/nc_files.db"
+    db_path = Dir / "nc_files.db"
     if not os.path.exists(db_path):
-        db_path = "I:/mdwiki/pybot/ncc_core/nc_import/bots/nc_files.db"
+        print(f"Creating {db_path}")
+        db_path.touch()
 
     nc_files_db = LiteDB(db_path)
 

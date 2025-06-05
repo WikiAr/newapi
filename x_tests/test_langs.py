@@ -1,7 +1,7 @@
 """
 
-python3 core8/pwb.py newapi/x_tests/test_langs mwclient
-python3 core8/pwb.py newapi/x_tests/test_langs
+python3 core8/pwb.py newapi_bot/x_tests/test_langs mwclient
+python3 core8/pwb.py newapi_bot/x_tests/test_langs
 
 """
 import sys
