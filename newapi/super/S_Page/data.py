@@ -2,6 +2,8 @@
 
 from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, TemplateData
 
+(Exists|all_categories_with_hidden|back_links|can_be_edit|categories|create_data|extlinks|flagged|hidden_categories|info|is_Disambig|is_redirect|iwlinks|length|links_here|links|newrevid|pageid|revid|revisions|summary|templates|templates_API|text_html|timestamp|touched|userinfo|username|wikibase_item|words)
+
 """
 
 from dataclasses import dataclass, field
@@ -31,7 +33,6 @@ r"""
 # meta
 self.is_Disambig = False
 self.can_be_edit = False
-self.ns = False
 self.userinfo = {}
 self.create_data = {}
 self.info = {"done": False}
@@ -85,6 +86,7 @@ r"""
 self.back_links = []
 self.extlinks = []
 self.links = []
+self.links2 = []
 self.iwlinks = []
 self.links_here = []
 # ---
@@ -95,9 +97,10 @@ self.links_data.$1
 class LinksData:
     back_links: list = field(default_factory=list)
     extlinks: list = field(default_factory=list)
-    links: list = field(default_factory=list)
     iwlinks: list = field(default_factory=list)
     links_here: list = field(default_factory=list)
+    links: list = field(default_factory=list)
+    links2: list = field(default_factory=list)
 
 
 r"""
