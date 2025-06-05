@@ -9,7 +9,7 @@ from newapi.super.Login_db.bot import log_one
 import sys
 import json
 import pymysql
-from datetime import datetime
+import datetime
 
 DB_CONFIG = {
     'host': 'localhost',
