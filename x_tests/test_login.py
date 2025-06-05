@@ -7,7 +7,6 @@ import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
-from newapi.accounts import useraccount
 from newapi.accounts.useraccount import User_tables_bot
 from newapi.super.S_Login import super_login
 
