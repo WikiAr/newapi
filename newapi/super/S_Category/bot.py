@@ -38,6 +38,8 @@ class CategoryDepth:
         # ---
         self.login_bot = login_bot
         # ---
+        self.user_login = login_bot.user_login
+        # ---
         self.title = title
         # ---
         self.len_pages = 0
