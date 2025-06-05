@@ -50,11 +50,6 @@ from ...api_utils import printe
 from .bot import BOTS_APIS
 from ...api_utils.lang_codes import change_codes
 
-def test_print(s):
-    if "test_print" in sys.argv:
-        printe.output(s)
-
-
 class NEW_API(BOTS_APIS):
     def __init__(self, login_bot, lang, family="wikipedia"):
         # ---
@@ -174,7 +169,7 @@ class NEW_API(BOTS_APIS):
 
     def Get_All_pages(self, start="", namespace="0", limit="max", apfilterredir="", ppprop="", limit_all=100000):
         # ---
-        test_print(f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}")
+        printe.test_print(f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}")
         # ---
         params = {
             "action": "query",
@@ -201,11 +196,11 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="allpages", p_empty=[], Max=limit_all)
         # ---
-        test_print(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
+        printe.test_print(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        test_print(f"len of Main_table {len(Main_table)}.")
+        printe.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
         printe.output(f"bot_api.py Get_All_pages : find {len(Main_table)} pages.")
         # ---
@@ -232,7 +227,7 @@ class NEW_API(BOTS_APIS):
             list: A list of titles that match the prefix search.
         """
         # ---
-        test_print(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
+        printe.test_print(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
         # ---
         pssearch = pssearch.strip() if pssearch else ""
         # ---
@@ -260,11 +255,11 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="prefixsearch", p_empty=[], Max=limit_all)
         # ---
-        test_print(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
+        printe.test_print(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        test_print(f"len of Main_table {len(Main_table)}.")
+        printe.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
         printe.output(f"bot_api.py PrefixSearch : find {len(Main_table)} pages.")
         # ---
@@ -272,7 +267,7 @@ class NEW_API(BOTS_APIS):
 
     def Get_All_pages_generator(self, start="", namespace="0", limit="max", filterredir="", ppprop="", limit_all=100000):
         # ---
-        test_print(f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}")
+        printe.test_print(f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}")
         # ---
         params = {
             "action": "query",
@@ -300,11 +295,11 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="pages", p_empty=[], Max=limit_all)
         # ---
-        test_print(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
+        printe.test_print(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
         # ---
         Main_table = {x["title"]: x for x in newp}
         # ---
-        test_print(f"len of Main_table {len(Main_table)}.")
+        printe.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
         printe.output(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
         # ---
@@ -312,7 +307,7 @@ class NEW_API(BOTS_APIS):
 
     def Search(self, value="", ns="*", offset="", srlimit="max", RETURN_dict=False, addparams=None):
         # ---
-        test_print(f'bot_api.Search for "{value}",ns:{ns}')
+        printe.test_print(f'bot_api.Search for "{value}",ns:{ns}')
         # ---
         if not srlimit:
             srlimit = "max"
@@ -347,7 +342,7 @@ class NEW_API(BOTS_APIS):
             else:
                 results.append(pag["title"])
         # ---
-        test_print(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
+        printe.test_print(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
         # ---
         return results
 
@@ -386,7 +381,7 @@ class NEW_API(BOTS_APIS):
 
         Main_table = [x["title"] for x in json1]
 
-        test_print(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
+        printe.test_print(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
 
         return Main_table
 
@@ -441,7 +436,7 @@ class NEW_API(BOTS_APIS):
         """
 
         # ---
-        test_print(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
+        printe.test_print(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
         # ---
         if targtsitecode.endswith("wiki"):
             targtsitecode = targtsitecode[:-4]
@@ -464,7 +459,7 @@ class NEW_API(BOTS_APIS):
         # ---
         if targtsitecode:
             params["lllang"] = targtsitecode
-            test_print(f'params["lllang"] = {targtsitecode}')
+            printe.test_print(f'params["lllang"] = {targtsitecode}')
         # ---
         find_targtsitecode = 0
         normalized = {}
@@ -475,7 +470,7 @@ class NEW_API(BOTS_APIS):
         for title_chunk in self.chunk_titles(titles, chunk_size=numbes):
             params["titles"] = "|".join(title_chunk)
             # ---
-            # test_print(f'bot_api.Get_langlinks_for_list work for {len(group)} pages')
+            # printe.test_print(f'bot_api.Get_langlinks_for_list work for {len(group)} pages')
             # ---
             json1 = self.post_params(params)
             # ---
@@ -652,13 +647,13 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="querypage", p_empty=[], Max=Max)
         # ---
-        test_print(f"querypage_list len(results) = {len(results)}")
+        printe.test_print(f"querypage_list len(results) = {len(results)}")
         # ---
         return results
 
     def Get_template_pages(self, title, namespace="*", Max=10000):
         # ---
-        test_print(f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"')
+        printe.test_print(f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"')
         # ---
         params = {
             "action": "query",
@@ -684,7 +679,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        test_print(f'Get_image_url for file:"{title}":')
+        printe.test_print(f'Get_image_url for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -716,7 +711,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        test_print(f'Get_imageinfo for file:"{title}":')
+        printe.test_print(f'Get_imageinfo for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -757,7 +752,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="pageswithprop", p_empty=[], Max=Max)
         # ---
-        test_print(f"pageswithprop len(results) = {len(results)}")
+        printe.test_print(f"pageswithprop len(results) = {len(results)}")
         # ---
         return results
 
@@ -836,7 +831,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="users", p_empty=[])
         # ---
-        test_print(f"users_infos len(results) = {len(results)}")
+        printe.test_print(f"users_infos len(results) = {len(results)}")
         # ---
         results = [dict(x) for x in results]
         # ---

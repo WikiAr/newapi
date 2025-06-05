@@ -8,10 +8,12 @@ import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
-from newapi.accounts import useraccount
 from newapi.super.S_Login import super_login
 
-User_tables = {"username": useraccount.username, "password": f"{useraccount.password}213"}
+from newapi.accounts.useraccount import User_tables_bot
+
+User_tables = User_tables_bot
+User_tables["password"] += "123"
 # ---
 
 # super_login.User_tables["wikipedia"] = User_tables
