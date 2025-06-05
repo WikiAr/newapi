@@ -20,4 +20,4 @@ jobs:
           script: |
             become himo sh -c "shs/update_api.sh; touch update_from_github"
             become mdwiki sh -c "shs/update_api.sh; touch update_from_github"
-            become ncc sh -c "shs/update_api.sh; touch update_from_github"
+            # become ncc sh -c "shs/update_api.sh; touch update_from_github"
