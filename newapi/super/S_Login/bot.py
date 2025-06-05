@@ -39,6 +39,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.lang = getattr(self, "lang", "")
         self.endpoint = getattr(self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php")
         # ---
+        self.connection = None
+        # ---
         self.password = ""
         self.username_in = ""
         self.Bot_or_himo = 0
