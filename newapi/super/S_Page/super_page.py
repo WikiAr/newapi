@@ -691,7 +691,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         message = f"Do you want to save this page? ({self.lang}:{self.title})"
         # ---
-        user = self.meta.username or self.user_login
+        user = self.meta.username or getattr(self, 'user_login', '')
         # ---
         if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=user, summary=self.content.summary) is False:
             return False
@@ -809,7 +809,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
             # ---
-            user = self.meta.username or self.user_login
+            user = self.meta.username or getattr(self, 'user_login', '')
             # ---
             if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary) is False:
                 return False
