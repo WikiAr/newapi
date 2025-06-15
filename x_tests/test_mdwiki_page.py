@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi_bot/x_tests/test_mdwiki_page mwclient
+python3 core8/pwb.py newapi_bot/x_tests/test_mdwiki_page
 python3 core8/pwb.py newapi_bot/x_tests/test_mdwiki_page
 
 """

@@ -1,6 +1,6 @@
 """
 
-python3 core8/pwb.py newapi_bot/x_tests/test_page printurl mwclient
+python3 core8/pwb.py newapi_bot/x_tests/test_page printurl
 python3 core8/pwb.py newapi_bot/x_tests/test_page printurl
 
 """
