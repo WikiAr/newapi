@@ -44,11 +44,13 @@ if login_done_lang[1] != code:
 import tqdm
 import time
 import sys
+from collections.abc import KeysView
 import datetime
 from datetime import timedelta
 from ...api_utils import printe
 from .bot import BOTS_APIS
 from ...api_utils.lang_codes import change_codes
+
 
 class NEW_API(BOTS_APIS):
     def __init__(self, login_bot, lang, family="wikipedia"):
@@ -92,6 +94,7 @@ class NEW_API(BOTS_APIS):
             _p_2=_p_2,
             _p_2_empty=_p_2_empty
         )
+
     def get_username(self):
         return self.username
 
@@ -102,29 +105,19 @@ class NEW_API(BOTS_APIS):
 
     def Find_pages_exists_or_not(self, liste, get_redirect=False, noprint=False):
         # ---
-        normalized = {}
-        table = {}
-        # ---
         done = 0
         # ---
-        redirects = 0
-        missing = 0
-        exists = 0
+        all_jsons = {}
         # ---
-        if noprint:
-            qua = range(0, len(liste), 50)
-        else:
-            qua = tqdm.tqdm(range(0, len(liste), 50))
-        # ---
-        for i in qua:
-            titles = liste[i : i + 50]
+        for titles in self.chunk_titles(liste, chunk_size=50, noprint=noprint):
             # ---
             done += len(titles)
             # ---
             params = {
                 "action": "query",
                 "titles": "|".join(titles),
-                "prop": "info",
+                "prop": "info|pageprops",
+                "ppprop": "wikibase_item",
                 "formatversion": 2,
             }
             # ---
@@ -136,36 +129,142 @@ class NEW_API(BOTS_APIS):
                 # return table
                 continue
             # ---
-            query = json1.get("query", {})
-            normalz = query.get("normalized", [])
+            all_jsons = self.merge_all_jsons_deep(all_jsons, json1)
+        # ---
+        redirects = 0
+        missing = 0
+        exists = 0
+        # ---
+        query = json1.get("query", {})
+        # ---
+        normalz = query.get("normalized", [])
+        normalized = {red["to"] : red["from"] for red in normalz}
+        # ---
+        query_pages = query.get("pages", [])
+        # ---
+        table = {}
+        # ---
+        for kk in query_pages:
             # ---
-            for red in normalz:
-                normalized[red["to"]] = red["from"]
+            if isinstance(query_pages, dict):
+                kk = query_pages[kk]
             # ---
-            query_pages = query.get("pages", [])
+            tit = kk.get("title", "")
             # ---
-            for kk in query_pages:
-                # ---
-                if isinstance(query_pages, dict):
-                    kk = query_pages[kk]
-                # ---
-                tit = kk.get("title", "")
-                if tit:
-                    tit = normalized.get(tit, tit)
-                    # ---
-                    table[tit] = True
-                    # ---
-                    if "missing" in kk:
-                        table[tit] = False
-                        missing += 1
-                    elif "redirect" in kk and get_redirect:
-                        table[tit] = "redirect"
-                        redirects += 1
-                    else:
-                        exists += 1
+            if not tit:
+                continue
+            # ---
+            tit = normalized.get(tit, tit)
+            # ---
+            table[tit] = True
+            # ---
+            if "missing" in kk:
+                table[tit] = False
+                missing += 1
+            elif "redirect" in kk and get_redirect:
+                table[tit] = "redirect"
+                redirects += 1
+            else:
+                exists += 1
         # ---
         if not noprint:
             printe.output(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+        # ---
+        return table
+
+    def Find_pages_exists_or_not_with_qids(self, liste, get_redirect=False, noprint=False, return_all_jsons=False, use_user_input_title=False, chunk_size=50):
+        # ---
+        done = 0
+        # ---
+        all_jsons = {}
+        # ---
+        for titles in self.chunk_titles(liste, chunk_size=chunk_size, noprint=noprint):
+            # ---
+            done += len(titles)
+            # ---
+            params = {
+                "action": "query",
+                "titles": "|".join(titles),
+                "prop": "info|pageprops",
+                "ppprop": "wikibase_item",
+                "pplimit": "max",
+                "formatversion": 2,
+                "converttitles": 1,
+            }
+            # ---
+            if get_redirect:
+                params["redirects"] = 1
+            # ---
+            json1 = self.post_params(params)
+            # ---
+            if not json1:
+                if not noprint:
+                    printe.output("<<lightred>> error when Find_pages_exists_or_not")
+                # return table
+                continue
+            # ---
+            all_jsons = self.merge_all_jsons_deep(all_jsons, json1)
+        # ---
+        redirects = 0
+        missing = 0
+        exists = 0
+        # ---
+        query_table = all_jsons.get("query", {})
+        # ---
+        normalized_table = query_table.get("normalized", [])
+        redirects_table = query_table.get("redirects", [])
+        # ---
+        query_pages = query_table.get("pages", [])
+        # ---
+        table = {}
+        # ---
+        for kk in query_pages:
+            # ---
+            if isinstance(query_pages, dict):
+                kk = query_pages[kk]
+            # ---
+            # {'pageid': 3191861, 'ns': 0, 'title': 'Abdomen', 'contentmodel': 'wikitext', 'pagelanguage': 'en', 'pagelanguagehtmlcode': 'en', 'pagelanguagedir': 'ltr', 'touched': '2025-07-31T20:53:20Z', 'lastrevid': 1302382633, 'length': 25596, 'pageprops': {'wikibase_item': 'Q9597'}}
+            # ---
+            wikibase_item = kk.get("pageprops", {}).get("wikibase_item", "")
+            # ---
+            title_x = kk.get("title", "")
+            # ---
+            if not title_x:
+                continue
+            # ---
+            # { "user_input": title, "redirect_to": "", "normalized_to": "", "real_title": title, }
+            title_tab = self.get_title_redirect_normolize(title_x, redirects_table, normalized_table)
+            # ---
+            if use_user_input_title and title_tab.get("user_input"):
+                title_x = title_tab["user_input"]
+            # ---
+            table.setdefault(title_x, {
+                "wikibase_item": wikibase_item,
+                "exist": False
+            })
+            # ---
+            if title_tab:
+                table[title_x]["title_tab"] = title_tab
+            # ---
+            if wikibase_item:
+                table[title_x]["wikibase_item"] = wikibase_item
+            # ---
+            if "missing" in kk:
+                table[title_x]["exist"] = False
+                missing += 1
+            elif title_x == title_tab.get("redirect_to", ""):
+                table[title_x]["exist"] = "redirect"
+                table[title_x]["redirect"] = True
+                redirects += 1
+            else:
+                table[title_x]["exist"] = True
+                exists += 1
+        # ---
+        if not noprint:
+            printe.output(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+        # ---
+        if return_all_jsons:
+            return table, all_jsons
         # ---
         return table
 
@@ -412,8 +511,21 @@ class NEW_API(BOTS_APIS):
         # ---
         return results
 
-    def chunk_titles(self, titles, chunk_size=50):
-        return [titles[i : i + chunk_size] for i in range(0, len(titles), chunk_size)]
+    def chunk_titles(self, titles, chunk_size=50, noprint=False):
+        # ---
+        if isinstance(titles, dict):
+            titles = list(titles.keys())
+
+        elif isinstance(titles, KeysView):
+            # TypeError: 'dict_keys' object is not subscriptable
+            titles = list(titles)
+        # ---
+        result = [titles[i : i + chunk_size] for i in range(0, len(titles), chunk_size)]
+        # ---
+        if not noprint:
+            result = tqdm.tqdm(result, desc=f"chunk_titles {len(titles)} split to {len(result)} chunks")
+        # ---
+        return result
 
     def Get_langlinks_for_list(self, titles, targtsitecode="", numbes=40):
         """Retrieve language links for a list of titles from a specified target
@@ -466,8 +578,6 @@ class NEW_API(BOTS_APIS):
         find_targtsitecode = 0
         normalized = {}
         table = {}
-        # ---
-        # for i in range(0, len(titles), numbes): group = titles[i : i + numbes]
         # ---
         for title_chunk in self.chunk_titles(titles, chunk_size=numbes):
             params["titles"] = "|".join(title_chunk)
@@ -762,13 +872,12 @@ class NEW_API(BOTS_APIS):
         # ---
         redirects = {}
         # ---
-        for i in range(0, len(titles), 50):
-            group = titles[i : i + 50]
-            # ---
+        # for i in range(0, len(titles), 50): group = titles[i : i + 50]
+        for title_chunk in self.chunk_titles(titles, chunk_size=50):
             params = {
                 "action": "query",
                 "format": "json",
-                "titles": "|".join(group),
+                "titles": "|".join(title_chunk),
                 "redirects": 1,
                 # "prop": "templates|langlinks",
                 "utf8": 1,
