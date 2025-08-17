@@ -246,7 +246,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         return data
 
-    def get_title_redirect_normolize(self, title, redirects, normalized):
+    def get_title_redirect_normalize(self, title, redirects, normalized):
         # ---
         redirects = redirects or []
         normalized = normalized or []

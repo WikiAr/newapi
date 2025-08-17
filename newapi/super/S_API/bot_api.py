@@ -233,7 +233,7 @@ class NEW_API(BOTS_APIS):
                 continue
             # ---
             # { "user_input": title, "redirect_to": "", "normalized_to": "", "real_title": title, }
-            title_tab = self.get_title_redirect_normolize(title_x, redirects_table, normalized_table)
+            title_tab = self.get_title_redirect_normalize(title_x, redirects_table, normalized_table)
             # ---
             if use_user_input_title and title_tab.get("user_input"):
                 title_x = title_tab["user_input"]
