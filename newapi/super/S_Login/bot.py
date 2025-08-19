@@ -27,6 +27,7 @@ logins_count = {1: 0}
 
 botname = "newapi"
 
+
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
         # print("class LOGIN_HELPS:")
@@ -37,7 +38,11 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.username = getattr(self, "username", "")
         self.family = getattr(self, "family", "")
         self.lang = getattr(self, "lang", "")
+        # ---
         self.endpoint = getattr(self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php")
+        # ---
+        if self.endpoint == "https://www.mdwiki.org/w/api.php":
+            self.endpoint = "https://mdwiki.org/w/api.php"
         # ---
         self.connection = None
         # ---
