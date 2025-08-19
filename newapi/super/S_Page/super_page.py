@@ -62,6 +62,7 @@ from ...api_utils.lang_codes import change_codes
 
 print_test = {1: "test" in sys.argv}
 
+
 class MainPage(PAGE_APIS, ASK_BOT):
     def __init__(self, login_bot, title, lang, family="wikipedia"):
         # print(f"class MainPage: {lang=}")
@@ -640,6 +641,16 @@ class MainPage(PAGE_APIS, ASK_BOT):
             self.get_text()
         return self.revisions_data.timestamp
 
+    def get_newrevid(self):
+        if not self.revisions_data.newrevid:
+            self.get_text()
+        return self.revisions_data.newrevid
+
+    def get_revid(self):
+        if not self.revisions_data.revid:
+            self.get_text()
+        return self.revisions_data.revid
+
     def exists(self):
         if not self.meta.Exists:
             self.get_text()
@@ -670,16 +681,16 @@ class MainPage(PAGE_APIS, ASK_BOT):
         Prompts for confirmation and checks for invalid edits before submitting the change. Updates instance attributes with the latest revision and timestamps on success.
 
         Args:
-        	newtext: The new wikitext to save to the page.
-        	summary: Edit summary for the change.
-        	nocreate: If 1 (default), prevents creating the page if it does not exist.
-        	minor: Indicates if the edit should be marked as minor.
-        	tags: Optional tags to associate with the edit.
-        	nodiff: If True, skips showing a diff before saving.
-        	ASK: If True, prompts the user for confirmation before saving.
+                newtext: The new wikitext to save to the page.
+                summary: Edit summary for the change.
+                nocreate: If 1 (default), prevents creating the page if it does not exist.
+                minor: Indicates if the edit should be marked as minor.
+                tags: Optional tags to associate with the edit.
+                nodiff: If True, skips showing a diff before saving.
+                ASK: If True, prompts the user for confirmation before saving.
 
         Returns:
-        	True if the edit was successful, False otherwise.
+                True if the edit was successful, False otherwise.
         """
         # ---
         self.newtext = newtext
