@@ -303,6 +303,10 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         if not isinstance(all_jsons, dict):
             all_jsons = {}
         # ---
+        # guard against non-dict inputs for json1
+        if not isinstance(json1, dict):
+            return all_jsons
+        # ---
         for x, z in json1.items():
             if x not in all_jsons:
                 all_jsons[x] = z
@@ -311,7 +315,8 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             tab = all_jsons[x]
             # --- إذا كان كلاهما list
             if isinstance(tab, list) and isinstance(z, list):
-                tab.extend(z)
+                # explicit shallow copy of z to avoid surprises if z is reused
+                tab.extend(list(z))
             # --- إذا كان كلاهما dict
             elif isinstance(tab, dict) and isinstance(z, dict):
                 tab.update(z)
