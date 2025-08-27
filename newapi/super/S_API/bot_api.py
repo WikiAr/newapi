@@ -135,12 +135,12 @@ class NEW_API(BOTS_APIS):
         missing = 0
         exists = 0
         # ---
-        query = json1.get("query", {})
+        query_table = all_jsons.get("query", {})
         # ---
-        normalz = query.get("normalized", [])
+        normalz = query_table.get("normalized", [])
         normalized = {red["to"] : red["from"] for red in normalz}
         # ---
-        query_pages = query.get("pages", [])
+        query_pages = query_table.get("pages", [])
         # ---
         table = {}
         # ---
