@@ -11,6 +11,7 @@ from ...api_utils.ask_bot import ASK_BOT
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
 
+
 class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
     def __init__(self):
         # print("class BOTS_APIS:")
@@ -244,3 +245,83 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             printe.output(f"<<lightred>> ** duplicate file: {duplicate}.")
         # ---
         return data
+
+    def get_title_redirect_normalize(self, title, redirects, normalized):
+        # ---
+        redirects = redirects or []
+        normalized = normalized or []
+        # ---
+        tab = {
+            "user_input": title,
+            "redirect_to": "",
+            "normalized_to": "",
+            "real_title": title,
+        }
+        # ---
+        normalized = {x["to"]: x["from"] for x in normalized}
+        # ---
+        redirects = {x["to"]: x["from"] for x in redirects}
+        # ---
+        if tab["user_input"] in redirects:
+            tab["redirect_to"] = tab["user_input"]
+            tab["user_input"] = redirects[tab["user_input"]]
+        # ---
+        if tab["user_input"] in normalized:
+            tab["normalized_to"] = tab["user_input"]
+            tab["user_input"] = normalized[tab["user_input"]]
+        # ---
+        if tab["user_input"] == title:
+            return {}
+        # ---
+        return tab
+
+    def merge_all_jsons_deep(self, all_jsons, json1):
+        def deep_merge(a, b):
+            # إذا كان كلاهما dict → دمج مفاتيح
+            if isinstance(a, dict) and isinstance(b, dict):
+                for k, v in b.items():
+                    if k in a:
+                        a[k] = deep_merge(a[k], v)
+                    else:
+                        a[k] = v
+                return a
+            # إذا كان كلاهما list → تمديد القوائم
+            elif isinstance(a, list) and isinstance(b, list):
+                return a + b
+            # في حالة اختلاف النوع → نأخذ الجديد
+            else:
+                return b
+
+        # إذا لم يكن all_jsons dict نجعله dict
+        if not isinstance(all_jsons, dict):
+            all_jsons = {}
+
+        return deep_merge(all_jsons, json1)
+
+    def merge_all_jsons(self, all_jsons, json1):
+        # --- إذا كان all_jsons ليس dict نحوله
+        if not isinstance(all_jsons, dict):
+            all_jsons = {}
+        # ---
+        # guard against non-dict inputs for json1
+        if not isinstance(json1, dict):
+            return all_jsons
+        # ---
+        for x, z in json1.items():
+            if x not in all_jsons:
+                all_jsons[x] = z
+                continue
+            # ---
+            tab = all_jsons[x]
+            # --- إذا كان كلاهما list
+            if isinstance(tab, list) and isinstance(z, list):
+                # explicit shallow copy of z to avoid surprises if z is reused
+                tab.extend(list(z))
+            # --- إذا كان كلاهما dict
+            elif isinstance(tab, dict) and isinstance(z, dict):
+                tab.update(z)
+            # --- في حالة اختلاف النوع أو قيمة بسيطة
+            else:
+                all_jsons[x] = z
+        # ---
+        return all_jsons

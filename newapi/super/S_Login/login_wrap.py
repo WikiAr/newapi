@@ -29,7 +29,8 @@ def LoginWrap(sitecode, family, bots_login_cache, User_tables):
         # ---
         hases[cache_key] += 1
         # ---
-        printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {hases[cache_key]}", p=True)
+        if hases[cache_key] % 100 == 0:
+            printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {hases[cache_key]}", p=True)
     else:
         login_bot = Login(sitecode, family=family)
         # ---
