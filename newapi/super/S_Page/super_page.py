@@ -642,9 +642,13 @@ class MainPage(PAGE_APIS, ASK_BOT):
         return self.revisions_data.timestamp
 
     def get_newrevid(self):
+        # newrevid is only populated on successful edit/create responses.
         if not self.revisions_data.newrevid:
-            self.get_text()
-        return self.revisions_data.newrevid
+            # Ensure we at least have the current revid loaded.
+            if not self.revisions_data.revid:
+                self.get_text()
+        # Fallback to current revid if no newrevid exists.
+        return self.revisions_data.newrevid or self.revisions_data.revid
 
     def get_revid(self):
         if not self.revisions_data.revid:
