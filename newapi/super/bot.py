@@ -1,7 +1,7 @@
 """
 (_handle_server_error|add_User_tables|get_login_result|get_logintoken|get_rest_result|log_error|log_in|log_to_wiki_1|loged_in|make_new_r3_token|make_new_session|post_it|post_it_parse_data|raw_request)
 
-from .super.S_Login.bot import LOGIN_HELPS
+from .super.bot import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
@@ -14,11 +14,11 @@ from .params_help import PARAMS_HELPS
 
 from http.cookiejar import MozillaCookieJar
 
-from ...api_utils import printe
+from ..api_utils import printe
 from .cookies_bot import get_file_name, del_cookies_file
-from ...api_utils.except_err import exception_err
-from ..Login_db.bot import log_one
-from ...api_utils.user_agent import default_user_agent
+from ..api_utils.except_err import exception_err
+from .Login_db.bot import log_one
+from ..api_utils.user_agent import default_user_agent
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}

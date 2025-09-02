@@ -1,7 +1,6 @@
 """
 
 python3 core8/pwb.py newapi_bot/x_tests/test_wiki_page mwclient
-python3 core8/pwb.py newapi_bot/x_tests/test_wiki_page mwclient
 python3 core8/pwb.py newapi_bot/x_tests/test_wiki_page
 """
 import sys
