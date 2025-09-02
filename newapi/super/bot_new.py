@@ -1,6 +1,6 @@
 """
 
-from .super.S_Login.bot_new import LOGIN_HELPS
+from .super.bot_new import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 

@@ -1,6 +1,6 @@
 """
 
-from .super.S_Login.params_help import PARAMS_HELPS
+from .super.params_help import PARAMS_HELPS
 
 """
 import sys
