@@ -18,10 +18,10 @@ import sys
 import time
 import urllib.parse
 
-from ...api_utils import printe
-from ..handel_errors import HANDEL_ERRORS
-from ...api_utils.except_err import warn_err
-from ...api_utils.user_agent import default_user_agent
+from ..api_utils import printe
+from .handel_errors import HANDEL_ERRORS
+from ..api_utils.except_err import warn_err
+from ..api_utils.user_agent import default_user_agent
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS

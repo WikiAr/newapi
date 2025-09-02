@@ -2,13 +2,13 @@
 
 from newapi import LoginWrap
 
-from ..super.S_Login.login_wrap import LoginWrap
+from .super.S_Login.login_wrap import LoginWrap
 
 # login_bot, catbots_login2 = LoginWrap(sitecode, family, bots_login_cache, User_tables)
 # bots_login_cache.update(catbots_login2)
 
 """
-from ...api_utils import printe
+from ..api_utils import printe
 from .super_login import Login
 
 hases = {}

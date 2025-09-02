@@ -8,7 +8,7 @@ import sys
 import os
 import stat
 from pathlib import Path
-from ...api_utils import printe
+from ..api_utils import printe
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
 tool = os.getenv("HOME")

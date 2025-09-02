@@ -14,11 +14,11 @@ from .params_help import PARAMS_HELPS
 
 from http.cookiejar import MozillaCookieJar
 
-from ...api_utils import printe
+from ..api_utils import printe
 from .cookies_bot import get_file_name, del_cookies_file
-from ...api_utils.except_err import exception_err
-from ..Login_db.bot import log_one
-from ...api_utils.user_agent import default_user_agent
+from ..api_utils.except_err import exception_err
+from .Login_db.bot import log_one
+from ..api_utils.user_agent import default_user_agent
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
