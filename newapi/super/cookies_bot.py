@@ -8,6 +8,7 @@ import sys
 import os
 import stat
 from pathlib import Path
+from datetime import datetime, timedelta
 from ..api_utils import printe
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
@@ -42,7 +43,7 @@ def del_cookies_file(file_path):
             printe.output(f"<<red>> unlink: Exception:{e}")
 
 
-def get_file_name(lang, family, username):
+def get_file_name(lang, family, username) -> Path:
     # ---
     if "nocookies" in sys.argv:
         randome = os.urandom(8).hex()
@@ -65,7 +66,19 @@ def from_folder(lang, family, username):
     cookies = False
     # ---
     if file.exists():
-        with open(file, "r") as f:
+        # ---
+        if not file.stat().st_size:
+            return False
+        # ---
+        # check if file old is > 3 days
+        # ---
+        file_time = datetime.fromtimestamp(file.stat().st_mtime)
+        # ---
+        if datetime.now() - file_time > timedelta(days=3):
+            del_cookies_file(file)
+            return False
+        # ---
+        with open(file, "r", encoding="utf-8") as f:
             cookies = f.read()
     else:
         file.touch()
