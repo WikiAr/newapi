@@ -121,8 +121,6 @@ class NEW_API(BOTS_APIS):
                 "formatversion": 2,
             }
             # ---
-            # if get_redirect: params["redirects"] = 1
-            # ---
             json1 = self.post_params(params)
             # ---
             if not json1:
