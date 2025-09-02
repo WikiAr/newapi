@@ -38,7 +38,7 @@ home_dir = os.getenv("HOME")
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
+from ..super.S_Login.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
 

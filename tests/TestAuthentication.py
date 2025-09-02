@@ -1,6 +1,6 @@
 import pytest
 from newapi import useraccount
-from newapi.super import super_login
+from newapi.super.S_Login import super_login
 
 class TestAuthentication:
     @pytest.fixture

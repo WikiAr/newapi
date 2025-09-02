@@ -1,6 +1,6 @@
 """
 
-from .super.bot_new import LOGIN_HELPS
+from .super.S_Login.bot_new import LOGIN_HELPS
 
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
@@ -11,21 +11,20 @@ import copy
 import requests
 from http.cookiejar import MozillaCookieJar
 
-from ..api_utils import printe
-from ..api_utils.except_err import exception_err
+from ...api_utils import printe
+from ...api_utils.except_err import exception_err
 from .cookies_bot import get_file_name, del_cookies_file
 
 from .params_help import PARAMS_HELPS
-from .Login_db.bot import log_one
-from ..api_utils.user_agent import default_user_agent
+from ..Login_db.bot import log_one
+from ...api_utils.user_agent import default_user_agent
 # import mwclient
 
 # from mwclient.client import Site
-from .mwclient.client import Site
+from ..mwclient.client import Site
 
 # cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
-
 
 class MwClientSite:
     def __init__(self, lang, family):

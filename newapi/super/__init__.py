@@ -3,7 +3,7 @@
 
 """
 from .S_API import bot_api
-from . import super_login
+from .S_Login import super_login
 from .S_Page import super_page
 from .S_Category import catdepth_new
 
