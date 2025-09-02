@@ -1,6 +1,6 @@
 """
 
-from .super.S_Login.cookies_bot import get_cookies
+from .super.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """
