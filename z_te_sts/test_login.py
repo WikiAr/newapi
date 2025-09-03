@@ -1,7 +1,5 @@
 """
-
-python3 core8/pwb.py newapi_bot/x_tests/test_login mwclient
-python3 core8/pwb.py newapi_bot/x_tests/test_login
+Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
 import sys
 

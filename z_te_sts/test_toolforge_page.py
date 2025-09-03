@@ -1,12 +1,9 @@
 """
-
-python3 core8/pwb.py newapi_bot/x_tests/test_toolforge_page mwclient
-python3 core8/pwb.py newapi_bot/x_tests/test_toolforge_page
-
+Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
 import sys
 
-# sys.argv.append("printurl")
+sys.path.append("I:/mdwiki/pybot")
 sys.argv.append("ask")
 from newapi import toolforge_page
 
