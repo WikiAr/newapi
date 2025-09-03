@@ -1,7 +1,5 @@
 """
-
-python3 core8/pwb.py newapi_bot/x_tests/test_db_bot
-
+Test runner usage: python3 core8/pwb.py newapi_bot/x_tests/test_runner
 """
 import os
 import sys

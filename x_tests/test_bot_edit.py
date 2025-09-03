@@ -1,8 +1,5 @@
 """
-
-python3 core8/pwb.py newapi_bot/x_tests/test_bot_edit mwclient
-python3 core8/pwb.py newapi_bot/x_tests/test_bot_edit
-
+Test runner usage: python3 core8/pwb.py newapi_bot/x_tests/test_runner
 """
 from newapi.page import MainPage
 
