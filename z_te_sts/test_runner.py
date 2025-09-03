@@ -59,7 +59,7 @@ def main():
             test_files.append(file_path)
 
     if not test_files:
-        print("No test files found in x_tests directory")
+        print("No test files found in z_te_sts directory")
         return
 
     # Sort files for consistent execution
