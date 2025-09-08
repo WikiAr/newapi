@@ -407,13 +407,23 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if not seasons_by_lang.get(self.sea_key):
             self.make_new_session()
         # ---
+        try:
+            req0 = seasons_by_lang[self.sea_key].request("GET", url, headers=self.headers)
+            # ---
+            if not str(req0.status_code).startswith("2"):
+                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+            # ---
+        except Exception as e:
+            exception_err(e)
+            return {}
+        # ---
         result = {}
         # ---
         try:
-            req0 = seasons_by_lang[self.sea_key].request("GET", url)
             result = req0.json()
-
         except Exception as e:
+            print(req0.text)
             exception_err(e)
+            return {}
         # ---
         return result
