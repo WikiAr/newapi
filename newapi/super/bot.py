@@ -295,7 +295,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             if not str(req0.status_code).startswith("2"):
                 printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
 
-    def raw_request(self, params, files=None, timeout=30) -> any or None:
+    def raw_request(self, params, files=None, timeout=30):
         # ---
         # TODO: ('toomanyvalues', 'Too many values supplied for parameter "titles". The limit is 50.', 'See https://en.wikipedia.org/w/api.php for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes.')
         # ---
@@ -344,7 +344,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         return req0
 
-    def post_it(self, params, files=None, timeout=30) -> any or None:
+    def post_it(self, params, files=None, timeout=30):
         # ---
         params = self.params_w(params)
         # ---

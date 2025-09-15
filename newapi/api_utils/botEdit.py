@@ -98,7 +98,6 @@ def _handle_bots_template(params, title_page, botjob, title):
         # return ('all' in value or pywikibot.calledModuleName() in value)
         # if param == 'denyscript':
         # return not ('all' in value or pywikibot.calledModuleName() in value)
-        # ---
     # ---
     # no restricting template found
     Bot_Cache[botjob][title_page] = True
