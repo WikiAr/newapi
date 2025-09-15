@@ -212,7 +212,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         return self.make_new_r3_token()
 
-    def raw_request(self, params, files=None, timeout=30) -> any or None:
+    def raw_request(self, params, files=None, timeout=30):
         # ---
         if not self.user_table_done:
             printe.output("<<green>> user_table_done == False!")
@@ -224,7 +224,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         # ---
         return req0
 
-    def post_it(self, params, files=None, timeout=30) -> any or None:
+    def post_it(self, params, files=None, timeout=30):
         # ---
         params = self.params_w(params)
         # ---
