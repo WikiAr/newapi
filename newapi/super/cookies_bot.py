@@ -56,6 +56,17 @@ def get_file_name(lang, family, username) -> Path:
     # ---
     file = ta_dir / f"{family}_{lang}_{username}.txt"
     # ---
+    if file.exists():
+        # ---
+        # check if file old is > 3 days
+        # ---
+        file_time = datetime.fromtimestamp(file.stat().st_mtime)
+        # ---
+        if not file.stat().st_size:
+            del_cookies_file(file)
+        elif datetime.now() - file_time > timedelta(days=3):
+            del_cookies_file(file)
+        # ---
     return file
 
 
