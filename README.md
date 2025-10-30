@@ -3,6 +3,15 @@ Python module for Wikimedia API:
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WikiAr/newapi)
 
 ----
+# Installation
+
+Install the package from PyPI (once published) with:
+
+````bash
+pip install newapi
+````
+
+----
 # Newapi.page Module:
 
 ## MainPage

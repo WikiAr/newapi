@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "newapi"
+version = "0.1.0"
+description = "High level client for the MediaWiki API"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Ibrahem Qasim" }
+]
+license = "LicenseRef-Proprietary"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "PyMySQL>=1.1,<2",
+    "requests>=2.32",
+    "sqlite-utils>=3.36",
+    "tqdm>=4.66",
+    "wikitextparser>=0.55",
+    "mwclient>=0.10",
+    "ratelimiter>=1.2",
+    "SPARQLWrapper>=2.0",
+]
+
+[project.urls]
+"Homepage" = "https://deepwiki.com/WikiAr/newapi"
+"Documentation" = "https://deepwiki.com/WikiAr/newapi"
+
+[tool.setuptools.packages.find]
+include = ["newapi*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["LICENSE"]
