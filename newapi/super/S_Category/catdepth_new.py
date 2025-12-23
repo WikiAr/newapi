@@ -6,6 +6,7 @@ from newapi.ncc_page import CatDepth
 """
 import time
 import sys
+from functools import lru_cache
 
 from ...api_utils import printe
 from .bot import CategoryDepth
@@ -13,8 +14,8 @@ from .bot import CategoryDepth
 SITECODE = "en"
 FAMILY = "wikipedia"
 
-hases = {}
 
+@lru_cache(maxsize=256)
 def title_process(title, sitecode):
     # ---
     prefixes = {"ar": "تصنيف:", "en": "Category:", "www": "Category:"}

@@ -4,40 +4,42 @@ from newapi import LoginWrap
 
 from .super.login_wrap import LoginWrap
 
-# login_bot, catbots_login2 = LoginWrap(sitecode, family, bots_login_cache, User_tables)
-# bots_login_cache.update(catbots_login2)
+# login_bot = LoginWrap(sitecode, family, User_tables)
 
 """
+from functools import lru_cache
 from ..api_utils import printe
 from .super_login import Login
 
-hases = {}
+
+@lru_cache(maxsize=128)
+def _create_login_bot(sitecode, family, username, password):
+    """Create and cache a login bot instance."""
+    printe.output(f"### <<purple>> LoginWrap make new bot for ({sitecode}.{family}.org|{username})", p=True)
+    # ---
+    login_bot = Login(sitecode, family=family)
+    # ---
+    User_tables = {"username": username, "password": password}
+    login_bot.add_users({family: User_tables}, lang=sitecode)
+    # ---
+    return login_bot
+
 
 def LoginWrap(sitecode, family, bots_login_cache, User_tables):
+    """
+    Get or create a cached login bot.
+
+    Note: bots_login_cache parameter is kept for backward compatibility but is no longer used.
+    The caching is now handled by functools.lru_cache.
+    """
+    username = User_tables.get("username", "")
+    password = User_tables.get("password", "")
     # ---
-    cache_key = (sitecode, family)  # Consider adding relevant kwargs to key
+    login_bot = _create_login_bot(sitecode, family, username, password)
     # ---
-    username = User_tables.get("username")
+    cache_info = _create_login_bot.cache_info()
+    if cache_info.hits > 0 and cache_info.hits % 100 == 0:
+        printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {cache_info.hits}", p=True)
     # ---
-    if username:
-        cache_key = (sitecode, family, username)
-    # ---
-    hases.setdefault(cache_key, 0)
-    # ---
-    if bots_login_cache.get(cache_key):
-        login_bot = bots_login_cache[cache_key]
-        # ---
-        hases[cache_key] += 1
-        # ---
-        if hases[cache_key] % 100 == 0:
-            printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {hases[cache_key]}", p=True)
-    else:
-        login_bot = Login(sitecode, family=family)
-        # ---
-        printe.output(f"### <<purple>> LoginWrap make new bot for ({sitecode}.{family}.org|{username})", p=True)
-        # ---
-        login_bot.add_users({family: User_tables}, lang=sitecode)
-        # ---
-        bots_login_cache[cache_key] = login_bot
-    # ---
+    # Return bots_login_cache for backward compatibility
     return login_bot, bots_login_cache

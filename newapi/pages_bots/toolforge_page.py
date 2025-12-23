@@ -20,7 +20,7 @@ from ..super.S_Page import super_page
 from ..super.login_wrap import LoginWrap
 
 User_tables = {}
-logins_cache = {}
+logins_cache = {}  # Kept for backward compatibility with LoginWrap
 
 def add_User_table(table, family, lang):
     # ---
@@ -31,9 +31,7 @@ def log_it(lang, family):
     # ---
     table = User_tables.get((lang, family)) or User_tables.get(("*", family))
     # ---
-    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, table)
-    # ---
-    logins_cache.update(logins_cache2)
+    login_bot, _ = LoginWrap(lang, family, logins_cache, table)
     # ---
     return login_bot
 

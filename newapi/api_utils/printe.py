@@ -199,6 +199,10 @@ _invisible_chars = _category_cf
 INVISIBLE_REGEX = re.compile(f"[{''.join(_invisible_chars)}]")
 
 
+from functools import lru_cache
+
+
+@lru_cache(maxsize=1)
 def get_color_table():
     # Define the color codes for different colors
     color_table = {

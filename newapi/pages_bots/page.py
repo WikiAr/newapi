@@ -50,13 +50,11 @@ user_agent = default_user_agent()
 # ---
 change_codes = lang_codes.change_codes
 
-logins_cache = {}
+logins_cache = {}  # Kept for backward compatibility with LoginWrap
 
 def log_it(lang, family):
     # ---
-    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
-    # ---
-    logins_cache.update(logins_cache2)
+    login_bot, _ = LoginWrap(lang, family, logins_cache, User_tables)
     # ---
     return login_bot
 
