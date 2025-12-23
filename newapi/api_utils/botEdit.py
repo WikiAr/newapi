@@ -82,6 +82,11 @@ def _bot_may_edit_cached(title_page, botjob, text):
     
     Uses functools.lru_cache for memoization. The cache key includes
     the full text to ensure correct results when page content changes.
+    
+    Note: Log messages inside this function will only appear on cache misses
+    (i.e., when the result is computed for the first time for a given combination
+    of arguments). This is intentional to avoid spamming logs with repeated warnings
+    for the same page content.
     """
     templates = txtlib.extract_templates_and_params(text)
     # ---
@@ -134,9 +139,8 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
     return _bot_may_edit_cached(title_page, botjob, text)
 
 
-@lru_cache(maxsize=1024)
-def _check_create_time_cached(title_page, ns, lang, create_timestamp, user):
-    """Cached check for page creation time."""
+def _check_create_time(title_page, ns, lang, create_timestamp, user):
+    """Check for page creation time (not cached due to time-dependent logic)."""
     if ns != 0 or lang != "ar":
         return True
     # ---
@@ -165,7 +169,9 @@ def check_create_time(page, title_page):
     """
     Checks if a page was created at least three hours ago before allowing bot edits.
 
-    Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago, caching the result for future checks.
+    Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago.
+    
+    Note: This function is not cached because the result depends on the current time.
     """
     # ---
     ns = page.namespace()
@@ -175,7 +181,7 @@ def check_create_time(page, title_page):
     create_timestamp = create_data.get("timestamp", "")
     user = create_data.get("user", "")
     # ---
-    return _check_create_time_cached(title_page, ns, lang, create_timestamp, user)
+    return _check_create_time(title_page, ns, lang, create_timestamp, user)
 
 
 def check_last_edit_time(page, title_page, delay):

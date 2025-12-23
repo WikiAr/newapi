@@ -14,7 +14,13 @@ from .super_login import Login
 
 @lru_cache(maxsize=128)
 def _create_login_bot(sitecode, family, username, password):
-    """Create and cache a login bot instance."""
+    """
+    Create and cache a login bot instance.
+    
+    Note: The log message inside this function will only appear on cache misses
+    (i.e., when a new bot is created). This is intentional - on cache hits,
+    the same bot instance is returned without logging.
+    """
     printe.output(f"### <<purple>> LoginWrap make new bot for ({sitecode}.{family}.org|{username})", p=True)
     # ---
     login_bot = Login(sitecode, family=family)
