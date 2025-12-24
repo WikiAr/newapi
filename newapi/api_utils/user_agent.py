@@ -4,7 +4,10 @@ from .api_utils.user_agent import default_user_agent
 
 """
 import os
+from functools import lru_cache
 
+
+@lru_cache(maxsize=1)
 def default_user_agent():
     tool = os.getenv("HOME")
     # "/data/project/mdwiki"

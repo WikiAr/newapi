@@ -7,6 +7,7 @@ from .super.cookies_bot import get_cookies
 import sys
 import os
 import stat
+from functools import lru_cache
 from pathlib import Path
 from datetime import datetime, timedelta
 from ..api_utils import printe
@@ -27,8 +28,6 @@ if not ta_dir.exists():
     printe.output(f"ta_dir:{ta_dir}")
     printe.output("<<green>> mkdir:")
     os.chmod(ta_dir, statgroup)
-
-ta_tab = {}
 
 
 def del_cookies_file(file_path):
@@ -98,12 +97,10 @@ def from_folder(lang, family, username):
     return cookies
 
 
+@lru_cache(maxsize=128)
 def get_cookies(lang, family, username):
     # ---
-    cookies = ta_tab.get(family, {}).get(lang, {}).get(username, "")
-    # ---
-    if not cookies:
-        cookies = from_folder(lang, family, username)
+    cookies = from_folder(lang, family, username)
     # ---
     if not cookies:
         printe.output(f" <<red>> get_cookies: <<yellow>> [[{lang}:{family}]] user:{username} <<red>> not found")
