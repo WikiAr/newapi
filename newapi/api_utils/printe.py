@@ -10,6 +10,7 @@ printe.showDiff('old text', 'new text')  # prints the differences between 'old t
 """
 
 # ---
+import functools
 import difflib
 import re
 import sys
@@ -199,6 +200,7 @@ _invisible_chars = _category_cf
 INVISIBLE_REGEX = re.compile(f"[{''.join(_invisible_chars)}]")
 
 
+@functools.lru_cache(maxsize=1)
 def get_color_table():
     # new Define the color codes for different colors
     color_numbers = {
@@ -708,6 +710,7 @@ def warn(text):
 def test_print(s):
     if "test_print" in sys.argv:
         output(s)
+
 
 __all__ = [
     "showDiff",

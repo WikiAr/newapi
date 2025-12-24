@@ -14,8 +14,10 @@ from . import txtlib
 # from ..other_bots import printe
 
 import wikitextparser as wtp
+from functools import lru_cache
 
 
+@lru_cache(maxsize=512)
 def extract_templates_and_params(text):
     # ---
     result = []
