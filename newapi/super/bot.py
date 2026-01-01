@@ -19,6 +19,7 @@ from .cookies_bot import get_file_name, del_cookies_file
 from ..api_utils.except_err import exception_err
 from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
+from ..config import settings
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -302,7 +303,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if not self.user_table_done:
             printe.output("<<green>> user_table_done == False!")
             # do error
-            if "raise" in sys.argv:
+            if settings.flags.raise_errors:
                 raise Exception("user_table_done == False!")
         # ---
         if self.family == "mdwiki":
@@ -317,7 +318,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         u_action = params.get("action", "")
         # ---
-        if "dopost" in sys.argv:
+        if settings.flags.dopost:
             printe.output("<<green>> dopost:::")
             printe.output(params)
             printe.output("<<green>> :::dopost")

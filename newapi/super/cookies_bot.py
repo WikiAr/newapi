@@ -11,6 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 from datetime import datetime, timedelta
 from ..api_utils import printe
+from ..config import settings
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
 tool = os.getenv("HOME")
@@ -44,7 +45,7 @@ def del_cookies_file(file_path):
 
 def get_file_name(lang, family, username) -> Path:
     # ---
-    if "nocookies" in sys.argv:
+    if settings.flags.nocookies:
         randome = os.urandom(8).hex()
         return ta_dir /f"{randome}.txt"
     # ---

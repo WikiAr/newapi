@@ -5,6 +5,7 @@ from ...api_utils.ask_bot import ASK_BOT
 """
 import sys
 from . import printe
+from ..config import settings
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 
@@ -28,11 +29,11 @@ class ASK_BOT:
         """
         message = message or "Do you want to accept these changes?"
         # ---
-        if "ask" in sys.argv and not Save_or_Ask.get(job):
+        if settings.flags.ask and not Save_or_Ask.get(job):
             # ---
             if text or newtext:
-                if "nodiff" not in sys.argv and not nodiff:
-                    if len(newtext) < 70000 and len(text) < 70000 or "diff" in sys.argv:
+                if not settings.flags.nodiff and not nodiff:
+                    if len(newtext) < 70000 and len(text) < 70000 or settings.flags.diff:
                         printe.showDiff(text, newtext)
                     else:
                         printe.output("showDiff error..")

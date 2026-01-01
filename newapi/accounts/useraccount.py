@@ -6,6 +6,7 @@ from newapi.accounts.useraccount import User_tables_bot, User_tables_ibrahem
 import sys
 import os
 import configparser
+from ..config import settings
 
 project = '/data/project/himo'
 # ---
@@ -37,7 +38,7 @@ qs_tokenbot = config['DEFAULT'].get('qs_tokenbot', "")
 
 user_agent = config['DEFAULT'].get('user_agent', "")
 
-if "workibrahem" in sys.argv:
+if settings.flags.workibrahem:
     username = hiacc
     password = hipass
 

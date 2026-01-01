@@ -5,6 +5,7 @@ from .super.handel_errors import HANDEL_ERRORS
 import sys
 # from newapi import printe
 from ..api_utils import printe
+from ..config import settings
 
 
 class HANDEL_ERRORS:
@@ -81,5 +82,5 @@ class HANDEL_ERRORS:
             params['text'] = {}
             printe.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
         # ---
-        if "raise" in sys.argv:
+        if settings.flags.raise_errors:
             raise Exception(error)

@@ -35,13 +35,14 @@ from ..super.S_Page import super_page
 from ..super.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
+from ..config import settings
 
 from ..accounts.useraccount import User_tables_bot, User_tables_ibrahem
 home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_bot
 # ---
-if "workibrahem" in sys.argv:
+if settings.flags.workibrahem:
     User_tables = User_tables_ibrahem
     # ---
     print(f"page.py use {User_tables['username']} account.")

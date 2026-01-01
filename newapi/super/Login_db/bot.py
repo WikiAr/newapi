@@ -12,6 +12,7 @@ import datetime
 from configparser import ConfigParser
 from ...api_utils import printe
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
+from ...config import settings
 
 def local_host():
     main_args = {
@@ -93,7 +94,7 @@ def log_one(site, user, result, action="", params={}):
     if action == "query" and params.get('prop'):
         action += "_" + "_".join(params['prop'].split("|"))
     # ---
-    if action == "query" and "test" in sys.argv:
+    if action == "query" and settings.flags.test:
         printe.output(f"<<yellow>> {action=}")
         print(dict(params))
     # ---
