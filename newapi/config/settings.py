@@ -93,15 +93,11 @@ class ArgFlags:
     nomwclient: bool = False
 
     # Error handling flags
-    raise_errors: bool = field(default=False, metadata={"argv_name": "raise"})
+    raise_errors: bool = False
 
     # Request debugging flags
     dopost: bool = False
     tat: bool = False
-
-    def __post_init__(self):
-        """Initialize flags from sys.argv if not already set."""
-        pass
 
     def init_from_argv(self):
         """
@@ -191,13 +187,3 @@ settings = Settings()
 
 # Initialize from argv by default for backward compatibility
 settings.init_from_argv()
-
-
-__all__ = [
-    'settings',
-    'Settings',
-    'WikipediaConfig',
-    'WikidataConfig',
-    'DatabaseConfig',
-    'ArgFlags',
-]

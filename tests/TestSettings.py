@@ -27,7 +27,7 @@ class TestSettings:
         """Test that settings has wikidata config."""
         from newapi.config import settings
         assert hasattr(settings, 'wikidata')
-        assert 'wikidata.org' in settings.wikidata.endpoint
+        assert settings.wikidata.endpoint == 'https://www.wikidata.org/w/api.php'
 
     def test_settings_has_database_config(self):
         """Test that settings has database config."""
