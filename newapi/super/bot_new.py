@@ -18,6 +18,7 @@ from .cookies_bot import get_file_name, del_cookies_file
 from .params_help import PARAMS_HELPS
 from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
+from ..config import settings
 # import mwclient
 
 # from mwclient.client import Site
@@ -36,7 +37,7 @@ class MwClientSite:
         # ---
         self.login_done = False
         # ---
-        self.force_login = "nologin" not in sys.argv
+        self.force_login = not settings.flags.nologin
         self.user_agent = default_user_agent()
         self.domain = getattr(self, "domain", "")
 
@@ -77,7 +78,7 @@ class MwClientSite:
     def __initialize_site(self):
         self.domain = f"{self.lang}.{self.family}.org"
 
-        if "dopost" in sys.argv:
+        if settings.flags.dopost:
             self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
         else:
             try:
@@ -132,7 +133,7 @@ class MwClientSite:
             self.__initialize_site()
             self.do_login()
         # ---
-        if "dopost" in sys.argv:
+        if settings.flags.dopost:
             r4 = self.site_mwclient.api(action, http_method=method, **params)
             return r4
         # ---
@@ -217,7 +218,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         if not self.user_table_done:
             printe.output("<<green>> user_table_done == False!")
             # do error
-            if "raise" in sys.argv:
+            if settings.flags.raise_errors:
                 raise Exception("user_table_done == False!")
         # ---
         req0 = self.do_request(params=params, method="POST")

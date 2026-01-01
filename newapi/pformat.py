@@ -4,6 +4,7 @@ python3 core8/pwb.py newapi/pformat
 import sys
 import wikitextparser as wtp
 from pathlib import Path
+from .config import settings
 
 
 # python3 core8/pwb.py newapi/pformat -title:قالب:Cycling_race/stageclassification3
@@ -31,8 +32,8 @@ def make_new_text(text):
 
 if __name__ == "__main__":
     # ---
-    sys.argv.append('workibrahem')
-    sys.argv.append('ask')
+    settings.flags.workibrahem = True
+    settings.flags.ask = True
     # ---
     Dir = Path(__file__).parent
     # ---
@@ -50,7 +51,7 @@ if __name__ == "__main__":
         page = MainPage(title, 'ar', family='wikipedia')
         text = page.get_text()
         newtext = make_new_text(text)
-        if 'save' in sys.argv:
+        if settings.flags.save:
             save_page = page.save(newtext=newtext, summary='', nocreate=1, minor='')
     else:
         prased = wtp.parse(text)

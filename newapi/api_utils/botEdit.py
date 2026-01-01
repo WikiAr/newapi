@@ -8,6 +8,7 @@ import datetime
 import sys
 from . import printe
 from . import txtlib
+from ..config import settings
 # ---
 edit_username = {1: "Mr.Ibrahembot"}
 # ---
@@ -119,7 +120,7 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
     Returns:
         True if the bot is allowed to edit the page; False otherwise.
     """
-    if ("botedit" in sys.argv or "editbot" in sys.argv) or "workibrahem" in sys.argv:
+    if (settings.flags.botedit or settings.flags.editbot) or settings.flags.workibrahem:
         return True
     # ---
     if botjob in ["", "fixref|cat|stub|tempcat|portal"]:

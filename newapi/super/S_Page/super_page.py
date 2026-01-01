@@ -59,8 +59,9 @@ from ...api_utils import printe, txtlib, botEdit
 from ...api_utils.except_err import exception_err, warn_err
 from ...api_utils.ask_bot import ASK_BOT
 from ...api_utils.lang_codes import change_codes
+from ...config import settings
 
-print_test = {1: "test" in sys.argv}
+print_test = {1: settings.flags.test}
 
 
 class MainPage(PAGE_APIS, ASK_BOT):
@@ -122,7 +123,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if self.ns is False or self.ns != 0:
             return False
         # ---
-        if "nofa" in sys.argv:
+        if settings.flags.nofa:
             return False
         # ---
         if not self.text:
@@ -238,7 +239,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         for k, v in pages.items():
             # ---
-            if print_test[1] or "printdata" in sys.argv:
+            if print_test[1] or settings.flags.printdata:
                 warn(warn_err(f"v:{str(v)}"), UserWarning)
             # ---
             if "ns" in v:
@@ -748,7 +749,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             printe.output(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # printe.output('Done True...')
             # ---
-            if "printpop" in sys.argv:
+            if settings.flags.printpop:
                 print(pop)
             # ---
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid

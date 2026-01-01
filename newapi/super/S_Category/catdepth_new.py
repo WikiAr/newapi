@@ -10,6 +10,7 @@ from functools import lru_cache
 
 from ...api_utils import printe
 from .bot import CategoryDepth
+from ...config import settings
 
 SITECODE = "en"
 FAMILY = "wikipedia"
@@ -74,7 +75,7 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     delta = int(time.time() - start)
     # ---
-    if "printresult" in sys.argv:
+    if settings.flags.printresult:
         printe.output(result)
     # ---
     if print_s:

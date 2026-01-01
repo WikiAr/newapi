@@ -22,9 +22,11 @@ from collections.abc import Iterable, Sequence
 
 import logging
 
-if "debug" in sys.argv:
+from ..config import settings
+
+if settings.flags.debug:
     logging.basicConfig(level=logging.DEBUG)
-elif "warning" in sys.argv:
+elif settings.flags.warning:
     logging.basicConfig(level=logging.WARNING)
 
 log = logging.getLogger(__name__)
@@ -662,7 +664,7 @@ def showDiff(text_a: str, text_b: str, context: int = 0) -> None:
     The differences are highlighted (only on compatible systems) to show which
     changes were made.
     """
-    if "nodiff" in sys.argv:
+    if settings.flags.nodiff:
         return
     PatchManager(text_a, text_b, context=context).print_hunks()
 
@@ -678,7 +680,7 @@ def output(textm, *uargs, **kwargs):
 
     :param textm: The text to print. Can contain color tags.
     """
-    if "noprint" in sys.argv and not kwargs.get("p", False):
+    if settings.flags.noprint and not kwargs.get("p", False):
         return
     end = kwargs.get("end", "\n")
     toprint = make_str(textm)
@@ -708,7 +710,7 @@ def warn(text):
 
 
 def test_print(s):
-    if "test_print" in sys.argv:
+    if settings.flags.test_print:
         output(s)
 
 

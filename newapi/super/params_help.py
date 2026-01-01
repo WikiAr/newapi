@@ -6,6 +6,7 @@ from .super.params_help import PARAMS_HELPS
 import sys
 import json
 from ..api_utils.except_err import exception_err
+from ..config import settings
 
 
 class PARAMS_HELPS:
@@ -18,7 +19,7 @@ class PARAMS_HELPS:
         # pass
 
     def params_w(self, params) -> dict:
-        if self.family == "wikipedia" and self.lang == "ar" and params.get("summary") and self.username.find("bot") == -1 and "ibrahemsummary" not in sys.argv:
+        if self.family == "wikipedia" and self.lang == "ar" and params.get("summary") and self.username.find("bot") == -1 and not settings.flags.ibrahemsummary:
             params["summary"] = ""
 
         self.Bot_or_himo = 1 if "bot" in self.username else 0
@@ -31,7 +32,7 @@ class PARAMS_HELPS:
 
         if self.family != "toolforge":
             if params["action"] in ["edit", "create", "upload", "delete", "move"] or params["action"].startswith("wb") or self.family == "wikidata":
-                if "nologin" not in sys.argv and self.username:
+                if not settings.flags.nologin and self.username:
                     params["assertuser"] = self.username
 
         return params

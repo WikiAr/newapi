@@ -40,12 +40,13 @@ purge       = page.purge()
 # ---
 import os
 import sys
+from ..config import settings
 # ---
 home_dir = os.getenv("HOME")
 # ---
-if "mwclient" not in sys.argv:
-    sys.argv.append("nomwclient")
-    # print("sys.argv.append('nomwclient')")
+if not settings.flags.mwclient:
+    settings.flags.nomwclient = True
+    # print("settings.flags.nomwclient = True")
 
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
