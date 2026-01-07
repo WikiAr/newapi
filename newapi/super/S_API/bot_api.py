@@ -53,7 +53,7 @@ from ...api_utils.lang_codes import change_codes
 
 
 class NEW_API(BOTS_APIS):
-    def __init__(self, login_bot, lang, family="wikipedia"):
+    def __init__(self, login_bot, lang="", family="wikipedia"):
         # ---
         self.login_bot = login_bot
         # ---

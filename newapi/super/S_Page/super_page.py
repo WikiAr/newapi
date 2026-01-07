@@ -64,7 +64,7 @@ print_test = {1: "test" in sys.argv}
 
 
 class MainPage(PAGE_APIS, ASK_BOT):
-    def __init__(self, login_bot, title, lang, family="wikipedia"):
+    def __init__(self, login_bot, title, lang="", family="wikipedia"):
         # print(f"class MainPage: {lang=}")
         # ---
         """

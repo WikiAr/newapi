@@ -8,8 +8,10 @@ from .api_utils import except_err, botEdit
 from .api_utils import printe, txtlib, wd_sparql
 from .super.login_wrap import LoginWrap
 from . import page
+from .all_apis import ALL_APIS
 
 __all__ = [
+    "ALL_APIS",
     "useraccount",
     "wd_sparql",
     "txtlib",
