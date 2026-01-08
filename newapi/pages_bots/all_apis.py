@@ -42,12 +42,12 @@ class ALL_APIS:
     def CatDepth(self, title, *args, **kwargs):
         return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
 
-    def NEW_API(self, *args, **kwargs):
+    def NEW_API(self, *args, **kwargs) -> bot_api.NEW_API:
         # ---
         return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
 
     @functools.lru_cache(maxsize=1)
-    def _login(self) -> Login[Any]:
+    def _login(self) -> Login:
         # ---
         login_bot = Login(self.lang, family=self.family)
         # ---
