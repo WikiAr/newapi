@@ -39,7 +39,8 @@ class ALL_APIS:
     def MainPage(self, title, *args, **kwargs) -> super_page.MainPage:
         return super_page.MainPage(self.login_bot, title, self.lang, family=self.family)
 
-    def CatDepth(self, title, *args, **kwargs):
+    def CatDepth(self, title, sitecode="", family="", *args, **kwargs):
+        # cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
         return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
 
     def NEW_API(self, *args, **kwargs) -> bot_api.NEW_API:

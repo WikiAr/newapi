@@ -1,12 +1,5 @@
 # ---
 """
-from newapi.mdwiki_page import load_main_api
-main_api = load_main_api("www", "mdwiki")
-
-NEW_API = main_api.NEW_API
-MainPage = main_api.MainPage
-CatDepth = main_api.CatDepth
-
 from newapi.mdwiki_page import MainPage as md_MainPage, CatDepth
 
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], onlyns=False, without_lang="", with_lang="", tempyes=[])
@@ -46,39 +39,62 @@ purge       = page.purge()
 """
 # ---
 import os
-import functools
 import sys
-
+# ---
+home_dir = os.getenv("HOME")
+# ---
 if "mwclient" not in sys.argv:
     sys.argv.append("nomwclient")
+    # print("sys.argv.append('nomwclient')")
 
-from .all_apis import ALL_APIS
+from ..super.S_API import bot_api
+from ..super.S_Category import catdepth_new
+from ..super.S_Page import super_page
+from ..super.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
-from ..accounts.user_account_new import User_tables
 
+from ..accounts.user_account_new import User_tables, SITECODE, FAMILY
+# ---
 user_agent = default_user_agent()
-
+# ---
 change_codes = lang_codes.change_codes
 
-home_dir = os.getenv("HOME")
+logins_cache = {}
 
 
-@functools.lru_cache(maxsize=1)
-def load_main_api() -> ALL_APIS:
-    return ALL_APIS(
-        lang="www",
-        family="mdwiki",
-        username=User_tables["username"],
-        password=User_tables["password"],
-    )
+def log_it(lang, family):
+    # ---
+    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
+    # ---
+    logins_cache.update(logins_cache2)
+    # ---
+    return login_bot
 
 
-main_api = load_main_api()
+def MainPage(title, lang, family=FAMILY):
+    # ---
+    login_bot = log_it(lang, family)
+    # ---
+    page = super_page.MainPage(login_bot, title, lang, family=family)
+    # ---
+    return page
 
-NEW_API = main_api.NEW_API
-MainPage = main_api.MainPage
-CatDepth = main_api.CatDepth
+
+def CatDepth(title, sitecode=SITECODE, family=FAMILY, **kwargs):
+    # ---
+    login_bot = log_it(sitecode, family)
+    # ---
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    # ---
+    return result
+
+
+def NEW_API(lang="", family="wikipedia"):
+    login_bot = log_it(lang, family)
+    return bot_api.NEW_API(login_bot, lang=lang, family=family)
+
+
 md_MainPage = MainPage
 
 __all__ = [
