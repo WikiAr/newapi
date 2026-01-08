@@ -7,6 +7,7 @@ from newapi.super.Login_db.bot import log_one
 
 """
 import sys
+import os
 import json
 import pymysql
 import datetime
@@ -20,6 +21,9 @@ DB_CONFIG = {
     'cursorclass': pymysql.cursors.DictCursor
 }
 
+LOGS_IS_ENABLED = os.getenv("LOGIN_LOGS_IS_ENABLED", "0") == "1"
+
+
 def log_one(site="", user="", result=""):
     """
     Logs a login attempt to the database
@@ -29,6 +33,9 @@ def log_one(site="", user="", result=""):
         user (str): The username used in the attempt
         result (str): The result of the attempt (success/failure)
     """
+    # ---
+    if not LOGS_IS_ENABLED:
+        return
     # ---
     timestamp = datetime.datetime.now().isoformat()
     # ---
