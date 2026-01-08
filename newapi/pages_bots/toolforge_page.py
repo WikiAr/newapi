@@ -22,10 +22,12 @@ from ..super.login_wrap import LoginWrap
 User_tables = {}
 logins_cache = {}
 
+
 def add_User_table(table, family, lang):
     # ---
     User_tables[(lang, family)] = table
     User_tables[("*", family)] = table
+
 
 def log_it(lang, family):
     # ---
@@ -37,6 +39,7 @@ def log_it(lang, family):
     # ---
     return login_bot
 
+
 def MainPage(title, lang, family="wikipedia"):
     # ---
     login_bot = log_it(lang, family)
@@ -44,6 +47,7 @@ def MainPage(title, lang, family="wikipedia"):
     page = super_page.MainPage(login_bot, title, lang, family=family)
     # ---
     return page
+
 
 def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
@@ -53,6 +57,7 @@ def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
     return result
 
+
 def NEW_API(lang="", family="wikipedia"):
     # ---
     login_bot = log_it(lang, family)
@@ -60,6 +65,7 @@ def NEW_API(lang="", family="wikipedia"):
     result = bot_api.NEW_API(login_bot, lang=lang, family=family)
     # ---
     return result
+
 
 __all__ = [
     # "bot_api",

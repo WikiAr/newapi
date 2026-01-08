@@ -8,10 +8,6 @@ sys.argv.append("ask")
 
 from newapi.mdwiki_page import CatDepth, MainPage
 
-page      = MainPage("Main_Page", 'www', family='mdwiki')
-exists    = page.exists()
-print(f"{exists=}")
-
 """
 text      = page.get_text()
 timestamp = page.get_timestamp()
@@ -48,13 +44,35 @@ print(f"{len(red)=}")
 # print('---------------------------')
 # print(f'hidden_categories:{hidden_categories}')
 # ---
-cat_members = CatDepth("RTT", sitecode="www", family="mdwiki", depth=3, ns="0")
-# ---
-print(f"RTT: {len(cat_members)=}")
-# ---
-cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
-# ---
-print(f"RTTNEURO: {len(cat_members)=}")
+
+
+def test_main_page():
+    page = MainPage("Category:RTT", "www", family="mdwiki")
+    # ---
+    text = page.get_text()
+    print(f"MainPage RTT: {len(text)=}")
+    assert len(text) > 0
+
+
+def test_main_page2():
+    page = MainPage("Main_Page", 'www', family='mdwiki')
+    exists = page.exists()
+    assert exists is True
+
+
+def test_cat_members():
+    cat_members = CatDepth("RTT", sitecode="www", family="mdwiki", depth=3, ns="0")
+    # ---
+    print(f"RTT: {len(cat_members)=}")
+    assert len(cat_members) > 0
+
+
+def test_cat_members2():
+    cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
+    # ---
+    print(f"RTTNEURO: {len(cat_members)=}")
+    assert len(cat_members) > 0
+
 # ---
 # save = page.save(newtext='')
 # api_new = NEW_API('en', family='mdwiki')

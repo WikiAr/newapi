@@ -1,4 +1,4 @@
-name: u.yml
+name: tools update
 on:
   push:
     branches:
@@ -20,4 +20,4 @@ jobs:
           script: |
             become himo bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
             become mdwiki bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
-            # become ncc bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
+            become ncc bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"

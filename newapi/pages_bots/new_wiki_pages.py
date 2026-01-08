@@ -26,15 +26,13 @@ from newapi.page import MainPage, NEW_API
 # pages  = api_new.Get_template_pages(title, namespace="*", Max=10000)
 """
 # ---
+import functools
 import os
 import sys
 from ..super.S_API import bot_api
-from ..super.S_Category import catdepth_new
-
-from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
 from ..api_utils.user_agent import default_user_agent
 from ..api_utils import lang_codes
+from .all_apis import ALL_APIS
 
 from ..accounts.useraccount import User_tables_bot, User_tables_ibrahem
 home_dir = os.getenv("HOME")
@@ -45,48 +43,43 @@ if "workibrahem" in sys.argv:
     User_tables = User_tables_ibrahem
     # ---
     print(f"page.py use {User_tables['username']} account.")
-# ---
-user_agent = default_user_agent()
-# ---
-change_codes = lang_codes.change_codes
 
+user_agent = default_user_agent()
+change_codes = lang_codes.change_codes
 logins_cache = {}
 
 
-def log_it(lang, family):
-    # ---
-    login_bot, logins_cache2 = LoginWrap(lang, family, logins_cache, User_tables)
-    # ---
-    logins_cache.update(logins_cache2)
-    # ---
-    return login_bot
+@functools.lru_cache(maxsize=1)
+def load_main_api(lang, family) -> ALL_APIS:
+    return ALL_APIS(
+        lang=lang,
+        family=family,
+        username=User_tables["username"],
+        password=User_tables["password"],
+    )
 
 
 def MainPage(title, lang, family="wikipedia"):
     # ---
-    login_bot = log_it(lang, family)
+    main_bot = load_main_api(lang, family)
     # ---
-    page = super_page.MainPage(login_bot, title, lang, family=family)
+    page = main_bot.MainPage(title, lang, family=family)
     # ---
     return page
 
 
 def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
-    login_bot = log_it(sitecode, family)
+    main_bot = load_main_api(sitecode, family)
     # ---
-    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    result = main_bot.CatDepth(title, sitecode=sitecode, family=family, **kwargs)
     # ---
     return result
 
 
-def NEW_API(lang="", family="wikipedia"):
-    # ---
-    login_bot = log_it(lang, family)
-    # ---
-    result = bot_api.NEW_API(login_bot, lang=lang, family=family)
-    # ---
-    return result
+def NEW_API(lang="", family="wikipedia") -> bot_api.NEW_API:
+    main_bot = load_main_api(lang, family)
+    return main_bot.NEW_API()
 
 
 __all__ = [

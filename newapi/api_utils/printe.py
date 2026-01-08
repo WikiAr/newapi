@@ -707,6 +707,11 @@ def warn(text):
     log.warning(new_text)
 
 
+def warning(text):
+    new_text = make_str(text)
+    log.warning(new_text)
+
+
 def test_print(s):
     if "test_print" in sys.argv:
         output(s)

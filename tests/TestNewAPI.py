@@ -1,6 +1,7 @@
 import pytest
 from newapi.page import NEW_API
 
+
 class TestNewAPI:
     @pytest.fixture
     def api_client(self):

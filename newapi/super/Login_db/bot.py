@@ -6,12 +6,16 @@ from newapi.super.Login_db.bot2 import log_one
 # log_one(site="", user="", result="", db_type="sqlite", db_path="login_logs.db", credentials=None)
 
 """
+import functools
 import sys
 import os
 import datetime
 from configparser import ConfigParser
 from ...api_utils import printe
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
+
+LOGS_IS_ENABLED = os.getenv("LOGIN_LOGS_IS_ENABLED", "0") == "1"
+
 
 def local_host():
     main_args = {
@@ -27,6 +31,8 @@ def local_host():
 
     return main_args, credentials
 
+
+@functools.lru_cache(maxsize=1)
 def jls_extract_def():
     # ---
     if not os.getenv("HOME"):
@@ -72,8 +78,12 @@ main_args, credentials = jls_extract_def()
 
 userinfo = 0
 
-def log_one(site, user, result, action="", params={}):
+
+def log_one(site, user, result, action="", params={}) -> None:
     # global userinfo
+    # ---
+    if not LOGS_IS_ENABLED:
+        return None
     # ---
     params = params or {}
     # ---
@@ -136,7 +146,7 @@ def log_one(site, user, result, action="", params={}):
         create_table_query,
         main_args=main_args,
         credentials=credentials
-        )
+    )
 
     # Insert login attempt
     insert_query = """
