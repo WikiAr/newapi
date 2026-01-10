@@ -7,9 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -18,6 +18,6 @@ jobs:
           script_stop: true
           key: ${{ secrets.KEY }}
           script: |
-            become himo bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
-            become mdwiki bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
-            become ncc bash -lc "shs/update_api.sh; echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
+            become himo bash -lc "shs/update_api.sh && echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
+            become mdwiki bash -lc "shs/update_api.sh && echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
+            become ncc bash -lc "shs/update_api.sh && echo \"Updated on: $(date '+%Y-%m-%d %H:%M:%S')\" > ~/update_from_github"
