@@ -426,13 +426,20 @@ def post_params(self, params: dict, config: RequestConfig = RequestConfig()):
 
 ## 4. Refactoring Roadmap
 
+> **IMPORTANT:** Files marked for removal (see Section 7) should **NOT** be refactored. These files will be deleted entirely:
+> - `accounts/*` (all files)
+> - `pages_bots/page.py`, `pages_bots/mdwiki_page.py`, `pages_bots/ncc_page.py`, `pages_bots/toolforge_page.py`, `pages_bots/wiki_page.py`, `pages_bots/new_wiki_pages.py`
+> - `page.py`, `mdwiki_page.py`, `ncc_page.py`, `toolforge_page.py`, `wiki_page.py`, `new_wiki_pages.py`
+>
+> Only focus refactoring efforts on the core `super/`, `api_utils/`, and `DB_bots/` modules.
+
 ### Phase 1: Foundation (Weeks 1-2)
 **Goal:** Enable testability without breaking existing functionality
 
 1. **Extract Configuration**
    - Create `Config` dataclass to replace sys.argv coupling
    - Add config file support (YAML/TOML)
-   - Files: `api_utils/botEdit.py`, `pages_bots/page.py`, `super/super_login.py`
+   - Files: `api_utils/botEdit.py`, `super/super_login.py`
 
 2. **Dependency Injection Container**
    - Create simple DI container for session management
@@ -526,22 +533,9 @@ def post_params(self, params: dict, config: RequestConfig = RequestConfig()):
 
 ## 5. Concrete Changes Per File/Module
 
-### 5.1 `newapi/page.py`
-**Issues:** Thin wrapper, config via sys.argv
+> **Note:** Files marked for removal in Section 7 are intentionally omitted from this section.
 
-**Changes:**
-```python
-# BEFORE
-if "workibrahem" in sys.argv:
-    User_tables = User_tables_ibrahem
-
-# AFTER
-def get_main_page(title: str, lang: str, family: str = "wikipedia",
-                  config: Optional[BotConfig] = None) -> MainPage:
-    config = config or BotConfig.load_default()
-    login_bot = get_login_bot(lang, family, config)
-    return MainPage(login_bot, title, lang, family)
-```
+### 5.1 `newapi/all_apis.py`
 
 ### 5.2 `newapi/super/S_Page/super_page.py`
 **Issues:** God object, multiple inheritance, primitive obsession
@@ -740,10 +734,10 @@ def parse_api_error(error_dict: dict) -> Optional[ApiError]:
 
 ### 6.2 Security Concerns
 
-1. **Credential Storage** (`accounts/useraccount.py`)
+1. **Credential Storage** (`accounts/useraccount.py`) - **FILE BEING REMOVED**
    - Passwords stored in plain text INI file
    - No encryption at rest
-   - Recommendation: Use keyring library or environment variables
+   - **Mitigation:** New `ALL_APIS` pattern accepts credentials directly, allowing users to use keyring library or environment variables
 
 2. **Cookie Persistence** (`super/cookies_bot.py`)
    - Cookies stored with `chmod` that may be too permissive
