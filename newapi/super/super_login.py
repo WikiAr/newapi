@@ -23,11 +23,6 @@ from .handel_errors import HANDEL_ERRORS
 from ..api_utils.except_err import warn_err
 from ..api_utils.user_agent import default_user_agent
 
-# if "nomwclient" in sys.argv:
-#     from .bot import LOGIN_HELPS
-# else:
-#     from .bot_new import LOGIN_HELPS
-
 if "mwclient" in sys.argv:
     from .bot_new import LOGIN_HELPS
 else:
@@ -36,6 +31,7 @@ else:
 print_test = {1: "test" in sys.argv}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
+
 
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """

@@ -1,7 +1,5 @@
 """
 
-from newapi.accounts.useraccount import User_tables_bot, User_tables_ibrahem
-
 """
 import sys
 import os

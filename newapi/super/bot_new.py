@@ -18,12 +18,8 @@ from .cookies_bot import get_file_name, del_cookies_file
 from .params_help import PARAMS_HELPS
 from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
-# import mwclient
+from mwclient.client import Site
 
-# from mwclient.client import Site
-from .mwclient.client import Site
-
-# cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
 
 

@@ -1,12 +1,5 @@
 """
-# ---
-from . import user_account_new
-# ---
-username = user_account_new.bot_username     #user_account_new.my_username
-password = user_account_new.bot_password     #user_account_new.mdwiki_pass
-lgpass_enwiki   = user_account_new.lgpass_enwiki
-user_agent   = user_account_new.user_agent
-# ---
+
 """
 
 import os

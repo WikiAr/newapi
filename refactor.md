@@ -30,7 +30,6 @@ Core Super Layer (super/)
     ├── S_Page/       - Page operations (MainPage)
     ├── S_Category/   - Category traversal (CatDepth)
     ├── S_Login/      - Login management
-    └── mwclient/     - Vendored MediaWiki client
     ↓
 Utilities (api_utils/)
     └── DB_bots/      - Database wrappers
