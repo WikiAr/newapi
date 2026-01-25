@@ -1,16 +1,5 @@
 """
-from newapi import toolforge_page
-# ---
-User_tables_md = {
-    "username": medwiki_account.username,
-    "password": medwiki_account.password,
-}
-# ---
-toolforge_page.add_User_table(User_tables_md, "toolforge", "medwiki")
-# ---
-CatDepth = toolforge_page.subcatquery
-MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
-# ---
+TODO: should use new ALL_APIS class
 """
 # ---
 from ..super.S_Category import catdepth_new
