@@ -786,8 +786,10 @@ def parse_api_error(error_dict: dict) -> Optional[ApiError]:
 
 ## 7. Recommendations Summary
 
-### Remove `accounts` Folder (Immediate)
-**Rationale:** Users can now use the simplified `ALL_APIS` code futures pattern instead of needing the `accounts` folder.
+### Immediate Actions (Week 1)
+
+### 1. Remove `accounts` Folder and Site-Specific Pages (Priority #1)
+**Rationale:** Users can now use the simplified `ALL_APIS` code futures pattern instead of needing the `accounts` folder and site-specific page implementations.
 
 **New Usage Pattern:**
 ```python
@@ -803,15 +805,22 @@ new_api = main_api.NEW_API()  # Access NEW_API operations
 ```
 
 **Files to Remove:**
-- `accounts/__init__.py`
-- `accounts/user_account_ncc.py`
-- `accounts/user_account_new.py`
-- `accounts/useraccount.py`
-- `pages_bots/mdwiki_page.py`
-- `pages_bots/ncc_page.py`
-- `pages_bots/toolforge_page.py`
-- `pages_bots/wiki_page.py`
-- `pages_bots/new_wiki_pages.py`
+- `newapi/accounts/__init__.py`
+- `newapi/accounts/user_account_ncc.py`
+- `newapi/accounts/user_account_new.py`
+- `newapi/accounts/useraccount.py`
+- `newapi/pages_bots/page.py`
+- `newapi/pages_bots/mdwiki_page.py`
+- `newapi/pages_bots/ncc_page.py`
+- `newapi/pages_bots/toolforge_page.py`
+- `newapi/pages_bots/wiki_page.py`
+- `newapi/pages_bots/new_wiki_pages.py`
+- `newapi/page.py`
+- `newapi/mdwiki_page.py`
+- `newapi/ncc_page.py`
+- `newapi/toolforge_page.py`
+- `newapi/wiki_page.py`
+- `newapi/new_wiki_pages.py`
 
 **Migration Guide:**
 - Old: `from accounts.useraccount import UserAccount; account = UserAccount(...)`
@@ -823,11 +832,9 @@ new_api = main_api.NEW_API()  # Access NEW_API operations
 - Direct credential passing through `ALL_APIS`
 - Consistent with modern Python library patterns
 
-### Immediate Actions (Week 1)
-1. Add typing to all public interfaces
-2. Create Config class to replace sys.argv coupling
-3. Document all public APIs
-4. Remove `accounts` folder (users now use `ALL_APIS` pattern)
+### 2. Add typing to all public interfaces
+### 3. Create Config class to replace sys.argv coupling
+### 4. Document all public APIs
 
 ### Short Term (Months 1-2)
 1. Implement Phase 1-3 of roadmap
