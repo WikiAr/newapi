@@ -807,6 +807,11 @@ new_api = main_api.NEW_API()  # Access NEW_API operations
 - `accounts/user_account_ncc.py`
 - `accounts/user_account_new.py`
 - `accounts/useraccount.py`
+- `pages_bots/mdwiki_page.py`
+- `pages_bots/ncc_page.py`
+- `pages_bots/toolforge_page.py`
+- `pages_bots/wiki_page.py`
+- `pages_bots/new_wiki_pages.py`
 
 **Migration Guide:**
 - Old: `from accounts.useraccount import UserAccount; account = UserAccount(...)`
