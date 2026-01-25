@@ -786,10 +786,43 @@ def parse_api_error(error_dict: dict) -> Optional[ApiError]:
 
 ## 7. Recommendations Summary
 
+### Remove `accounts` Folder (Immediate)
+**Rationale:** Users can now use the simplified `ALL_APIS` code futures pattern instead of needing the `accounts` folder.
+
+**New Usage Pattern:**
+```python
+from newapi import ALL_APIS
+
+# Simple initialization with credentials
+main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
+
+# Access all features through main_api
+page = main_api.MainPage('Main Page Title')  # Access MainPage operations
+cat_members = main_api.CatDepth('Category Title')  # Access Category traversal
+new_api = main_api.NEW_API()  # Access NEW_API operations
+```
+
+**Files to Remove:**
+- `accounts/__init__.py`
+- `accounts/user_account_ncc.py`
+- `accounts/user_account_new.py`
+- `accounts/useraccount.py`
+
+**Migration Guide:**
+- Old: `from accounts.useraccount import UserAccount; account = UserAccount(...)`
+- New: `from newapi import ALL_APIS; api = ALL_APIS(username='...', password='...')`
+
+**Benefits:**
+- Simpler API surface area
+- No need for separate account management files
+- Direct credential passing through `ALL_APIS`
+- Consistent with modern Python library patterns
+
 ### Immediate Actions (Week 1)
 1. Add typing to all public interfaces
 2. Create Config class to replace sys.argv coupling
 3. Document all public APIs
+4. Remove `accounts` folder (users now use `ALL_APIS` pattern)
 
 ### Short Term (Months 1-2)
 1. Implement Phase 1-3 of roadmap
