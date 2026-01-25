@@ -46,7 +46,7 @@ purge       = page.purge()
 '''
 
 """
-import os
+# import os
 from warnings import warn
 import sys
 import wikitextparser as wtp
@@ -678,7 +678,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)
         return self.template_data.templates
 
-    def save(self, newtext="", summary="", nocreate=1, minor="0", tags="", nodiff=False, ASK=False):
+    def save(self, newtext="", summary="", nocreate=1, minor="0", tags="", nodiff=False, ASK=False) -> bool|str:
         """
         Saves new text to the page, updating its content and metadata.
 
@@ -802,7 +802,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
                 return "missing"
         return False
 
-    def Create(self, text="", summary="", nodiff="", noask=False):
+    def create(self, text="", summary="", nodiff="", noask=False) -> bool:
         # ---
         """
         Creates a new page with the specified text and summary.
@@ -875,6 +875,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             return er
             # ---
         return False
+
+    def Create(self, text="", summary="", nodiff="", noask=False) -> bool:
+        return self.create(text=text, summary=summary, nodiff=nodiff, noask=noask)
 
     def page_backlinks(self, ns=0):
         params = {
