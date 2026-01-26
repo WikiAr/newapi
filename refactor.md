@@ -863,4 +863,118 @@ new_api = main_api.NEW_API()  # Access NEW_API operations
 
 ---
 
+## 8. Refactoring Checklist
+
+### Immediates (Cleanup)
+- [ ] **Delete Directory**: `newapi/accounts/` and all its contents.
+- [ ] **Delete File**: `newapi/pages_bots/page.py`.
+- [ ] **Delete File**: `newapi/pages_bots/mdwiki_page.py`.
+- [ ] **Delete File**: `newapi/pages_bots/ncc_page.py`.
+- [ ] **Delete File**: `newapi/pages_bots/toolforge_page.py`.
+- [ ] **Delete File**: `newapi/pages_bots/wiki_page.py`.
+- [ ] **Delete File**: `newapi/pages_bots/new_wiki_pages.py`.
+- [ ] **Delete File**: `newapi/page.py`.
+- [ ] **Delete File**: `newapi/mdwiki_page.py`.
+- [ ] **Delete File**: `newapi/ncc_page.py`.
+- [ ] **Delete File**: `newapi/toolforge_page.py`.
+- [ ] **Delete File**: `newapi/wiki_page.py`.
+- [ ] **Delete File**: `newapi/new_wiki_pages.py`.
+
+### Phase 1: Foundation
+#### Configuration & State
+- [ ] **Create File**: `newapi/core/config.py`.
+    - [ ] Define `BotConfig` dataclass.
+- [ ] **Edit File**: `newapi/api_utils/botEdit.py`.
+    - [ ] Import `BotConfig`.
+    - [ ] Replace `sys.argv` checks with `BotConfig` checks.
+- [ ] **Edit File**: `newapi/super/super_login.py`.
+    - [ ] Import `BotConfig`.
+    - [ ] Replace `sys.argv` checks with `BotConfig` checks.
+- [ ] **Create File**: `newapi/core/container.py`.
+    - [ ] Implement `SessionManager` class.
+- [ ] **Edit File**: `newapi/super/bot.py`.
+    - [ ] Remove global `seasons_by_lang`.
+    - [ ] Remove global `users_by_lang`.
+    - [ ] Implement `SessionManager` usage.
+- [ ] **Edit File**: `newapi/super/login_wrap.py`.
+    - [ ] Remove/Refactor global `hases`.
+
+### Phase 2: Decomposition
+#### Page Logic
+- [ ] **Create File**: `newapi/core/page.py`.
+    - [ ] Define `Page` dataclass.
+    - [ ] Define `PageMetadata` dataclass.
+- [ ] **Create File**: `newapi/repositories/page_repository.py`.
+    - [ ] Define `PageRepository` class.
+- [ ] **Create File**: `newapi/services/template_service.py`.
+    - [ ] Define `TemplateService` class.
+- [ ] **Create File**: `newapi/services/edit_validator.py`.
+    - [ ] Define `EditValidator` class.
+- [ ] **Edit File**: `newapi/super/S_Page/super_page.py`.
+    - [ ] Remove `PAGE_APIS` inheritance.
+    - [ ] Remove `ASK_BOT` inheritance.
+    - [ ] Update `__init__` to accept dependencies (`PageRepository`, `EditValidator`, etc.).
+    - [ ] Refactor `exists()` to use `PageMetadata` and return strict boolean.
+    - [ ] Delegate text retrieval to `PageRepository`.
+    - [ ] Delegate template operations to `TemplateService`.
+    - [ ] Delegate edit permission checks to `EditValidator`.
+
+#### API Client
+- [ ] **Create File**: `newapi/api/client.py`.
+    - [ ] Define `MediaWikiApiClient`.
+- [ ] **Create File**: `newapi/core/request_config.py` (or inside `api/client.py`).
+    - [ ] Define `RequestConfig` dataclass.
+- [ ] **Edit File**: `newapi/super/S_API/bot_api.py`.
+    - [ ] Refactor usage to `MediaWikiApiClient`.
+    - [ ] Refactor `post_params` to use `RequestConfig`.
+- [ ] **Create File**: `newapi/api/queries.py`.
+    - [ ] Move high-level query logic here.
+- [ ] **Create File**: `newapi/api/token_manager.py`.
+    - [ ] Implement `TokenManager`.
+
+#### Authentication
+- [ ] **Create File**: `newapi/auth/authenticator.py`.
+    - [ ] Define `Authenticator` class.
+- [ ] **Create File**: `newapi/auth/token_provider.py`.
+    - [ ] Define `TokenProvider` class.
+- [ ] **Edit File**: `newapi/super/super_login.py`.
+    - [ ] Refactor `Login` to use `Authenticator` and `TokenProvider`.
+
+#### Utilities & Database
+- [ ] **Edit File**: `newapi/api_utils/botEdit.py`.
+    - [ ] Remove global `Bot_Cache`.
+    - [ ] Remove global `Created_Cache`.
+    - [ ] Implement `EditPermissionChecker` class.
+- [ ] **Edit File**: `newapi/super/S_Category/bot.py`.
+    - [ ] Create `NamespaceRegistry` class.
+    - [ ] Replace hardcoded namespace strings with registry.
+- [ ] **Edit File**: `newapi/DB_bots/db_bot.py`.
+    - [ ] Implement `LiteDbRepository` class.
+
+### Phase 3: Error Handling & Interfaces
+- [ ] **Create File**: `newapi/core/exceptions.py`.
+    - [ ] Define `NewApiException`.
+    - [ ] Define `ApiError`, `AbuseFilterError`, `MaxLagError`, `ArticleExistsError`.
+- [ ] **Edit File**: `newapi/super/handel_errors.py`.
+    - [ ] Implement `parse_api_error` function.
+    - [ ] Update `handel_err` to return typed exceptions/results.
+
+### Phase 4: Modernization
+- [ ] **Edit File**: `newapi/super/S_Page/super_page.py`.
+    - [ ] Add type hints to all methods.
+- [ ] **Edit File**: `newapi/super/S_API/bot_api.py`.
+    - [ ] Add type hints to all methods.
+- [ ] **Edit File**: `newapi/super/S_Category/bot.py`.
+    - [ ] Add type hints to all methods.
+- [ ] **Edit File**: `newapi/super/super_login.py`.
+    - [ ] Add type hints to all methods.
+
+### Final Verification
+- [ ] Verify 0 occurrences of `sys.argv` for logic control.
+- [ ] Verify 0 occurrences of module-level global state dictionaries.
+- [ ] Verify `MainPage` does not use multiple inheritance.
+- [ ] Verify public methods have return type hints.
+
+---
+
 *Report generated by static analysis on 2026-01-26*
