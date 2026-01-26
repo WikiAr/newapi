@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 import os
-from newapi.db_bot import LiteDB
+from newapi.DB_bots.db_bot import LiteDB
 
 class TestLiteDB:
     @pytest.fixture

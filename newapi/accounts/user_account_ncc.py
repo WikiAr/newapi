@@ -1,12 +1,4 @@
 """
-# ---
-from .accounts import user_account_ncc
-# ---
-User_tables = {
-    "username": user_account_ncc.username,
-    "password": user_account_ncc.password,
-}
-# ---
 """
 
 import os
