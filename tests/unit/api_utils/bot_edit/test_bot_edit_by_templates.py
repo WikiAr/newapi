@@ -212,6 +212,12 @@ class TestNobotsTemplate:
         text = "{{nobots| all , OtherBot }}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
+    def test_nobots_empty_param_blocks_all(self, original_argv):
+        """{{Nobots|}} with empty parameter should block all bots."""
+        sys.argv = ["script"]
+        text = "{{Nobots|}}"
+        assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
+
 
 # Test bots template
 class TestBotsTemplate:
