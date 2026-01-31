@@ -1,12 +1,12 @@
-
 ## MainPage
 
 The ````MainPage```` class is a core component of the newapi framework that provides a high-level interface for interacting with individual wiki pages across various MediaWiki sites. It encapsulates all operations related to reading, editing, and analyzing specific pages, abstracting away the complexity of direct API calls.
 
 ```` python
 # ---
-from newapi.page import MainPage
-page      = MainPage('Article title', 'ar', family='wikipedia')
+from newapi import ALL_APIS
+api = ALL_APIS(lang='ar', family='wikipedia')
+page = api.MainPage('Article title')
 # ---
 # Check if the page exists
 if not page.exists():
@@ -100,7 +100,7 @@ for x in references:
 ````
 
 ### Editing Page
-This document details how to edit and create wiki pages using the NewAPI framework. It covers the primary methods for page modification, permission checking, and best practices for making edits to MediaWiki pages.
+This document details how to edit and create wiki pages using the newapi framework. It covers the primary methods for page modification, permission checking, and best practices for making edits to MediaWiki pages.
 
 ```` python
 
@@ -126,7 +126,8 @@ if page.exists():
 ```` python
 
 # Edit an existing page
-page = MainPage("New Page Title", "en", family="wikipedia")
+# Assumes 'api' is already initialized via ALL_APIS
+page = api.MainPage("New Page Title")
 
 new_text = "This is the new content of the page."
 
@@ -145,7 +146,8 @@ save_page = page.save(
 
 ```` python
 # Create a new page
-page = MainPage("New Page Title", "en", family="wikipedia")
+# Assumes 'api' is already initialized via ALL_APIS
+page = api.MainPage("New Page Title")
 
 if not page.exists():
     success = page.Create(
@@ -178,10 +180,13 @@ purge       = page.purge()
 
 ## Example 1: Reading and Modifying a Page
 ```` python
-from newapi.page import MainPage
+from newapi import ALL_APIS
+
+# Initialize API
+api = ALL_APIS(lang='en', family='wikipedia')
 
 # Create a page instance
-page = MainPage("Example Article", "en", family="wikipedia")
+page = api.MainPage("Example Article")
 
 # Check if the page exists
 if not page.exists():
@@ -220,10 +225,13 @@ if "[[Category:Example Category]]" not in text:
 
 ## Example 2: Creating a New Page
 ```` python
-from newapi.page import MainPage
+from newapi import ALL_APIS
+
+# Initialize API
+api = ALL_APIS(lang='en', family='wikipedia')
 
 # Create a page instance
-page = MainPage("New Page Title", "en", family="wikipedia")
+page = api.MainPage("New Page Title")
 
 # Check if the page already exists
 if page.exists():
@@ -257,11 +265,14 @@ else:
 ## Example 3: Formatting Templates in a Page
 ```` python
 
-from newapi.page import MainPage
+from newapi import ALL_APIS
 import wikitextparser as wtp
 
+# Initialize API
+api = ALL_APIS(lang='en', family='wikipedia')
+
 # Create a page instance
-page = MainPage("Template:Example", "en", family="wikipedia")
+page = api.MainPage("Template:Example")
 
 # Get the current text
 text = page.get_text()

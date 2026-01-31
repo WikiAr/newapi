@@ -3,22 +3,37 @@ Python module for Wikimedia API:
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WikiAr/newapi)
 
 ----
-# Newapi.page Module:
+# Usage
+
+The recommended way to use the library is via the `ALL_APIS` class, which serves as the central entry point. It handles authentication, session management, and configuration for you.
+
+```python
+from newapi import ALL_APIS
+
+# Initialize the API with your credentials
+# This creates a session that will be used for all subsequent operations
+api = ALL_APIS(
+    lang='en',
+    family='wikipedia',
+    username='your_username',
+    password='your_password'
+)
+```
+
+# Core Components
 
 ## MainPage
 
-The ````MainPage```` class is a core component of the newapi framework that provides a high-level interface for interacting with individual wiki pages across various MediaWiki sites. It encapsulates all operations related to reading, editing, and analyzing specific pages, abstracting away the complexity of direct API calls.
+The ````MainPage```` class is a core component of the newapi framework that provides a high-level interface for interacting with individual wiki pages. Use the `api` instance to create page objects.
 
-For general API operations that don't target specific pages, see NEW_API Class. For category-specific operations, see CatDepth.
+For general API operations that don't target specific pages, see NEW_API. For category-specific operations, see CatDepth.
 
 See [Doc/MainPage.md](Doc/MainPage.md)
 
 ```` python
-# Import MainPage
-from newapi.page import MainPage
-
-# Initialize with page title, language, and wiki family
-page = MainPage("Earth", 'en', family='wikipedia')
+# Create a MainPage instance using the initialized API
+# Language and family are inherited from the api instance
+page = api.MainPage("Earth")
 
 # Check if the page exists
 if page.exists():
@@ -39,19 +54,13 @@ if page.exists():
 ````
 
 ## CatDepth
-The CategoryDepth system provides functionality for traversing MediaWiki categories and retrieving category members recursively. It allows users to retrieve pages within categories, including subcategories up to a specified depth, with powerful filtering options based on namespace, templates, language links, and other criteria.
+The CategoryDepth system provides functionality for traversing MediaWiki categories and retrieving category members recursively.
 
 See [Doc/CatDepth.md](Doc/CatDepth.md)
 
 ```` python
-from newapi.page import CatDepth
-
-# Get members of a category (default depth=0 means only direct members)
-cat_members = CatDepth(
-    "Living people",  # category name
-    sitecode='en',    # language code
-    family="wikipedia"  # wiki family
-)
+# Get members of a category using the api instance
+cat_members = api.CatDepth("Living people")
 
 # Process the results
 print(f"Found {len(cat_members)} members")
@@ -60,16 +69,13 @@ for title, info in cat_members.items():
 ````
 
 ## NEW_API
-The NEW_API class provides a robust, high-level interface to the MediaWiki API, abstracting away the complexities of direct API interaction. By providing methods for common operations like searching, retrieving pages, working with templates, and handling user contributions, it enables developers to create sophisticated tools and bots for MediaWiki platforms with minimal code.
+The NEW_API class provides a robust, high-level interface to the MediaWiki API, abstracting away the complexities of direct API interaction.
 
 See [Doc/NEW_API.md](Doc/NEW_API.md)
 
 ```` python
-from newapi.page import NEW_API
-
-# Initialize the API
-api_new = NEW_API('en', family='wikipedia')
-api_new.Login_to_wiki()
+# Access the API interface via your initialized instance
+api_new = api.NEW_API()
 
 # Search for pages containing "python programming"
 search_results = api_new.Search(value="python programming", ns="0", srlimit="10")
@@ -88,18 +94,9 @@ detailed_results = api_new.Search(
 )
 
 ````
+
 ----
-# Newapi.pformat Module:
-For complex edits involving templates, the framework includes utilities to format template syntax in a standard way:
-
-```` python
-from newapi import pformat
-
-# Format templates in text
-new_text = pformat.make_new_text(text)
-````
-
-# Newapi.wd_sparql Module:
+# newapi.wd_sparql Module:
 See [Doc/wd_sparql.md](Doc/wd_sparql.md)
 
 ```` python
@@ -120,7 +117,7 @@ results = get_query_result(query)
 for result in results:
     print(f"Item: {result['itemLabel']['value']}")
 ````
-# Newapi.db_bot Module:
+# newapi.db_bot Module:
 The LiteDB class in db_bot.py provides a wrapper around SQLite operations, offering:
 
 - Table creation and management
@@ -153,7 +150,7 @@ results = db.select("page_cache", {"title": "Example Page"})
 
 ````
 
-# Newapi.pymysql_bot Module:
+# newapi.pymysql_bot Module:
 The pymysql_bot module provides functions for connecting to MySQL databases and executing queries:
 
 See [Doc/pymysql_bot.md](Doc/pymysql_bot.md)
@@ -195,19 +192,22 @@ dict_results = pymysql_bot.sql_connect_pymysql(
 
 ## Finding Uncategorized Articles
 ```` python
-from newapi.page import NEW_API, MainPage
+from newapi import ALL_APIS
 
 # Initialize API
-api = NEW_API('en', family='wikipedia')
-api.Login_to_wiki()
+api = ALL_APIS(lang='en', family='wikipedia', username='user', password='pwd')
+
+# Access NEW_API for queries
+api_new = api.NEW_API()
 
 # Get uncategorized pages
-uncategorized = api.querypage_list(qppage="Uncategorizedpages", qplimit="50")
+uncategorized = api_new.querypage_list(qppage="Uncategorizedpages", qplimit="50")
 
 # Process each page to add appropriate categories
 for page_info in uncategorized:
     title = page_info.get("title")
-    page = MainPage(title, 'en', family='wikipedia')
+    # Create page object through main api instance
+    page = api.MainPage(title)
 
     if page.exists() and page.can_edit(script='categorizer'):
         # Get text and add categories based on content analysis
@@ -219,31 +219,25 @@ for page_info in uncategorized:
 
 ## Updating Interlanguage Links
 ```` python
-from newapi.page import NEW_API, MainPage, CatDepth
+from newapi import ALL_APIS
+
+# Initialize API
+api = ALL_APIS(lang='en', family='wikipedia', username='user', password='pwd')
 
 # Get pages in a category
-category_members = CatDepth(
-    "Articles needing interlanguage links",
-    sitecode='en',
-    family="wikipedia",
-    ns="0"
-)
-
-# Initialize API for language link operations
-api = NEW_API('en', family='wikipedia')
-api.Login_to_wiki()
+category_members = api.CatDepth("Articles needing interlanguage links", ns="0")
 
 # Process each page
 for title in category_members:
-    page = MainPage(title, 'en', family='wikipedia')
+    page = api.MainPage(title)
 
     if page.exists():
         # Find potential language links through search on other wikis
-        # This is a simplified example - real implementation would be more complex
-        other_lang_api = NEW_API('es', family='wikipedia')
-        other_lang_api.Login_to_wiki()
+        # Initialize another API instance for the target wiki
+        other_lang_api = ALL_APIS(lang='es', family='wikipedia', username='user', password='pwd')
+        api_es = other_lang_api.NEW_API()
 
-        search_results = other_lang_api.Search(value=title, ns="0", srlimit="1")
+        search_results = api_es.Search(value=title, ns="0", srlimit="1")
         if search_results:
             print(f"Possible match for {title}: {search_results[0]} (es)")
 ````
@@ -251,18 +245,18 @@ for title in category_members:
 ## Batch Processing Template Changes
 
 ```` python
-from newapi.page import NEW_API, MainPage
+from newapi import ALL_APIS
 
 # Initialize API
-api = NEW_API('en', family='wikipedia')
-api.Login_to_wiki()
+api = ALL_APIS(lang='en', family='wikipedia', username='user', password='pwd')
+api_new = api.NEW_API()
 
 # Get pages using a specific template
-template_pages = api.Get_template_pages("Template:Outdated", namespace="0", Max=100)
+template_pages = api_new.Get_template_pages("Template:Outdated", namespace="0", Max=100)
 
 # Process each page to update the template
 for title in template_pages:
-    page = MainPage(title, 'en', family='wikipedia')
+    page = api.MainPage(title)
 
     if page.exists() and page.can_edit(script='template-updater'):
         text = page.get_text()
