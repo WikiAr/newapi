@@ -39,7 +39,7 @@ def reset_environment():
 @pytest.fixture
 def mock_wtp():
     """Provide a mocked wikitextparser."""
-    with patch('mw_api.api_utils.bot_edit.bot_edit_by_templates.wtp') as mock:
+    with patch('newapi.api_utils.bot_edit.bot_edit_by_templates.wtp') as mock:
         yield mock
 
 
