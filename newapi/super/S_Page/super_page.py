@@ -46,8 +46,7 @@ purge       = page.purge()
 '''
 
 """
-import os
-from warnings import warn
+import logging
 import sys
 import wikitextparser as wtp
 
@@ -55,12 +54,12 @@ from .ar_err import find_edit_error
 from .bot import PAGE_APIS
 from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, TemplateData
 
-from ...api_utils import printe, txtlib, botEdit
-from ...api_utils.except_err import exception_err, warn_err
+from ...api_utils import txtlib, botEdit
 from ...api_utils.ask_bot import ASK_BOT
 from ...api_utils.lang_codes import change_codes
 
 print_test = {1: "test" in sys.argv}
+logger = logging.getLogger(__name__)
 
 
 class MainPage(PAGE_APIS, ASK_BOT):
@@ -132,7 +131,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if len(self.newtext) < 0.1 * len(self.text):
             text_err = f"Edit will remove 90% of the text. {len(self.newtext)} < 0.1 * {len(self.text)}"
             text_err += f"title: {self.title}, summary: {self.content.summary}"
-            exception_err("", text=text_err)
+            logger.exception(text_err)
             return True
         # ---
         if self.lang == "ar" and self.ns == 0:
@@ -164,7 +163,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         done = data.get("import", [{}])[0].get("revisions", 0)
         # ---
-        printe.output(f"<<lightgreen>> imported {done} revisions")
+        logger.info(f"<<lightgreen>> imported {done} revisions")
         # ---
         return data
 
@@ -239,7 +238,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         for k, v in pages.items():
             # ---
             if print_test[1] or "printdata" in sys.argv:
-                warn(warn_err(f"v:{str(v)}"), UserWarning)
+                logger.error(f"<<lightyellow>> data: {v}")
             # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !
@@ -409,7 +408,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         to = redirects.get("to", "")
         # ---
         if to:
-            printe.output(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
+            logger.info(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
         # ---
         return to
 
@@ -513,7 +512,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.meta.is_Disambig = self.title.endswith("(توضيح)") or self.title.endswith("(disambiguation)")
         # ---
         if self.meta.is_Disambig:
-            printe.output(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
+            logger.info(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
         # ---
         return self.meta.is_Disambig
 
@@ -659,7 +658,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if not self.meta.Exists:
             self.get_text()
         if not self.meta.Exists:
-            printe.output(f'page "{self.title}" not exists in {self.lang}:{self.family}')
+            logger.info(f'page "{self.title}" not exists in {self.lang}:{self.family}')
         return self.meta.Exists
 
     def namespace(self):
@@ -745,7 +744,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if result.lower() == "success":
             self.text = newtext
             self.user = ""
-            printe.output(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # printe.output('Done True...')
             # ---
             if "printpop" in sys.argv:
@@ -779,7 +778,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         data = self.post_params(params, addtoken=True)
         # ---
         if not data:
-            printe.output("<<lightred>> ** purge error. ")
+            logger.info("<<lightred>> ** purge error. ")
             return False
         # ---
         title2 = self.title
@@ -798,7 +797,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             if title2 == ti and "purged" in t:
                 return True
             if "missing" in t:
-                printe.output(f"page \"{t['title']}\" missing")
+                logger.info(f"page \"{t['title']}\" missing")
                 return "missing"
         return False
 
@@ -857,7 +856,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             self.text = text
             # ---
-            printe.output(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # printe.output('Done True... time.sleep() ')
             # ---
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid

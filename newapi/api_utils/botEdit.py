@@ -6,7 +6,8 @@ bot_edit!
 #
 import datetime
 import sys
-from . import printe
+import logging
+logger = logging.getLogger(__name__)
 from . import txtlib
 # ---
 edit_username = {1: "Mr.Ibrahembot"}
@@ -32,7 +33,7 @@ def _handle_nobots_template(params, title_page, botjob, _template):
     # {{nobots}}                منع جميع البوتات
     # منع جميع البوتات
     if not params:
-        printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+        logger.info(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
         # printe.output( 'return False 2 ' )
         Bot_Cache[botjob][title_page] = False
         return False
@@ -40,7 +41,7 @@ def _handle_nobots_template(params, title_page, botjob, _template):
         List = [x.strip() for x in params.get("1", "").split(",")]
         # if 'all' in List or pywikibot.calledModuleName() in List or edit_username[1] in List:
         if "all" in List or edit_username[1] in List:
-            printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+            logger.info(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
             # printe.output( 'return False 3 ' )
             # Bot_Cache[title_page] = False
             Bot_Cache[botjob][title_page] = False
@@ -60,7 +61,7 @@ def _handle_bots_template(params, title_page, botjob, title):
         Bot_Cache[botjob][title_page] = False
         return False
     else:
-        printe.output(f"botEdit.py title:({title}), params:({str(params)}).")
+        logger.info(f"botEdit.py title:({title}), params:({str(params)}).")
         # for param in params:
         # value = params[param]
         # value = [ x.strip() for x in value.split(',') ]
@@ -74,9 +75,9 @@ def _handle_bots_template(params, title_page, botjob, title):
             # 'all' in value or edit_username[1] in value is True
             sd = "all" in value or edit_username[1] in value
             if not sd:
-                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+                logger.info(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
             else:
-                printe.output(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+                logger.info(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
             Bot_Cache[botjob][title_page] = sd
             return sd
             # ---
@@ -89,7 +90,7 @@ def _handle_bots_template(params, title_page, botjob, title):
             # if param == 'deny':
             sd = "all" not in value and edit_username[1] not in value
             if not sd:
-                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
+                logger.info(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
             Bot_Cache[botjob][title_page] = sd
             return sd
         # ---
@@ -144,7 +145,7 @@ def bot_May_Edit_do(text="", title_page="", botjob="all"):
         restrictions = stop_edit_temps.get(botjob, [])
         # ---
         if title in restrictions or title in all_stop:
-            printe.output(f"<<lightred>> botEdit.py: the page has temp:({title}), botjob:{botjob} skipp.")
+            logger.info(f"<<lightred>> botEdit.py: the page has temp:({title}), botjob:{botjob} skipp.")
             Bot_Cache[botjob][title_page] = False
             return False
         # ---
@@ -200,8 +201,8 @@ def check_create_time(page, title_page):
         wait_time = delay_hours - diff
         # ---
         if diff < delay_hours:
-            printe.output(f"<<yellow>>Page:{title_page} create at ({create_time}).")
-            printe.output(f"<<invert>>Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
+            logger.info(f"<<yellow>>Page:{title_page} create at ({create_time}).")
+            logger.info(f"<<invert>>Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
             return False
     # ---
     return True
@@ -239,8 +240,8 @@ def check_last_edit_time(page, title_page, delay):
         wait_time = delay - diff_minutes
         # ---
         if diff_minutes < delay:
-            printe.output(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
-            printe.output(f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}")
+            logger.info(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
+            logger.info(f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}")
             return False
     # ---
     return True

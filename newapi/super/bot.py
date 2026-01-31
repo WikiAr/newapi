@@ -14,9 +14,9 @@ from .params_help import PARAMS_HELPS
 
 from http.cookiejar import MozillaCookieJar
 
-from ..api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from .cookies_bot import get_file_name, del_cookies_file
-from ..api_utils.except_err import exception_err
 from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
 
@@ -110,8 +110,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         Bot_passwords = self.password.find("@") != -1
         logins_count[1] += 1
-        printe.output(f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
-        printe.output(f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
+        logger.info(f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
+        logger.info(f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
 
         logintoken = self.get_logintoken()
 
@@ -121,7 +121,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         success = self.get_login_result(logintoken)
 
         if success:
-            printe.output("<<green>> new_api login Success")
+            logger.info("<<green>> new_api login Success")
             return True
         else:
             return False
@@ -142,10 +142,10 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(r11.status_code, "logintoken")
             # ---
             if not str(r11.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
             # ---
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             return ""
 
         jsson1 = {}
@@ -154,14 +154,14 @@ class LOGIN_HELPS(PARAMS_HELPS):
             jsson1 = r11.json()
         except Exception as e:
             print(r11.text)
-            exception_err(e)
+            logger.exception(e)
             return ""
 
         return jsson1.get("query", {}).get("tokens", {}).get("logintoken") or ""
 
     def get_login_result(self, logintoken) -> bool:
         if not self.password:
-            printe.output("No password")
+            logger.info("No password")
             return False
 
         r2_params = {
@@ -177,7 +177,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r2_params, headers=self.headers)
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             return False
         # ---
         r22 = {}
@@ -186,7 +186,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             try:
                 r22 = req.json()
             except Exception as e:
-                exception_err(e)
+                logger.exception(e)
                 print(req.text)
                 return False
         # ---
@@ -202,10 +202,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         reason = r22.get("login", {}).get("reason", "")
         # ---
-        # exception_err(r22)
-        # ---
         if reason == "Incorrect username or password entered. Please try again.":
-            printe.output(f"user:{self.username}, pass:******")
+            logger.info(f"user:{self.username}, pass:******")
         # ---
         return False
 
@@ -225,7 +223,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=params, headers=self.headers)
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             self.log_error("failed", "userinfo")
             return False
         # ---
@@ -234,7 +232,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             try:
                 json1 = req.json()
             except Exception as e:
-                exception_err(e)
+                logger.exception(e)
                 print(req.text)
                 return False
         # ---
@@ -256,7 +254,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def make_new_session(self) -> None:
         # ---
-        printe.output(f"make_new_session:({self.lang}, {self.family}, {self.username})")
+        logger.info(f"make_new_session:({self.lang}, {self.family}, {self.username})")
         # ---
         seasons_by_lang[self.sea_key] = requests.Session()
         # ---
@@ -280,7 +278,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if len(self.cookie_jar) > 0:
             if self.loged_in():
                 loged_t = True
-                printe.output(f"<<green>>Cookie Already logged in with user:{self.username_in}")
+                logger.info(f"<<green>>Cookie Already logged in with user:{self.username_in}")
         else:
             loged_t = self.log_in()
         # ---
@@ -293,14 +291,14 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(req0.status_code, action, params=params)
             # ---
             if not str(req0.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
 
     def raw_request(self, params, files=None, timeout=30):
         # ---
         # TODO: ('toomanyvalues', 'Too many values supplied for parameter "titles". The limit is 50.', 'See https://en.wikipedia.org/w/api.php for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes.')
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
+            logger.info("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:
                 raise Exception("user_table_done == False!")
@@ -318,9 +316,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         u_action = params.get("action", "")
         # ---
         if "dopost" in sys.argv:
-            printe.output("<<green>> dopost:::")
-            printe.output(params)
-            printe.output("<<green>> :::dopost")
+            logger.info("<<green>> dopost:::")
+            logger.info(params)
+            logger.info("<<green>> :::dopost")
             req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
             # ---
             self._handle_server_error(req0, u_action, params=params)
@@ -334,11 +332,11 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         except requests.exceptions.ReadTimeout:
             self.log_error("ReadTimeout", u_action, params=params)
-            printe.output(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
+            logger.info(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
 
         except Exception as e:
             self.log_error("Exception", u_action, params=params)
-            exception_err(e)
+            logger.exception(e)
         # ---
         self._handle_server_error(req0, u_action, params=params)
         # ---
@@ -355,17 +353,17 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.make_new_session()
         # ---
         if not self.username_in:
-            printe.output("<<red>> no username_in.. action:" + params.get("action"))
+            logger.info("<<red>> no username_in.. action:" + params.get("action"))
             # return {}
         # ---
         req0 = self.raw_request(params, files=files, timeout=timeout)
         # ---
         if not req0:
-            printe.output("<<red>> no req0.. ")
+            logger.info("<<red>> no req0.. ")
             return req0
         # ---
         if req0.headers and req0.headers.get("x-database-lag"):
-            printe.output("<<red>> x-database-lag.. ")
+            logger.info("<<red>> x-database-lag.. ")
             print(req0.headers)
             # raise
         # ---
@@ -411,10 +409,10 @@ class LOGIN_HELPS(PARAMS_HELPS):
             req0 = seasons_by_lang[self.sea_key].request("GET", url, headers=self.headers)
             # ---
             if not str(req0.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
             # ---
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             return {}
         # ---
         result = {}
@@ -423,7 +421,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             result = req0.json()
         except Exception as e:
             print(req0.text)
-            exception_err(e)
+            logger.exception(e)
             return {}
         # ---
         return result

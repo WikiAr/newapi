@@ -8,7 +8,8 @@ from .super.login_wrap import LoginWrap
 
 """
 from functools import lru_cache
-from ..api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from .super_login import Login
 
 
@@ -21,7 +22,7 @@ def _create_login_bot(sitecode, family, username, password):
     (i.e., when a new bot is created). This is intentional - on cache hits,
     the same bot instance is returned without logging.
     """
-    printe.output(f"### <<purple>> LoginWrap make new bot for ({sitecode}.{family}.org|{username})")
+    logger.info(f"### <<purple>> LoginWrap make new bot for ({sitecode}.{family}.org|{username})")
     # ---
     login_bot = Login(sitecode, family=family)
     # ---
@@ -45,7 +46,7 @@ def LoginWrap(sitecode, family, bots_login_cache, User_tables):
     # ---
     cache_info = _create_login_bot.cache_info()
     if cache_info.hits > 0 and cache_info.hits % 100 == 0:
-        printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {cache_info.hits}")
+        logger.info(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {cache_info.hits}")
     # ---
     # Return bots_login_cache for backward compatibility
     return login_bot, bots_login_cache

@@ -6,9 +6,11 @@ get_query_result = wd_sparql.get_query_result
 get_query_data = wd_sparql.get_query_data
 
 """
+import logging
 import sys
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+logger = logging.getLogger(__name__)
 
 def get_query_data(query):
     """Retrieve query data from the Wikidata SPARQL endpoint.
@@ -44,9 +46,7 @@ def get_query_data(query):
     try:
         data = sparql.query().convert()
     except Exception as e:
-        # exception_err(e, text=f"API/tools.py quoteurl: Exception: {e}")
-        print("API/tools.py get_query_data: Exception: e:")
-        print(e)
+        logger.error(f"API/tools.py get_query_data: Exception: {e}")
     # ---
     return data
 

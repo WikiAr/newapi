@@ -6,11 +6,13 @@ from newapi.super.Login_db.bot2 import log_one
 # log_one(site="", user="", result="", db_type="sqlite", db_path="login_logs.db", credentials=None)
 
 """
-from ...api_utils.except_err import exception_err
+import logging
 import datetime
 from pathlib import Path
 from ...DB_bots import db_bot
+logger = logging.getLogger(__name__)
 LiteDB = db_bot.LiteDB
+
 
 def log_one_sqlite(site="", user="", result=""):
     Dir = Path(__file__).resolve().parent
@@ -44,4 +46,4 @@ def log_one_sqlite(site="", user="", result=""):
         }, check=False)  # Don't check for duplicates since each attempt should be logged
 
     except Exception as e:
-        exception_err(e, "Failed to log login attempt to SQLite")
+        logger.exception("Failed to log login attempt to SQLite")

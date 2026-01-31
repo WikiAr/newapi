@@ -11,8 +11,8 @@ import copy
 import requests
 from http.cookiejar import MozillaCookieJar
 
-from ..api_utils import printe
-from ..api_utils.except_err import exception_err
+import logging
+logger = logging.getLogger(__name__)
 from .cookies_bot import get_file_name, del_cookies_file
 
 from .params_help import PARAMS_HELPS
@@ -72,7 +72,7 @@ class MwClientSite:
                 self.jar_cookie.load(ignore_discard=True, ignore_expires=True)
                 self.connection.cookies = self.jar_cookie  # Tell Requests session to use the cookiejar.
             except Exception as e:
-                printe.output("Could not load cookies: %s" % e)
+                logger.info("Could not load cookies: %s" % e)
 
     def __initialize_site(self):
         self.domain = f"{self.lang}.{self.family}.org"
@@ -83,22 +83,22 @@ class MwClientSite:
             try:
                 self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
             except Exception as e:
-                printe.output(f"Could not connect to ({self.domain}): %s" % e)
+                logger.info(f"Could not connect to ({self.domain}): %s" % e)
                 return False
 
     def do_login(self):
 
         if not self.force_login:
-            printe.output("<<red>> do_login(): not self.force_login ")
+            logger.info("<<red>> do_login(): not self.force_login ")
             return
 
         if not self.site_mwclient:
-            printe.output(f"no self.ssite_mwclient to ({self.domain})")
+            logger.info(f"no self.ssite_mwclient to ({self.domain})")
             return
 
         if not self.site_mwclient.logged_in:
             logins_count[1] += 1
-            printe.output(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
+            logger.info(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
             # ---
             try:
                 login_result = self.site_mwclient.login(username=self.username, password=self.password)
@@ -107,10 +107,10 @@ class MwClientSite:
                 self.login_done = True
 
             except Exception as e:
-                printe.output(f"Could not login to ({self.domain}): %s" % e)
+                logger.info(f"Could not login to ({self.domain}): %s" % e)
 
             if self.site_mwclient.logged_in:
-                printe.output(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
+                logger.info(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
 
             # Save cookies to file, including session cookies
             if self.jar_cookie:
@@ -128,7 +128,7 @@ class MwClientSite:
         del params["action"]
         # ---
         if not self.site_mwclient:
-            printe.output(f"no self.ssite_mwclient to ({self.domain})")
+            logger.info(f"no self.ssite_mwclient to ({self.domain})")
             self.__initialize_site()
             self.do_login()
         # ---
@@ -150,7 +150,7 @@ class MwClientSite:
             if "text" in params:
                 params["text"] = params["text"][:100]
             # ---
-            exception_err(e, text=params)
+            logger.exception(e, text=params)
         # ---
         return {}
 
@@ -203,7 +203,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         try:
             csrftoken = self.site_mwclient.get_token("csrf")
         except Exception as e:
-            printe.output("Could not get token: %s" % e)
+            logger.info("Could not get token: %s" % e)
             return False
         # ---
         return csrftoken
@@ -215,7 +215,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def raw_request(self, params, files=None, timeout=30):
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
+            logger.info("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:
                 raise Exception("user_table_done == False!")
@@ -270,7 +270,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             result = req0.json()
 
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
         # ---
         return result
 

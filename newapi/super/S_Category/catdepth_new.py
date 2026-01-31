@@ -8,7 +8,8 @@ import time
 import sys
 from functools import lru_cache
 
-from ...api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from .bot import CategoryDepth
 
 SITECODE = "en"
@@ -61,7 +62,7 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     args2 = args_group(title, kwargs)
     # ---
     if print_s:
-        printe.output(f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}")
+        logger.info(f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}")
     # ---
     start = time.time()
     # ---
@@ -75,11 +76,11 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     delta = int(time.time() - start)
     # ---
     if "printresult" in sys.argv:
-        printe.output(result)
+        logger.info(result)
     # ---
     if print_s:
         lenpages = bot.get_len_pages()
         # ---
-        printe.output(f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}")
+        logger.info(f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}")
     # ---
     return result

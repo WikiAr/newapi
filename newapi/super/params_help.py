@@ -4,8 +4,10 @@ from .super.params_help import PARAMS_HELPS
 
 """
 import sys
+import logging
 import json
-from ..api_utils.except_err import exception_err
+
+logger = logging.getLogger(__name__)
 
 
 class PARAMS_HELPS:
@@ -51,7 +53,7 @@ class PARAMS_HELPS:
 
             return data
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             text = str(req0.text).strip()
 
         valid_text = text.startswith("{") and text.endswith("}")
@@ -63,6 +65,7 @@ class PARAMS_HELPS:
             data = json.loads(text)
             return data
         except Exception as e:
-            exception_err(e, self.url_o_print)
+            logger.exception(e)
+            logger.exception(self.url_o_print)
 
         return {}

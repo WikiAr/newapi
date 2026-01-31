@@ -11,7 +11,8 @@ import sys
 import os
 import datetime
 from configparser import ConfigParser
-from ...api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
 
 LOGS_IS_ENABLED = os.getenv("LOGIN_LOGS_IS_ENABLED", "0") == "1"
@@ -104,7 +105,7 @@ def log_one(site, user, result, action="", params={}) -> None:
         action += "_" + "_".join(params['prop'].split("|"))
     # ---
     if action == "query" and "test" in sys.argv:
-        printe.output(f"<<yellow>> {action=}")
+        logger.info(f"<<yellow>> {action=}")
         print(dict(params))
     # ---
     # Create table query

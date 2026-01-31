@@ -18,9 +18,9 @@ import sys
 import time
 import urllib.parse
 
-from ..api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from .handel_errors import HANDEL_ERRORS
-from ..api_utils.except_err import warn_err
 from ..api_utils.user_agent import default_user_agent
 
 # if "nomwclient" in sys.argv:
@@ -36,6 +36,7 @@ else:
 print_test = {1: "test" in sys.argv}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
+
 
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """
@@ -89,7 +90,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             urls_prints[self.url_o_print] += 1
             urls_prints["all"] += 1
             # ---
-            printe.output(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
+            logger.info(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
 
     def make_response(self, params, files=None, timeout=30, do_error=True):
         """
@@ -172,7 +173,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             self.r3_token = self.make_new_r3_token()
 
         if not self.r3_token:
-            printe.output(warn_err('<<red>> self.r3_token == "" '))
+            logger.error('<<red>> self.r3_token == "" ')
 
         params["token"] = self.r3_token
 
@@ -183,7 +184,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         data = self.make_response(params, files=files, do_error=do_error)
 
         if not data:
-            printe.output("<<red>> super_login(post): not data. return {}.")
+            logger.info("<<red>> super_login(post): not data. return {}.")
             return {}
         # ---
         error = data.get("error", {})
@@ -194,10 +195,10 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # code = error.get("code", "")
             # ---
             if do_error:
-                printe.output(f"<<red>> super_login(post): error: {error}")
+                logger.info(f"<<red>> super_login(post): error: {error}")
             # ---
             if Invalid == "Invalid CSRF token.":
-                printe.output(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
+                logger.info(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
                 if GET_CSRF:
                     # ---
                     self.r3_token = self.make_new_r3_token()
@@ -209,9 +210,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if error_code == "maxlag" and max_retry < 4:
                 lage = int(error.get("lag", "0"))
                 # ---
-                printe.test_print(params)
+                logger.test_print(params)
                 # ---
-                printe.output(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
+                logger.info(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
                 # ---
                 time.sleep(lage + 1)
                 # ---
@@ -222,14 +223,14 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 return self.post_params(params, Type=Type, addtoken=addtoken, max_retry=max_retry + 1)
         # ---
         if "printdata" in sys.argv:
-            printe.output(data)
+            logger.info(data)
 
         return data
 
     def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
         # ---
-        printe.test_print("_______________________")
-        printe.test_print(f"post_continue, start. {action=}, {_p_=}")
+        logger.test_print("_______________________")
+        logger.test_print(f"post_continue, start. {action=}, {_p_=}")
         # ---
         if not isinstance(Max, int) and Max.isdigit():
             Max = int(Max)
@@ -254,16 +255,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             if continue_params:
                 # params = {**params, **continue_params}
-                printe.test_print("continue_params:")
+                logger.test_print("continue_params:")
                 for k, v in continue_params.items():
                     params2[k] = v
                 # params2.update(continue_params)
-                printe.test_print(params2)
+                logger.test_print(params2)
             # ---
             json1 = self.post_params(params2)
             # ---
             if not json1:
-                printe.test_print("post_continue, json1 is empty. break")
+                logger.test_print("post_continue, json1 is empty. break")
                 break
             # ---
             continue_params = {}
@@ -292,13 +293,13 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                             data = data.get(_p_2, _p_2_empty)
             # ---
             if not data:
-                printe.test_print("post continue, data is empty. break")
+                logger.test_print("post continue, data is empty. break")
                 break
             # ---
-            printe.test_print(f"post continue, len:{len(data)}, all: {len(results)}")
+            logger.test_print(f"post continue, len:{len(data)}, all: {len(results)}")
             # ---
             if Max <= len(results) and len(results) > 1:
-                printe.test_print(f"post continue, {Max=} <= {len(results)=}. break")
+                logger.test_print(f"post continue, {Max=} <= {len(results)=}. break")
                 break
             # ---
             if isinstance(results, list):
@@ -309,6 +310,6 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 print(f"{type(data)=}")
                 results = {**results, **data}
         # ---
-        printe.test_print(f"post continue, {len(results)=}")
+        logger.test_print(f"post continue, {len(results)=}")
         # ---
         return results

@@ -6,7 +6,8 @@ from .bot import CategoryDepth
 import copy
 import tqdm
 
-from ...api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 
 ns_list = {
     "0": "",
@@ -281,7 +282,7 @@ class CategoryDepth:
             d += 1
             # ---
             if self.limit > 0 and len(results) >= self.limit:
-                printe.output(f"<<yellow>> limit:{self.limit} reached, len of results: {len(results)} break ..")
+                logger.info(f"<<yellow>> limit:{self.limit} reached, len of results: {len(results)} break ..")
                 break
             # ---
             if continue_params:
@@ -347,7 +348,7 @@ class CategoryDepth:
             new_tab2 = []
             # ---
             if self.limit > 0 and len(self.result_table) >= self.limit:
-                printe.output(f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break ..")
+                logger.info(f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break ..")
                 break
             # ---
             depth_done += 1

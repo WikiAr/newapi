@@ -14,7 +14,8 @@ from typing import Any
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-from ..api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from ..super.super_login import Login
 
 
@@ -52,7 +53,7 @@ class ALL_APIS:
         # ---
         login_bot = Login(self.lang, family=self.family)
         # ---
-        printe.output(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})")
+        logger.info(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})")
         # ---
         user_tables = {
             self.family: {

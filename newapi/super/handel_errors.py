@@ -4,7 +4,8 @@ from .super.handel_errors import HANDEL_ERRORS
 """
 import sys
 # from newapi import printe
-from ..api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 
 
 class HANDEL_ERRORS:
@@ -54,32 +55,32 @@ class HANDEL_ERRORS:
             # ---
             abusefilter = error.get("abusefilter", "")
             description = abusefilter.get("description", "")
-            printe.output(f"<<lightred>> ** abusefilter-disallowed: {description} ")
+            logger.info(f"<<lightred>> ** abusefilter-disallowed: {description} ")
             if description in ["تأخير البوتات 3 ساعات", "تأخير البوتات 3 ساعات- 3 من 3", "تأخير البوتات 3 ساعات- 1 من 3", "تأخير البوتات 3 ساعات- 2 من 3"]:
                 return False
             return description
         # ---
         if err_code == "no-such-entity":
-            printe.output("<<lightred>> ** no-such-entity. ")
+            logger.info("<<lightred>> ** no-such-entity. ")
             return False
         # ---
         if err_code == "protectedpage":
-            printe.output("<<lightred>> ** protectedpage. ")
+            logger.info("<<lightred>> ** protectedpage. ")
             # return "protectedpage"
             return False
         # ---
         if err_code == "articleexists":
-            printe.output("<<lightred>> ** article already created. ")
+            logger.info("<<lightred>> ** article already created. ")
             return "articleexists"
         # ---
         if err_code == "maxlag":
-            printe.output("<<lightred>> ** maxlag. ")
+            logger.info("<<lightred>> ** maxlag. ")
             return False
         # ---
         if do_error:
             params['data'] = {}
             params['text'] = {}
-            printe.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
+            logger.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
         # ---
         if "raise" in sys.argv:
             raise Exception(error)

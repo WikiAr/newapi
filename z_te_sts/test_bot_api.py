@@ -8,7 +8,8 @@ sys.argv.append("printurl")
 sys.argv.append("ask")
 
 from newapi.page import NEW_API
-from newapi import printe
+import logging
+logger = logging.getLogger(__name__)
 
 class testmybot:
     def __init__(self):
@@ -203,10 +204,10 @@ class testmybot:
         # ---
         for n, func in defs.items():
             name = func.__name__
-            printe.output(f"<<lightgreen>> start def number {n}, name:{name}:")
+            logger.info(f"<<lightgreen>> start def number {n}, name:{name}:")
             # ---
             def_name = func.__doc__
-            printe.output(f"<<lightyellow>> test: {def_name}:")
+            logger.info(f"<<lightyellow>> test: {def_name}:")
             # ---
             if "tat" in sys.argv:
                 continue
@@ -226,27 +227,27 @@ class testmybot:
                     # ---
                     # ta = json.dumps(ta, indent=2, ensure_ascii=False)
                     # ---
-                    printe.output(f"{n}: {na2}: {ta}")
+                    logger.info(f"{n}: {na2}: {ta}")
             # ---
             if result == "":
                 raise Exception("result == ''")
             # ---
             if "printresult" in sys.argv:
                 if isinstance(result, str):
-                    printe.output(f"result:{result}")
+                    logger.info(f"result:{result}")
                 elif isinstance(result, list):
-                    printe.output(result)
+                    logger.info(result)
                 else:
-                    printe.output(result)
+                    logger.info(result)
             else:
-                printe.output("<<purple>> add 'printresult' to sys.argv to print result")
+                logger.info("<<purple>> add 'printresult' to sys.argv to print result")
             # ---
             if result:
-                printe.output(f"{len(result)=}")
+                logger.info(f"{len(result)=}")
             # ---
-            printe.output("=====================")
-            printe.output(f"<<lightyellow>> test: {def_name} end...")
-            printe.output("time.sleep(1)")
+            logger.info("=====================")
+            logger.info(f"<<lightyellow>> test: {def_name} end...")
+            logger.info("time.sleep(1)")
             time.sleep(1)
 
 

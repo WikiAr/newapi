@@ -10,10 +10,8 @@ import inspect
 import traceback
 from warnings import warn
 
-try:
-    from . import printe
-except Exception:
-    import printe
+import logging
+logger = logging.getLogger(__name__)
 
 
 def warn_err(err):
@@ -35,25 +33,16 @@ def exception_err(e, text=""):
     if not isinstance(text, str):
         text = str(text)
     # ---
-    printe.output("<<yellow>> start exception_err:")
+    logger.info("<<yellow>> start exception_err:")
     # ---
-    printe.error("Traceback (most recent call last):")
+    logger.error("Traceback (most recent call last):")
     warn(warn_err(f"Exception:{str(e)}"), UserWarning, stacklevel=3)
-    printe.warn(text)
+    logger.warning(text)
     # ---
     if str(e) not in common_errors:
         # ---
         err = traceback.format_exc(limit=4)
         err = str(err).replace("Traceback (most recent call last):", "").strip()
-        printe.warn(err)
+        logger.warning(err)
     # ---
-    printe.warn("CRITICAL:")
-    # printe.info("====")
-
-
-if __name__ == "__main__":
-
-    def xx(t, x):
-        exception_err(t, x)
-
-    xx("Exception", "test!!")
+    logger.critical("CRITICAL:")

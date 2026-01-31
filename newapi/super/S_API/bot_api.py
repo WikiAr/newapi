@@ -47,7 +47,8 @@ import sys
 from collections.abc import KeysView
 import datetime
 from datetime import timedelta
-from ...api_utils import printe
+import logging
+logger = logging.getLogger(__name__)
 from .bot import BOTS_APIS
 from ...api_utils.lang_codes import change_codes
 
@@ -127,7 +128,7 @@ class NEW_API(BOTS_APIS):
             # ---
             if not json1:
                 if not noprint:
-                    printe.output("<<lightred>> error when Find_pages_exists_or_not")
+                    logger.info("<<lightred>> error when Find_pages_exists_or_not")
                 # return table
                 continue
             # ---
@@ -170,7 +171,7 @@ class NEW_API(BOTS_APIS):
                 exists += 1
         # ---
         if not noprint:
-            printe.output(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+            logger.info(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
         # ---
         return table
 
@@ -201,7 +202,7 @@ class NEW_API(BOTS_APIS):
             # ---
             if not json1:
                 if not noprint:
-                    printe.output("<<lightred>> error when Find_pages_exists_or_not")
+                    logger.info("<<lightred>> error when Find_pages_exists_or_not")
                 # return table
                 continue
             # ---
@@ -263,7 +264,7 @@ class NEW_API(BOTS_APIS):
                 exists += 1
         # ---
         if not noprint:
-            printe.output(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+            logger.info(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
         # ---
         if return_all_jsons:
             return table, all_jsons
@@ -272,7 +273,7 @@ class NEW_API(BOTS_APIS):
 
     def Get_All_pages(self, start="", namespace="0", limit="max", apfilterredir="", ppprop="", limit_all=100000):
         # ---
-        printe.test_print(f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}")
+        logger.test_print(f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}")
         # ---
         params = {
             "action": "query",
@@ -299,13 +300,13 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="allpages", p_empty=[], Max=limit_all)
         # ---
-        printe.test_print(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
+        logger.test_print(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        printe.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
-        printe.output(f"bot_api.py Get_All_pages : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py Get_All_pages : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
@@ -330,7 +331,7 @@ class NEW_API(BOTS_APIS):
             list: A list of titles that match the prefix search.
         """
         # ---
-        printe.test_print(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
+        logger.test_print(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
         # ---
         pssearch = pssearch.strip() if pssearch else ""
         # ---
@@ -358,19 +359,19 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="prefixsearch", p_empty=[], Max=limit_all)
         # ---
-        printe.test_print(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
+        logger.test_print(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        printe.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
-        printe.output(f"bot_api.py PrefixSearch : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py PrefixSearch : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
     def Get_All_pages_generator(self, start="", namespace="0", limit="max", filterredir="", ppprop="", limit_all=100000):
         # ---
-        printe.test_print(f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}")
+        logger.test_print(f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}")
         # ---
         params = {
             "action": "query",
@@ -398,19 +399,19 @@ class NEW_API(BOTS_APIS):
         # ---
         newp = self.post_continue(params, "query", _p_="pages", p_empty=[], Max=limit_all)
         # ---
-        printe.test_print(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
+        logger.test_print(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
         # ---
         Main_table = {x["title"]: x for x in newp}
         # ---
-        printe.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.test_print(f"len of Main_table {len(Main_table)}.")
         # ---
-        printe.output(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
     def Search(self, value="", ns="*", offset="", srlimit="max", RETURN_dict=False, addparams=None):
         # ---
-        printe.test_print(f'bot_api.Search for "{value}",ns:{ns}')
+        logger.test_print(f'bot_api.Search for "{value}",ns:{ns}')
         # ---
         if not srlimit:
             srlimit = "max"
@@ -445,7 +446,7 @@ class NEW_API(BOTS_APIS):
             else:
                 results.append(pag["title"])
         # ---
-        printe.test_print(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
+        logger.test_print(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
         # ---
         return results
 
@@ -484,7 +485,7 @@ class NEW_API(BOTS_APIS):
 
         Main_table = [x["title"] for x in json1]
 
-        printe.test_print(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
+        logger.test_print(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
 
         return Main_table
 
@@ -552,7 +553,7 @@ class NEW_API(BOTS_APIS):
         """
 
         # ---
-        printe.test_print(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
+        logger.test_print(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
         # ---
         if targtsitecode.endswith("wiki"):
             targtsitecode = targtsitecode[:-4]
@@ -575,7 +576,7 @@ class NEW_API(BOTS_APIS):
         # ---
         if targtsitecode:
             params["lllang"] = targtsitecode
-            printe.test_print(f'params["lllang"] = {targtsitecode}')
+            logger.test_print(f'params["lllang"] = {targtsitecode}')
         # ---
         find_targtsitecode = 0
         normalized = {}
@@ -589,7 +590,7 @@ class NEW_API(BOTS_APIS):
             json1 = self.post_params(params)
             # ---
             if not json1:
-                printe.output("bot_api.Get_langlinks_for_list json1 is empty")
+                logger.info("bot_api.Get_langlinks_for_list json1 is empty")
                 continue
             # ---
             _error = json1.get("error", {})
@@ -617,7 +618,7 @@ class NEW_API(BOTS_APIS):
                     if lang["lang"] == targtsitecode:
                         find_targtsitecode += 1
         # ---
-        printe.output(f'bot_api.Get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}')
+        logger.info(f'bot_api.Get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}')
         # ---
         return table
 
@@ -757,17 +758,17 @@ class NEW_API(BOTS_APIS):
         ]
         # ---
         if qppage not in qppage_values:
-            printe.output(f"<<lightred>> qppage {qppage} not in qppage_values.")
+            logger.info(f"<<lightred>> qppage {qppage} not in qppage_values.")
         # ---
         results = self.post_continue(params, "query", _p_="querypage", p_empty=[], Max=Max)
         # ---
-        printe.test_print(f"querypage_list len(results) = {len(results)}")
+        logger.test_print(f"querypage_list len(results) = {len(results)}")
         # ---
         return results
 
     def Get_template_pages(self, title, namespace="*", Max=10000):
         # ---
-        printe.test_print(f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"')
+        logger.test_print(f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"')
         # ---
         params = {
             "action": "query",
@@ -784,7 +785,7 @@ class NEW_API(BOTS_APIS):
         # { "pageid": 2973452, "ns": 100, "title": "بوابة:سباق الدراجات الهوائية" }
         pages = [x["title"] for x in results]
         # ---
-        printe.output(f"mdwiki_api.py Get_template_pages : find {len(pages)} pages.")
+        logger.info(f"mdwiki_api.py Get_template_pages : find {len(pages)} pages.")
         # ---
         return pages
 
@@ -793,7 +794,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        printe.test_print(f'Get_image_url for file:"{title}":')
+        logger.test_print(f'Get_image_url for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -816,7 +817,7 @@ class NEW_API(BOTS_APIS):
         # ---
         url = data.get("imageinfo", [{}])[0].get("url", "")
         # ---
-        printe.output(f"Get_image_url: image url: {url}")
+        logger.info(f"Get_image_url: image url: {url}")
         # ---
         return url
 
@@ -825,7 +826,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        printe.test_print(f'Get_imageinfo for file:"{title}":')
+        logger.test_print(f'Get_imageinfo for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -866,7 +867,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="pageswithprop", p_empty=[], Max=Max)
         # ---
-        printe.test_print(f"pageswithprop len(results) = {len(results)}")
+        logger.test_print(f"pageswithprop len(results) = {len(results)}")
         # ---
         return results
 
@@ -944,7 +945,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="users", p_empty=[])
         # ---
-        printe.test_print(f"users_infos len(results) = {len(results)}")
+        logger.test_print(f"users_infos len(results) = {len(results)}")
         # ---
         results = [dict(x) for x in results]
         # ---
