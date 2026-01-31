@@ -4,14 +4,13 @@ bot_edit!
 """
 #
 #
+import logging
 import sys
-from .. import printe
-from .. import txtlib
-# ---
+import wikitextparser as wtp
+
+logger = logging.getLogger(__name__)
 edit_username = {1: "Mr.Ibrahembot"}
-# ---
 Bot_Cache = {}
-# ---
 stop_edit_temps = {
     "all": ["تحرر", "قيد التطوير", "يحرر", "تطوير مقالة"],
     "تعريب": ["لا للتعريب"],
@@ -31,14 +30,14 @@ def _handle_nobots_template(params, title_page, botjob, _template):
     # {{nobots}}                منع جميع البوتات
     # منع جميع البوتات
     if not params:
-        printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+        logger.info(f"<<lightred>> botEdit.py: the page has template:({_template}), botjob:{botjob} skipp.")
         Bot_Cache[botjob][title_page] = False
         return False
     elif params.get("1"):
         List = [x.strip() for x in params.get("1", "").split(",")]
         # if 'all' in List or pywikibot.calledModuleName() in List or edit_username[1] in List:
         if "all" in List or edit_username[1] in List:
-            printe.output(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
+            logger.info(f"<<lightred>> botEdit.py: the page has template:({_template}), botjob:{botjob} skipp.")
             Bot_Cache[botjob][title_page] = False
             return False
     # ---
@@ -55,7 +54,7 @@ def _handle_bots_template(params, title_page, botjob, title):
         Bot_Cache[botjob][title_page] = False
         return False
     else:
-        printe.output(f"botEdit.py title:({title}), params:({str(params)}).")
+        logger.info(f"botEdit.py title:({title}), params:({str(params)}).")
         # ---
         # {{bots|allow=all}}      السماح لجميع البوتات
         # {{bots|allow=none}}     منع جميع البوتات
@@ -64,9 +63,9 @@ def _handle_bots_template(params, title_page, botjob, title):
             value = [x.strip() for x in allow.split(",")]
             sd = "all" in value or edit_username[1] in value
             if not sd:
-                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+                logger.info(f"<<lightred>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
             else:
-                printe.output(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
+                logger.info(f"<<lightgreen>>botEdit.py Template:({title}) has |allow={','.join(value)}.")
             Bot_Cache[botjob][title_page] = sd
             return sd
             # ---
@@ -77,7 +76,7 @@ def _handle_bots_template(params, title_page, botjob, title):
             value = [x.strip() for x in deny.split(",")]
             sd = "all" not in value and edit_username[1] not in value
             if not sd:
-                printe.output(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
+                logger.info(f"<<lightred>>botEdit.py Template:({title}) has |deny={','.join(value)}.")
             Bot_Cache[botjob][title_page] = sd
             return sd
         # ---
@@ -118,24 +117,30 @@ def is_bot_edit_allowed(text="", title_page="", botjob="all"):
     if title_page in Bot_Cache[botjob]:
         return Bot_Cache[botjob][title_page]
     # ---
-    templates = txtlib.extract_templates_and_params(text)
-    # ---
     all_stop = stop_edit_temps["all"]
     # ---
-    for temp in templates:
-        _name, namestrip, params, _template = temp["name"], temp["namestrip"], temp["params"], temp["item"]
-        title = namestrip
+    parser = wtp.parse(text)
+    templates = parser.templates
+    # ---
+    for template in templates:
+        title = str(template.normal_name()).strip()
         # ---
-        # printe.output( '<<lightred>>botEdit.py title:(%s), params:(%s).' % ( title,str(params) ) )
+        params = {
+            str(param.name).strip() : str(param.value).strip()
+            for param in template.arguments
+            if str(param.value).strip()
+        }
+        # ---
+        _template = template.string
         # ---
         restrictions = stop_edit_temps.get(botjob, [])
         # ---
         if title in restrictions or title in all_stop:
-            printe.output(f"<<lightred>> botEdit.py: the page has temp:({title}), botjob:{botjob} skipp.")
+            logger.info(f"<<lightred>> botEdit.py: the page has template:({title}), botjob:{botjob} skipp.")
             Bot_Cache[botjob][title_page] = False
             return False
         # ---
-        # printe.output( '<<lightred>>botEdit.py title:(%s), params:(%s).' % ( title,str(params) ) )
+        logger.debug('<<lightred>>botEdit.py title:(%s), params:(%s).' % (title, str(params)))
         # ---
         if title.lower() == "nobots":
             return _handle_nobots_template(params, title_page, botjob, _template)
