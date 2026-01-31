@@ -857,7 +857,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             if title2 == ti and "purged" in t:
                 return True
             if "missing" in t:
-                logger.info(f"page \"{t['title']}\" missing")
+                logger.info(f'page "{t["title"]}" missing')
                 return "missing"
         return False
 

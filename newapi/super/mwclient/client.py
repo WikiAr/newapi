@@ -470,8 +470,7 @@ class Site:
                 "info"
             ):
                 log.warning(
-                    "Retrying due to nonce error, see"
-                    "https://phabricator.wikimedia.org/T106066"
+                    "Retrying due to nonce error, seehttps://phabricator.wikimedia.org/T106066"
                 )
                 # sleeper.sleep()
                 return False
@@ -564,8 +563,7 @@ class Site:
             if stream.headers.get("x-database-lag"):
                 wait_time = int(stream.headers.get("retry-after"))
                 log.warning(
-                    "Database lag exceeds max lag. "
-                    f"Waiting for {wait_time} seconds, maxlag:{maxlag}"
+                    f"Database lag exceeds max lag. Waiting for {wait_time} seconds, maxlag:{maxlag}"
                 )
                 # fall through to the sleep
             elif stream.status_code == 200:
@@ -576,8 +574,7 @@ class Site:
                 if not retry_on_error:
                     stream.raise_for_status()
                 log.warning(
-                    "Received {status} response: {text}. "
-                    "Retrying in a moment.".format(
+                    "Received {status} response: {text}. Retrying in a moment.".format(
                         status=stream.status_code, text=stream.text
                     )
                 )
@@ -723,8 +720,7 @@ class Site:
             elif raise_error:
                 print(
                     errors.MediaWikiVersionError(
-                        "Requires version {required[0]}.{required[1]}, "
-                        "current version is {current[0]}.{current[1]}".format(
+                        "Requires version {required[0]}.{required[1]}, current version is {current[0]}.{current[1]}".format(
                             required=(major, minor), current=(self.version[:2])
                         )
                     )
@@ -958,7 +954,6 @@ class Site:
             self.tokens[type] = "0"
 
         if self.tokens.get(type, "0") == "0" or force:
-
             if self.version is None or self.version[:2] >= (1, 24):
                 # We use raw_api() rather than api() because api() is adding "userinfo"
                 # to the query and this raises a readapideniederror if the wiki is read
@@ -1087,7 +1082,6 @@ class Site:
         postdata = predata
         files = None
         if file is not None:
-
             # Workaround for https://github.com/mwclient/mwclient/issues/65
             # ----------------------------------------------------------------
             # Since the filename in Content-Disposition is not interpreted,

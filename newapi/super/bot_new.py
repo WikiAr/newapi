@@ -108,7 +108,6 @@ class MwClientSite:
                 return False
 
     def do_login(self):
-
         if not self.force_login:
             logger.info("<<red>> (): not self.force_login ")
             return

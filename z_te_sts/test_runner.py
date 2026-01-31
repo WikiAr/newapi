@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 def run_test_file(file_path):
     """Run a single test file"""
     try:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Running: {file_path.name}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Load the module
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
@@ -82,9 +82,9 @@ def main():
             failed += 1
 
     # Summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Test Summary")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Total tests: {len(test_files)}")
     print(f"Passed: {passed}")
     print(f"Failed: {failed}")

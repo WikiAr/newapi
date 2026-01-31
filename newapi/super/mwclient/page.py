@@ -5,7 +5,6 @@ from .util import handle_limit, parse_timestamp
 
 
 class Page:
-
     def __init__(self, site, name, info=None, extra_properties=None):
         if type(name) is type(self):
             self.__dict__.update(name.__dict__)

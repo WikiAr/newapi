@@ -210,7 +210,6 @@ class GeneratorList(List):
 
 
 class Category(page.Page, GeneratorList):
-
     def __init__(self, site, name, info=None, namespace=None):
         page.Page.__init__(self, site, name, info)
         kwargs = {}
@@ -253,7 +252,6 @@ class Category(page.Page, GeneratorList):
 
 
 class PageList(GeneratorList):
-
     def __init__(
         self, site, prefix=None, start=None, namespace=0, redirects="all", end=None
     ):
@@ -336,7 +334,6 @@ class PageList(GeneratorList):
 
 
 class PageProperty(List):
-
     def __init__(self, page, prop, prefix, *args, **kwargs):
         super(PageProperty, self).__init__(
             page.site, prop, prefix, titles=page.name, *args, **kwargs
@@ -353,7 +350,6 @@ class PageProperty(List):
 
 
 class PagePropertyGenerator(GeneratorList):
-
     def __init__(self, page, prop, prefix, *args, **kwargs):
         super(PagePropertyGenerator, self).__init__(
             page.site, prop, prefix, titles=page.name, *args, **kwargs
@@ -362,7 +358,6 @@ class PagePropertyGenerator(GeneratorList):
 
 
 class RevisionsIterator(PageProperty):
-
     def load_chunk(self):
         if "rvstartid" in self.args and "rvstart" in self.args:
             del self.args["rvstart"]

@@ -16,7 +16,6 @@ def mock_dependencies():
     ) as mock_new_api, patch(
         "newapi.pages_bots.all_apis.printe"
     ) as mock_printe:
-
         # Setup mock login instance
         mock_login_instance = MagicMock()
         mock_login.return_value = mock_login_instance

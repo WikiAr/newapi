@@ -3,7 +3,6 @@ from .util import handle_limit
 
 
 class Image(page.Page):
-
     def __init__(self, site, name, info=None):
         super(Image, self).__init__(
             site,
