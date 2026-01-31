@@ -34,7 +34,7 @@ def exception_err(e, text=""):
     if not isinstance(text, str):
         text = str(text)
     # ---
-    logger.info("<<yellow>> start exception_err:")
+    logger.info("<<yellow>> start :")
     # ---
     logger.error("Traceback (most recent call last):")
     warn(warn_err(f"Exception:{str(e)}"), UserWarning, stacklevel=3)

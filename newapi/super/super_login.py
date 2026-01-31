@@ -281,7 +281,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
     ):
         # ---
         logger.debug("_______________________")
-        logger.debug(f"post_continue, start. {action=}, {_p_=}")
+        logger.debug(f", start. {action=}, {_p_=}")
         # ---
         if not isinstance(Max, int) and Max.isdigit():
             Max = int(Max)
@@ -315,7 +315,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             json1 = self.post_params(params2)
             # ---
             if not json1:
-                logger.debug("post_continue, json1 is empty. break")
+                logger.debug(", json1 is empty. break")
                 break
             # ---
             continue_params = {}

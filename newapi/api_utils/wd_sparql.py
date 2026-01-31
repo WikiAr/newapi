@@ -52,7 +52,7 @@ def get_query_data(query):
     try:
         data = sparql.query().convert()
     except Exception as e:
-        logger.error(f"API/tools.py get_query_data: Exception: {e}")
+        logger.error(f"API/tools.py : Exception: {e}")
     # ---
     return data
 

@@ -150,7 +150,7 @@ class NEW_API(BOTS_APIS):
             # ---
             if not json1:
                 if not noprint:
-                    logger.info("<<lightred>> error when Find_pages_exists_or_not")
+                    logger.info("<<lightred>> error when ")
                 # return table
                 continue
             # ---
@@ -345,13 +345,13 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="allpages", p_empty=[], Max=limit_all
         )
         # ---
-        logger.debug(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
+        logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
         logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
-        logger.info(f"bot_api.py Get_All_pages : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
@@ -376,7 +376,7 @@ class NEW_API(BOTS_APIS):
             list: A list of titles that match the prefix search.
         """
         # ---
-        logger.debug(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
+        logger.debug(f" for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
         # ---
         pssearch = pssearch.strip() if pssearch else ""
         # ---
@@ -406,13 +406,13 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="prefixsearch", p_empty=[], Max=limit_all
         )
         # ---
-        logger.debug(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
+        logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
         logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
-        logger.info(f"bot_api.py PrefixSearch : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
@@ -482,7 +482,7 @@ class NEW_API(BOTS_APIS):
         addparams=None,
     ):
         # ---
-        logger.debug(f'bot_api.Search for "{value}",ns:{ns}')
+        logger.debug(f'bot_api. for "{value}",ns:{ns}')
         # ---
         if not srlimit:
             srlimit = "max"
@@ -517,7 +517,7 @@ class NEW_API(BOTS_APIS):
             else:
                 results.append(pag["title"])
         # ---
-        logger.debug(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
+        logger.debug(f'bot_api. find "{len(search)}" all result: {len(results)}')
         # ---
         return results
 
@@ -567,7 +567,7 @@ class NEW_API(BOTS_APIS):
 
         Main_table = [x["title"] for x in json1]
 
-        logger.debug(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
+        logger.debug(f'bot_api. find "{len(Main_table)}" result. s')
 
         return Main_table
 
@@ -678,7 +678,7 @@ class NEW_API(BOTS_APIS):
             json1 = self.post_params(params)
             # ---
             if not json1:
-                logger.info("bot_api.Get_langlinks_for_list json1 is empty")
+                logger.info("bot_api. json1 is empty")
                 continue
             # ---
             _error = json1.get("error", {})
@@ -866,7 +866,7 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="querypage", p_empty=[], Max=Max
         )
         # ---
-        logger.debug(f"querypage_list len(results) = {len(results)}")
+        logger.debug(f" len(results) = {len(results)}")
         # ---
         return results
 
@@ -891,7 +891,7 @@ class NEW_API(BOTS_APIS):
         # { "pageid": 2973452, "ns": 100, "title": "بوابة:سباق الدراجات الهوائية" }
         pages = [x["title"] for x in results]
         # ---
-        logger.info(f"mdwiki_api.py Get_template_pages : find {len(pages)} pages.")
+        logger.info(f"mdwiki_api.py : find {len(pages)} pages.")
         # ---
         return pages
 
@@ -900,7 +900,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        logger.debug(f'Get_image_url for file:"{title}":')
+        logger.debug(f' for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -923,7 +923,7 @@ class NEW_API(BOTS_APIS):
         # ---
         url = data.get("imageinfo", [{}])[0].get("url", "")
         # ---
-        logger.info(f"Get_image_url: image url: {url}")
+        logger.info(f": image url: {url}")
         # ---
         return url
 
@@ -932,7 +932,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        logger.debug(f'Get_imageinfo for file:"{title}":')
+        logger.debug(f' for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -975,7 +975,7 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="pageswithprop", p_empty=[], Max=Max
         )
         # ---
-        logger.debug(f"pageswithprop len(results) = {len(results)}")
+        logger.debug(f" len(results) = {len(results)}")
         # ---
         return results
 
@@ -1065,7 +1065,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="users", p_empty=[])
         # ---
-        logger.debug(f"users_infos len(results) = {len(results)}")
+        logger.debug(f" len(results) = {len(results)}")
         # ---
         results = [dict(x) for x in results]
         # ---

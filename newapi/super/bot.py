@@ -277,7 +277,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def make_new_session(self) -> None:
         # ---
-        logger.info(f"make_new_session:({self.lang}, {self.family}, {self.username})")
+        logger.info(f":({self.lang}, {self.family}, {self.username})")
         # ---
         seasons_by_lang[self.sea_key] = requests.Session()
         # ---

@@ -222,7 +222,7 @@ class testmybot:
         # ---
         for n, func in defs.items():
             name = func.__name__
-            logger.info(f"<<lightgreen>> start def number {n}, name:{name}:")
+            logger.info(f"<<lightgreen>> def number {n}, name:{name}:")
             # ---
             def_name = func.__doc__
             logger.info(f"<<lightyellow>> test: {def_name}:")
