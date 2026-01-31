@@ -1,12 +1,10 @@
 # ---
 """
-from newapi.mdwiki_page import MainPage as md_MainPage, CatDepth
 
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], onlyns=False, without_lang="", with_lang="", tempyes=[])
 
-# from newapi.mdwiki_page import MainPage as md_MainPage
 '''
-page      = md_MainPage(title, 'www', family='mdwiki')
+page      = MainPage(title, 'www', family='mdwiki')
 exists    = page.exists()
 if not exists: return
 # ---

@@ -1,11 +1,11 @@
 """
 Usage:
 
-from newapi.wiki_page import CatDepth
+from newapi.page import CatDepth
 
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], without_lang="", with_lang="", tempyes=[])
 
-from newapi.wiki_page import MainPage, NEW_API
+from newapi.page import MainPage, NEW_API
 # api_new = NEW_API('en', family='wikipedia')
 # json1    = api_new.post_params(params, addtoken=False)
 # move_it  = api_new.move(old_title, to, reason="", noredirect=False, movesubpages=False)
@@ -39,7 +39,7 @@ home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_wiki
 # ---
-print(f"wiki_page.py use {User_tables['username']} account.")
+print(f"page.py use {User_tables['username']} account.")
 # ---
 user_agent = default_user_agent()
 # ---
