@@ -3,7 +3,8 @@
 from newapi import useraccount
 """
 from pathlib import Path
-from . import page, logging_config
+
+from . import logging_config, page
 from .accounts import useraccount
 from .all_apis import ALL_APIS
 from .api_utils import botEdit, except_err, printe, txtlib, wd_sparql
