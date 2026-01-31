@@ -5,23 +5,26 @@ from .super.bot_new import LOGIN_HELPS
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
 """
-import sys
-import os
+
 import copy
-import requests
+import logging
+import os
+import sys
 from http.cookiejar import MozillaCookieJar
 
-import logging
-logger = logging.getLogger(__name__)
-from .cookies_bot import get_file_name, del_cookies_file
+import requests
 
-from .params_help import PARAMS_HELPS
-from .Login_db.bot import log_one
+logger = logging.getLogger(__name__)
 from ..api_utils.user_agent import default_user_agent
-# import mwclient
+from .cookies_bot import del_cookies_file, get_file_name
+from .Login_db.bot import log_one
 
 # from mwclient.client import Site
 from .mwclient.client import Site
+from .params_help import PARAMS_HELPS
+
+# import mwclient
+
 
 # cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
@@ -46,7 +49,13 @@ class MwClientSite:
         # self._start_()
 
     def log_error(self, result, action, params=None) -> None:
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
+        log_one(
+            site=f"{self.lang}.{self.family}.org",
+            user=self.username,
+            result=result,
+            action=action,
+            params=params,
+        )
 
     def _start_(self, username, password):
         self.username = username
@@ -70,7 +79,9 @@ class MwClientSite:
             try:
                 # Load cookies from file, including session cookies
                 self.jar_cookie.load(ignore_discard=True, ignore_expires=True)
-                self.connection.cookies = self.jar_cookie  # Tell Requests session to use the cookiejar.
+                self.connection.cookies = (
+                    self.jar_cookie
+                )  # Tell Requests session to use the cookiejar.
             except Exception as e:
                 logger.info("Could not load cookies: %s" % e)
 
@@ -78,10 +89,20 @@ class MwClientSite:
         self.domain = f"{self.lang}.{self.family}.org"
 
         if "dopost" in sys.argv:
-            self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
+            self.site_mwclient = Site(
+                self.domain,
+                clients_useragent=self.user_agent,
+                pool=self.connection,
+                force_login=self.force_login,
+            )
         else:
             try:
-                self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
+                self.site_mwclient = Site(
+                    self.domain,
+                    clients_useragent=self.user_agent,
+                    pool=self.connection,
+                    force_login=self.force_login,
+                )
             except Exception as e:
                 logger.info(f"Could not connect to ({self.domain}): %s" % e)
                 return False
@@ -98,10 +119,14 @@ class MwClientSite:
 
         if not self.site_mwclient.logged_in:
             logins_count[1] += 1
-            logger.info(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
+            logger.info(
+                f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}"
+            )
             # ---
             try:
-                login_result = self.site_mwclient.login(username=self.username, password=self.password)
+                login_result = self.site_mwclient.login(
+                    username=self.username, password=self.password
+                )
 
                 self.log_error(login_result, "login")
                 self.login_done = True
@@ -110,7 +135,9 @@ class MwClientSite:
                 logger.info(f"Could not login to ({self.domain}): %s" % e)
 
             if self.site_mwclient.logged_in:
-                logger.info(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
+                logger.info(
+                    f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})"
+                )
 
             # Save cookies to file, including session cookies
             if self.jar_cookie:
@@ -161,6 +188,7 @@ class MwClientSite:
 # -----
 # -----
 
+
 class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def __init__(self) -> None:
         # ---
@@ -188,9 +216,11 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
-        if family != "" and table['username'] != "" and table['password'] != "":
+        if family != "" and table["username"] != "" and table["password"] != "":
             # ---
-            if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (
+                langx == "ar" and self.family.startswith("wik")
+            ):  # wiktionary
                 self.user_table_done = True
                 # ---
                 self.username = table["username"]

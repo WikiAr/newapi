@@ -8,13 +8,16 @@ page = main_api.MainPage('Main Page Title')
 cat_members = main_api.CatDepth('Category Title')
 new_api = main_api.NEW_API()
 """
+
 # ---
 import functools
+import logging
 from typing import Any
+
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-import logging
+
 logger = logging.getLogger(__name__)
 from ..super.super_login import Login
 
@@ -42,7 +45,9 @@ class ALL_APIS:
 
     def CatDepth(self, title, sitecode="", family="", *args, **kwargs):
         # cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
-        return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
+        return catdepth_new.subcatquery(
+            self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs
+        )
 
     def NEW_API(self, *args, **kwargs) -> bot_api.NEW_API:
         # ---
@@ -53,12 +58,14 @@ class ALL_APIS:
         # ---
         login_bot = Login(self.lang, family=self.family)
         # ---
-        logger.info(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})")
+        logger.info(
+            f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})"
+        )
         # ---
         user_tables = {
             self.family: {
-                'username': self.username,
-                'password': self.password,
+                "username": self.username,
+                "password": self.password,
             }
         }
         # ---
@@ -68,5 +75,5 @@ class ALL_APIS:
 
 
 __all__ = [
-    'ALL_APIS',
+    "ALL_APIS",
 ]

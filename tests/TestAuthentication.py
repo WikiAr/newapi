@@ -1,14 +1,13 @@
 import pytest
+
 from newapi import useraccount
 from newapi.super import super_login
+
 
 class TestAuthentication:
     @pytest.fixture
     def user_credentials(self):
-        return {
-            "username": useraccount.username,
-            "password": useraccount.password
-        }
+        return {"username": useraccount.username, "password": useraccount.password}
 
     @pytest.fixture
     def login_client(self, user_credentials):
@@ -18,11 +17,7 @@ class TestAuthentication:
 
     def test_successful_login(self, login_client):
         """Test successful authentication"""
-        params = {
-            "action": "query",
-            "titles": "Main Page",
-            "format": "json"
-        }
+        params = {"action": "query", "titles": "Main Page", "format": "json"}
         response = login_client.post(params, Type="post", addtoken=False)
         assert response is not None
         assert len(response) > 0
@@ -31,7 +26,7 @@ class TestAuthentication:
         """Test authentication with invalid credentials"""
         invalid_creds = {
             "username": useraccount.username,
-            "password": f"{useraccount.password}213"
+            "password": f"{useraccount.password}213",
         }
         bot = super_login.Login("en", family="wikipedia")
         # Test should handle authentication failure gracefully

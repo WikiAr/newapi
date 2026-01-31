@@ -6,11 +6,14 @@ get_query_result = wd_sparql.get_query_result
 get_query_data = wd_sparql.get_query_data
 
 """
+
 import logging
 import sys
-from SPARQLWrapper import SPARQLWrapper, JSON
+
+from SPARQLWrapper import JSON, SPARQLWrapper
 
 logger = logging.getLogger(__name__)
+
 
 def get_query_data(query):
     """Retrieve query data from the Wikidata SPARQL endpoint.
@@ -34,7 +37,10 @@ def get_query_data(query):
     # endpoint_url = "https://query-main.wikidata.org/sparql"
     endpoint_url = "https://query.wikidata.org/sparql"
     # ---
-    user_agent = "WDQS-example Python/%s.%s" % (sys.version_info[0], sys.version_info[1])
+    user_agent = "WDQS-example Python/%s.%s" % (
+        sys.version_info[0],
+        sys.version_info[1],
+    )
     # ---
     sparql = SPARQLWrapper(endpoint_url, agent=user_agent)
     # ---

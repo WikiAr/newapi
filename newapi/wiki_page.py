@@ -1,14 +1,12 @@
-"""
+""" """
 
-
-"""
 from .pages_bots.wiki_page import (
-    home_dir,
-    MainPage,
-    user_agent,
     NEW_API,
     CatDepth,
-    change_codes
+    MainPage,
+    change_codes,
+    home_dir,
+    user_agent,
 )
 
 __all__ = [

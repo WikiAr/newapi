@@ -6,19 +6,20 @@ from .super.bot import LOGIN_HELPS
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
 """
-import sys
+
+import logging
 import os
+import sys
+from http.cookiejar import MozillaCookieJar
+
 import requests
 
 from .params_help import PARAMS_HELPS
 
-from http.cookiejar import MozillaCookieJar
-
-import logging
 logger = logging.getLogger(__name__)
-from .cookies_bot import get_file_name, del_cookies_file
-from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
+from .cookies_bot import del_cookies_file, get_file_name
+from .Login_db.bot import log_one
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -39,7 +40,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         self.family = getattr(self, "family", "")
         self.lang = getattr(self, "lang", "")
         # ---
-        self.endpoint = getattr(self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php")
+        self.endpoint = getattr(
+            self, "endpoint", f"https://{self.lang}.{self.family}.org/w/api.php"
+        )
         # ---
         if self.endpoint == "https://www.mdwiki.org/w/api.php":
             self.endpoint = "https://mdwiki.org/w/api.php"
@@ -58,7 +61,13 @@ class LOGIN_HELPS(PARAMS_HELPS):
         super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
+        log_one(
+            site=f"{self.lang}.{self.family}.org",
+            user=self.username,
+            result=result,
+            action=action,
+            params=params,
+        )
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
@@ -71,9 +80,11 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
-        if family != "" and table['username'] != "" and table['password'] != "":
+        if family != "" and table["username"] != "" and table["password"] != "":
             # ---
-            if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
+            if self.family == family or (
+                langx == "ar" and self.family.startswith("wik")
+            ):  # wiktionary
                 self.user_table_done = True
                 # ---
                 self.username = table["username"]
@@ -110,8 +121,12 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         Bot_passwords = self.password.find("@") != -1
         logins_count[1] += 1
-        logger.info(f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
-        logger.info(f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
+        logger.info(
+            f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}"
+        )
+        logger.info(
+            f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})"
+        )
 
         logintoken = self.get_logintoken()
 
@@ -137,12 +152,16 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # WARNING: /data/project/himo/core/bots/{botname}/page.py:101: UserWarning: Exception:502 Server Error: Server Hangup for url: https://ar.wikipedia.org/w/api.php
 
         try:
-            r11 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r1_params, headers=self.headers)
+            r11 = seasons_by_lang[self.sea_key].request(
+                "POST", self.endpoint, data=r1_params, headers=self.headers
+            )
             # ---
             self.log_error(r11.status_code, "logintoken")
             # ---
             if not str(r11.status_code).startswith("2"):
-                logger.info(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(
+                    f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
             # ---
         except Exception as e:
             logger.exception(e)
@@ -175,7 +194,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         req = ""
         # ---
         try:
-            req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r2_params, headers=self.headers)
+            req = seasons_by_lang[self.sea_key].request(
+                "POST", self.endpoint, data=r2_params, headers=self.headers
+            )
         except Exception as e:
             logger.exception(e)
             return False
@@ -221,7 +242,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         req = ""
         try:
-            req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=params, headers=self.headers)
+            req = seasons_by_lang[self.sea_key].request(
+                "POST", self.endpoint, data=params, headers=self.headers
+            )
         except Exception as e:
             logger.exception(e)
             self.log_error("failed", "userinfo")
@@ -278,7 +301,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if len(self.cookie_jar) > 0:
             if self.loged_in():
                 loged_t = True
-                logger.info(f"<<green>>Cookie Already logged in with user:{self.username_in}")
+                logger.info(
+                    f"<<green>>Cookie Already logged in with user:{self.username_in}"
+                )
         else:
             loged_t = self.log_in()
         # ---
@@ -291,7 +316,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(req0.status_code, action, params=params)
             # ---
             if not str(req0.status_code).startswith("2"):
-                logger.info(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(
+                    f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
 
     def raw_request(self, params, files=None, timeout=30):
         # ---
@@ -406,10 +433,14 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.make_new_session()
         # ---
         try:
-            req0 = seasons_by_lang[self.sea_key].request("GET", url, headers=self.headers)
+            req0 = seasons_by_lang[self.sea_key].request(
+                "GET", url, headers=self.headers
+            )
             # ---
             if not str(req0.status_code).startswith("2"):
-                logger.info(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                logger.info(
+                    f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
             # ---
         except Exception as e:
             logger.exception(e)

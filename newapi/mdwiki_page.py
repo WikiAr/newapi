@@ -1,13 +1,13 @@
-"""
-"""
+""" """
+
 from .pages_bots.mdwiki_page import (
-    home_dir,
-    MainPage,
-    md_MainPage,
-    user_agent,
     NEW_API,
     CatDepth,
-    change_codes
+    MainPage,
+    change_codes,
+    home_dir,
+    md_MainPage,
+    user_agent,
 )
 
 __all__ = [

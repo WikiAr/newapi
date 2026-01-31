@@ -10,6 +10,7 @@ Usage:
 # db.select(table_name, args)
 
 """
+
 # ---
 import sqlite_utils
 
@@ -26,7 +27,9 @@ class LiteDB:
 
     def create_table(self, table_name, fields, pk="id", **kwargs):
         # Create table if it doesn't exist
-        self.db[table_name].create(fields, pk=pk, if_not_exists=True, ignore=True, **kwargs)
+        self.db[table_name].create(
+            fields, pk=pk, if_not_exists=True, ignore=True, **kwargs
+        )
 
     def query(self, sql):
         # return self.db.query(sql)

@@ -20,6 +20,8 @@ self.length = 0
 self\.(text_html|words|length|summary)
 self.content.$1
 """
+
+
 @dataclass
 class Content:
     # text: str = ""
@@ -28,6 +30,7 @@ class Content:
     summary: str = ""
     words: int = 0
     length: int = 0
+
 
 r"""
 # meta
@@ -45,6 +48,8 @@ self.wikibase_item = ""
 self\.(is_Disambig|can_be_edit|userinfo|create_data|info|username|Exists|is_redirect|flagged|wikibase_item)
 self.meta.$1
 """
+
+
 @dataclass
 class Meta:
     is_Disambig: bool = False
@@ -59,6 +64,7 @@ class Meta:
     flagged: str = ""
     wikibase_item: str = ""
 
+
 r"""
 # revisions_data
 self.revid = ""
@@ -72,6 +78,7 @@ self\.(revid|newrevid|pageid|timestamp|revisions|touched)
 self.revisions_data.$1
 """
 
+
 @dataclass
 class RevisionsData:
     revid: str = ""
@@ -80,6 +87,7 @@ class RevisionsData:
     timestamp: str = ""
     revisions: list = field(default_factory=list)
     touched: str = ""
+
 
 r"""
 # LinksData
@@ -93,6 +101,8 @@ self.links_here = []
 self\.(back_links|links_here|extlinks|links|iwlinks)
 self.links_data.$1
 """
+
+
 @dataclass
 class LinksData:
     back_links: list = field(default_factory=list)
@@ -112,11 +122,14 @@ self.all_categories_with_hidden = {}
 self\.(categories|hidden_categories|all_categories_with_hidden)
 self.categories_data.$1
 """
+
+
 @dataclass
 class CategoriesData:
     categories: dict = field(default_factory=dict)
     hidden_categories: dict = field(default_factory=dict)
     all_categories_with_hidden: dict = field(default_factory=dict)
+
 
 r"""
 # TemplateData
@@ -126,6 +139,8 @@ self.templates_API = {}
 self\.(templates_API|templates)
 self.template_data.$1
 """
+
+
 @dataclass
 class TemplateData:
     templates: dict = field(default_factory=dict)

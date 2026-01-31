@@ -1,13 +1,13 @@
-"""
-"""
+""" """
+
 from .pages_bots.ncc_page import (
-    home_dir,
-    ncc_MainPage,
-    MainPage,
-    user_agent,
     NEW_API,
     CatDepth,
-    change_codes
+    MainPage,
+    change_codes,
+    home_dir,
+    ncc_MainPage,
+    user_agent,
 )
 
 __all__ = [

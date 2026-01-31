@@ -40,6 +40,7 @@ purge       = page.purge()
 # ---
 import os
 import sys
+
 # ---
 home_dir = os.getenv("HOME")
 # ---
@@ -47,14 +48,14 @@ if "mwclient" not in sys.argv:
     sys.argv.append("nomwclient")
     # print("sys.argv.append('nomwclient')")
 
+from ..accounts.user_account_new import FAMILY, SITECODE, User_tables
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from ..super.login_wrap import LoginWrap
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
-from ..api_utils.user_agent import default_user_agent
-from ..api_utils import lang_codes
 
-from ..accounts.user_account_new import User_tables, SITECODE, FAMILY
 # ---
 user_agent = default_user_agent()
 # ---
@@ -85,7 +86,9 @@ def CatDepth(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     login_bot = log_it(sitecode, family)
     # ---
-    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    result = catdepth_new.subcatquery(
+        login_bot, title, sitecode=sitecode, family=family, **kwargs
+    )
     # ---
     return result
 
@@ -98,11 +101,11 @@ def NEW_API(lang="", family="wikipedia"):
 md_MainPage = MainPage
 
 __all__ = [
-    'home_dir',
-    'user_agent',
-    'MainPage',
-    'md_MainPage',
-    'NEW_API',
-    'CatDepth',
-    'change_codes',
+    "home_dir",
+    "user_agent",
+    "MainPage",
+    "md_MainPage",
+    "NEW_API",
+    "CatDepth",
+    "change_codes",
 ]

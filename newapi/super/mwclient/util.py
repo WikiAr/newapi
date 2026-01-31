@@ -1,5 +1,5 @@
-import time
 import io
+import time
 import warnings
 
 
@@ -12,9 +12,9 @@ def parse_timestamp(t):
     Returns:
         time.struct_time: A timestamp.
     """
-    if t is None or t == '0000-00-00T00:00:00Z':
+    if t is None or t == "0000-00-00T00:00:00Z":
         return time.struct_time((0, 0, 0, 0, 0, 0, 0, 0, 0))
-    return time.strptime(t, '%Y-%m-%dT%H:%M:%SZ')
+    return time.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
 
 
 def read_in_chunks(stream, chunk_size):
@@ -38,7 +38,7 @@ def handle_limit(limit, max_items, api_chunk_size):
             warnings.warn(
                 "limit and api_chunk_size both specified, this is not supported! limit "
                 "is deprecated, will use value of api_chunk_size",
-                DeprecationWarning
+                DeprecationWarning,
             )
         else:
             warnings.warn(
@@ -46,7 +46,7 @@ def handle_limit(limit, max_items, api_chunk_size):
                 "api_chunk_size to set the number of items retrieved from the API at "
                 "once, and/or max_items to limit the total number of items that will be "
                 "yielded",
-                DeprecationWarning
+                DeprecationWarning,
             )
             api_chunk_size = limit
     return (max_items, api_chunk_size)

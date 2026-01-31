@@ -5,7 +5,7 @@ from configparser import ConfigParser
 if os.getenv("HOME"):
     project = "/data/project/himo"
 else:
-    project = 'I:/core/bots/core1'
+    project = "I:/core/bots/core1"
 
 db_connect_file = f"{project}/confs/db.ini"
 

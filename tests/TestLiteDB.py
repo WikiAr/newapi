@@ -1,13 +1,16 @@
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
+
 from newapi.DB_bots.db_bot import LiteDB
+
 
 class TestLiteDB:
     @pytest.fixture
     def temp_db(self):
         """Create temporary database for testing"""
-        fd, path = tempfile.mkstemp(suffix='.db')
+        fd, path = tempfile.mkstemp(suffix=".db")
         os.close(fd)
         db = LiteDB(path)
         yield db

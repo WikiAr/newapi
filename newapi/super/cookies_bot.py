@@ -4,13 +4,15 @@ from .super.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """
-import sys
+
+import logging
 import os
 import stat
+import sys
+from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from datetime import datetime, timedelta
-import logging
+
 logger = logging.getLogger(__name__)
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
@@ -47,7 +49,7 @@ def get_file_name(lang, family, username) -> Path:
     # ---
     if "nocookies" in sys.argv:
         randome = os.urandom(8).hex()
-        return ta_dir /f"{randome}.txt"
+        return ta_dir / f"{randome}.txt"
     # ---
     lang = lang.lower()
     family = family.lower()
@@ -104,7 +106,9 @@ def get_cookies(lang, family, username):
     cookies = from_folder(lang, family, username)
     # ---
     if not cookies:
-        logger.info(f" <<red>> get_cookies: <<yellow>> [[{lang}:{family}]] user:{username} <<red>> not found")
+        logger.info(
+            f" <<red>> get_cookies: <<yellow>> [[{lang}:{family}]] user:{username} <<red>> not found"
+        )
         return "make_new"
     # ---
     return cookies

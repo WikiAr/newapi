@@ -1,10 +1,12 @@
 import pytest
+
 from newapi.page import MainPage
+
 
 class TestMainPage:
     @pytest.fixture
     def test_page(self):
-        return MainPage("User:Mr. Ibrahem/sandbox", 'en')
+        return MainPage("User:Mr. Ibrahem/sandbox", "en")
 
     @pytest.fixture
     def arabic_page(self):
@@ -29,7 +31,7 @@ class TestMainPage:
 
     def test_nonexistent_page(self):
         """Test behavior with non-existent page"""
-        page = MainPage("NonExistentPage12345", 'en')
+        page = MainPage("NonExistentPage12345", "en")
         assert page.exists() is False
         assert isinstance(page.get_text(), str)  # Should handle gracefully
 
@@ -41,7 +43,7 @@ class TestMainPage:
     def test_page_without_edit_permission(self):
         """Test page where user cannot edit"""
         # Test with a protected page or mock this scenario
-        page = MainPage("الصفحة الرئيسة", 'ar')
+        page = MainPage("الصفحة الرئيسة", "ar")
         assert page.can_edit() is False
 
     def test_page_title_validation(self):

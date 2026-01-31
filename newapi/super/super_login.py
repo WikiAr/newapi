@@ -14,14 +14,14 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 
 """
 import copy
+import logging
 import sys
 import time
 import urllib.parse
 
-import logging
 logger = logging.getLogger(__name__)
-from .handel_errors import HANDEL_ERRORS
 from ..api_utils.user_agent import default_user_agent
+from .handel_errors import HANDEL_ERRORS
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS
@@ -80,9 +80,21 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             no_url = ["lgpassword", "format"]
             no_remove = ["titles", "title"]
             # ---
-            pams2 = {k: v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v for k, v in params.items() if k not in no_url}
+            pams2 = {
+                k: (
+                    v[:100]
+                    if isinstance(v, str) and len(v) > 100 and k not in no_remove
+                    else v
+                )
+                for k, v in params.items()
+                if k not in no_url
+            }
             # ---
-            self.url_o_print = f"{self.endpoint}?{urllib.parse.urlencode(pams2)}".replace("&format=json", "")
+            self.url_o_print = (
+                f"{self.endpoint}?{urllib.parse.urlencode(pams2)}".replace(
+                    "&format=json", ""
+                )
+            )
             # ---
             if self.url_o_print not in urls_prints:
                 urls_prints[self.url_o_print] = 0
@@ -90,7 +102,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             urls_prints[self.url_o_print] += 1
             urls_prints["all"] += 1
             # ---
-            logger.info(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
+            logger.info(
+                f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}"
+            )
 
     def make_response(self, params, files=None, timeout=30, do_error=True):
         """
@@ -127,7 +141,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         if self.family == "nccommons" and params.get("bot"):
             del params["bot"]
 
-        if "workibrahem" in sys.argv and "ibrahemsummary" not in sys.argv and params.get("summary", "").find("بوت:") != -1:
+        if (
+            "workibrahem" in sys.argv
+            and "ibrahemsummary" not in sys.argv
+            and params.get("summary", "").find("بوت:") != -1
+        ):
             params["summary"] = ""
 
         if params["action"] in ["query"]:
@@ -139,9 +157,20 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         return params
 
     def post(self, params, Type="get", addtoken=False, CSRF=True, files=None):
-        return self.post_params(params, Type=Type, addtoken=addtoken, GET_CSRF=CSRF, files=files)
+        return self.post_params(
+            params, Type=Type, addtoken=addtoken, GET_CSRF=CSRF, files=files
+        )
 
-    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+    def post_params(
+        self,
+        params,
+        Type="get",
+        addtoken=False,
+        GET_CSRF=True,
+        files=None,
+        do_error=False,
+        max_retry=0,
+    ):
         """
         Make a POST request to the API endpoint with authentication token.
         """
@@ -163,7 +192,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         # ---
         action = params["action"]
         # ---
-        to_add_action = action in wb_actions or action.startswith("wbcreate") or action.startswith("wbset")
+        to_add_action = (
+            action in wb_actions
+            or action.startswith("wbcreate")
+            or action.startswith("wbset")
+        )
         # ---
         if self.family == "wikidata" and to_add_action:
             params["maxlag"] = ar_lag[1]
@@ -198,12 +231,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 logger.info(f"<<red>> super_login(post): error: {error}")
             # ---
             if Invalid == "Invalid CSRF token.":
-                logger.info(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
+                logger.info(
+                    f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} '
+                )
                 if GET_CSRF:
                     # ---
                     self.r3_token = self.make_new_r3_token()
                     # ---
-                    return self.post_params(params, Type=Type, addtoken=addtoken, GET_CSRF=False)
+                    return self.post_params(
+                        params, Type=Type, addtoken=addtoken, GET_CSRF=False
+                    )
             # ---
             error_code = error.get("code", "")
             # ---
@@ -212,7 +249,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 # ---
                 logger.test_print(params)
                 # ---
-                logger.info(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
+                logger.info(
+                    f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}"
+                )
                 # ---
                 time.sleep(lage + 1)
                 # ---
@@ -220,14 +259,26 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 # ---
                 params["maxlag"] = ar_lag[1]
                 # ---
-                return self.post_params(params, Type=Type, addtoken=addtoken, max_retry=max_retry + 1)
+                return self.post_params(
+                    params, Type=Type, addtoken=addtoken, max_retry=max_retry + 1
+                )
         # ---
         if "printdata" in sys.argv:
             logger.info(data)
 
         return data
 
-    def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
+    def post_continue(
+        self,
+        params,
+        action,
+        _p_="pages",
+        p_empty=None,
+        Max=500000,
+        first=False,
+        _p_2="",
+        _p_2_empty=None,
+    ):
         # ---
         logger.test_print("_______________________")
         logger.test_print(f"post_continue, start. {action=}, {_p_=}")

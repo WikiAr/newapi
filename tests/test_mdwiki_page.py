@@ -1,6 +1,7 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 
 # sys.argv.append("printurl")
@@ -20,7 +21,7 @@ save_page = page.save(newtext='', summary='', nocreate=1, minor='')
 create    = page.Create(text='', summary='')
 """
 # ---
-'''
+"""
 page = MainPage("Category:RTT", "www", family="mdwiki")
 # ---
 text = page.get_text()
@@ -38,7 +39,7 @@ print(f"{len(page_backlinks)=}")
 red = page.page_links()
 print(f"{len(red)=}")
 # ---
-'''
+"""
 # ---
 # hidden_categories= page.get_hidden_categories()
 # print('---------------------------')
@@ -55,7 +56,7 @@ def test_main_page():
 
 
 def test_main_page2():
-    page = MainPage("Main_Page", 'www', family='mdwiki')
+    page = MainPage("Main_Page", "www", family="mdwiki")
     exists = page.exists()
     assert exists is True
 
@@ -72,6 +73,7 @@ def test_cat_members2():
     # ---
     print(f"RTTNEURO: {len(cat_members)=}")
     assert len(cat_members) > 0
+
 
 # ---
 # save = page.save(newtext='')

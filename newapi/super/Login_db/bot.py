@@ -6,12 +6,14 @@ from newapi.super.Login_db.bot2 import log_one
 # log_one(site="", user="", result="", db_type="sqlite", db_path="login_logs.db", credentials=None)
 
 """
-import functools
-import sys
-import os
+
 import datetime
-from configparser import ConfigParser
+import functools
 import logging
+import os
+import sys
+from configparser import ConfigParser
+
 logger = logging.getLogger(__name__)
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
 
@@ -41,7 +43,7 @@ def jls_extract_def():
     # ---
     project = os.getenv("HOME")
     # ---
-    if __file__.find('/data/project/himo') != -1:
+    if __file__.find("/data/project/himo") != -1:
         project = "/data/project/himo"
     # ---
     db_connect_file = f"{project}/confs/db.ini"
@@ -89,11 +91,11 @@ def log_one(site, user, result, action="", params={}) -> None:
     params = params or {}
     # ---
     if action == "query":
-        if params.get('meta', "") == "tokens":
+        if params.get("meta", "") == "tokens":
             action = "tokens"
-            if params.get('type'):
-                action += "_" + params['type']
-        elif params.get('meta', "").find("userinfo") != -1:
+            if params.get("type"):
+                action += "_" + params["type"]
+        elif params.get("meta", "").find("userinfo") != -1:
             action = "userinfo"
     # ---
     # if params.get('meta', "").find("userinfo") != -1:
@@ -101,8 +103,8 @@ def log_one(site, user, result, action="", params={}) -> None:
     #     if userinfo > 3:
     #         raise Exception("too much")
     # ---
-    if action == "query" and params.get('prop'):
-        action += "_" + "_".join(params['prop'].split("|"))
+    if action == "query" and params.get("prop"):
+        action += "_" + "_".join(params["prop"].split("|"))
     # ---
     if action == "query" and "test" in sys.argv:
         logger.info(f"<<yellow>> {action=}")
@@ -144,9 +146,7 @@ def log_one(site, user, result, action="", params={}) -> None:
 
     # Execute table creation
     sql_connect_pymysql(
-        create_table_query,
-        main_args=main_args,
-        credentials=credentials
+        create_table_query, main_args=main_args, credentials=credentials
     )
 
     # Insert login attempt

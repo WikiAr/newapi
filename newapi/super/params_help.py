@@ -3,9 +3,10 @@
 from .super.params_help import PARAMS_HELPS
 
 """
-import sys
-import logging
+
 import json
+import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,13 @@ class PARAMS_HELPS:
         # pass
 
     def params_w(self, params) -> dict:
-        if self.family == "wikipedia" and self.lang == "ar" and params.get("summary") and self.username.find("bot") == -1 and "ibrahemsummary" not in sys.argv:
+        if (
+            self.family == "wikipedia"
+            and self.lang == "ar"
+            and params.get("summary")
+            and self.username.find("bot") == -1
+            and "ibrahemsummary" not in sys.argv
+        ):
             params["summary"] = ""
 
         self.Bot_or_himo = 1 if "bot" in self.username else 0
@@ -32,7 +39,11 @@ class PARAMS_HELPS:
             params["minor"] = self.Bot_or_himo
 
         if self.family != "toolforge":
-            if params["action"] in ["edit", "create", "upload", "delete", "move"] or params["action"].startswith("wb") or self.family == "wikidata":
+            if (
+                params["action"] in ["edit", "create", "upload", "delete", "move"]
+                or params["action"].startswith("wb")
+                or self.family == "wikidata"
+            ):
                 if "nologin" not in sys.argv and self.username:
                     params["assertuser"] = self.username
 

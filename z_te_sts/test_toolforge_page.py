@@ -1,13 +1,14 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 
 sys.path.append("I:/mdwiki/pybot")
 sys.argv.append("ask")
-from newapi import toolforge_page
-
 from copy_to_en.bots import medwiki_account
+
+from newapi import toolforge_page
 
 User_tables_md = {
     "username": medwiki_account.username,
@@ -26,10 +27,7 @@ toolforge_page.add_User_table(User_tables_mdcx, "toolforge", "mdwikicx")
 CatDepth = toolforge_page.CatDepth
 MainPage = toolforge_page.MainPage
 
-lists = {
-    "page" : "Main_Page",
-    "cat" : "Category:Translations"
-}
+lists = {"page": "Main_Page", "cat": "Category:Translations"}
 # ---
 for site in ["medwiki", "mdwikicx"]:
     # ---

@@ -1,15 +1,19 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 import time
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.page import NEW_API
 import logging
+
+from newapi.page import NEW_API
+
 logger = logging.getLogger(__name__)
+
 
 class testmybot:
     def __init__(self):
@@ -19,7 +23,9 @@ class testmybot:
 
     def test1(self):
         """Find_pages_exists_or_not"""
-        ex = self.api_new.Find_pages_exists_or_not(["Thyrotropin alfa", "Thiamine"], get_redirect=True)
+        ex = self.api_new.Find_pages_exists_or_not(
+            ["Thyrotropin alfa", "Thiamine"], get_redirect=True
+        )
         return ex
 
     def test2(self):
@@ -109,7 +115,9 @@ class testmybot:
 
     def test6(self):
         """UserContribs"""
-        ex = self.api_new.UserContribs("User:Mr. Ibahem", limit="10", namespace="*", ucshow="")
+        ex = self.api_new.UserContribs(
+            "User:Mr. Ibahem", limit="10", namespace="*", ucshow=""
+        )
         return ex
 
     def test7(self):
@@ -125,19 +133,29 @@ class testmybot:
 
     def test9(self):
         """querypage_list"""
-        ex = self.api_new.querypage_list(qppage="Wantedcategories", qplimit="max", Max=500)
+        ex = self.api_new.querypage_list(
+            qppage="Wantedcategories", qplimit="max", Max=500
+        )
         return ex
 
     def test10(self):
         """Get_template_pages"""
         api_new = NEW_API("ar", family="wikipedia")
-        ex = api_new.Get_template_pages("قالب:طواف العالم للدراجات", namespace="*", Max=10000)
+        ex = api_new.Get_template_pages(
+            "قالب:طواف العالم للدراجات", namespace="*", Max=10000
+        )
         return ex
 
     def test11(self):
         """move"""
         api_new = NEW_API("ar", family="wikipedia")
-        move_it = api_new.move("الصفحة_الرئيسة", "الصفحة_الرئيسة2", reason="test!", noredirect=False, movesubpages=False)
+        move_it = api_new.move(
+            "الصفحة_الرئيسة",
+            "الصفحة_الرئيسة2",
+            reason="test!",
+            noredirect=False,
+            movesubpages=False,
+        )
         return move_it
 
     def test12(self):
@@ -190,7 +208,7 @@ class testmybot:
             11: self.test11,
             12: self.test12,
             13: self.test13,
-            14: self.test14
+            14: self.test14,
         }
         # ---
         for arg in sys.argv:

@@ -44,18 +44,19 @@ user        = page.get_user()
 purge       = page.purge()
 '''
 """
+import functools
+
 # ---
 import os
-import functools
 import sys
 
 if "mwclient" not in sys.argv:
     sys.argv.append("nomwclient")
 
-from .all_apis import ALL_APIS
-from ..api_utils.user_agent import default_user_agent
-from ..api_utils import lang_codes
 from ..accounts.user_account_new import User_tables
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from .all_apis import ALL_APIS
 
 user_agent = default_user_agent()
 
@@ -82,11 +83,11 @@ CatDepth = main_api.CatDepth
 md_MainPage = MainPage
 
 __all__ = [
-    'home_dir',
-    'user_agent',
-    'MainPage',
-    'md_MainPage',
-    'NEW_API',
-    'CatDepth',
-    'change_codes',
+    "home_dir",
+    "user_agent",
+    "MainPage",
+    "md_MainPage",
+    "NEW_API",
+    "CatDepth",
+    "change_codes",
 ]

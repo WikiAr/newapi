@@ -1,13 +1,10 @@
-"""
+""" """
 
-"""
 from .pages_bots.toolforge_page import (
-    # bot_api,
-    # super_page,
-    catdepth_new,
+    CatDepth,  # bot_api,; super_page,
     MainPage,
     add_User_table,
-    CatDepth,
+    catdepth_new,
 )
 
 __all__ = [

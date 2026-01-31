@@ -1,10 +1,12 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
+
 Dir = Path(__file__).resolve().parent
 
 sys.argv.append("printurl")
@@ -13,6 +15,7 @@ sys.argv.append("ask")
 from newapi import db_bot
 
 LiteDB = db_bot.LiteDB
+
 
 def test():
     db_path = Dir / "nc_files.db"

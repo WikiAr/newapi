@@ -12,12 +12,13 @@ CatDepth = toolforge_page.subcatquery
 MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
 # ---
 """
+
+from ..super.login_wrap import LoginWrap
+from ..super.S_API import bot_api
+
 # ---
 from ..super.S_Category import catdepth_new
-
-from ..super.S_API import bot_api
 from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
 
 User_tables = {}
 logins_cache = {}
@@ -53,7 +54,9 @@ def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
     login_bot = log_it(sitecode, family)
     # ---
-    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    result = catdepth_new.subcatquery(
+        login_bot, title, sitecode=sitecode, family=family, **kwargs
+    )
     # ---
     return result
 

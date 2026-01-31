@@ -31,24 +31,27 @@ from newapi.ncc_page import NEW_API
 """
 
 import os
+
 # import sys
 # ---
 home_dir = os.getenv("HOME")
+from ..accounts.user_account_ncc import FAMILY, SITECODE, User_tables
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from ..super.login_wrap import LoginWrap
+
 # ---
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
-from ..api_utils.user_agent import default_user_agent
-from ..api_utils import lang_codes
 
-from ..accounts.user_account_ncc import User_tables, SITECODE, FAMILY
 # ---
 user_agent = default_user_agent()
 # ---
 change_codes = lang_codes.change_codes
 
 logins_cache = {}
+
 
 def log_it(lang, family):
     # ---
@@ -58,6 +61,7 @@ def log_it(lang, family):
     # ---
     return login_bot
 
+
 def MainPage(title, lang, family=FAMILY):
     # ---
     login_bot = log_it(lang, family)
@@ -66,13 +70,17 @@ def MainPage(title, lang, family=FAMILY):
     # ---
     return page
 
+
 def CatDepth(title, sitecode=SITECODE, family=FAMILY, **kwargs):
     # ---
     login_bot = log_it(sitecode, family)
     # ---
-    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
+    result = catdepth_new.subcatquery(
+        login_bot, title, sitecode=sitecode, family=family, **kwargs
+    )
     # ---
     return result
+
 
 def NEW_API(lang="", family="wikipedia"):
     # ---
@@ -86,11 +94,11 @@ def NEW_API(lang="", family="wikipedia"):
 ncc_MainPage = MainPage
 
 __all__ = [
-    'home_dir',
-    'user_agent',
-    'MainPage',
-    'ncc_MainPage',
-    'NEW_API',
-    'CatDepth',
-    'change_codes',
+    "home_dir",
+    "user_agent",
+    "MainPage",
+    "ncc_MainPage",
+    "NEW_API",
+    "CatDepth",
+    "change_codes",
 ]

@@ -3,10 +3,12 @@
 from ...api_utils.ask_bot import ASK_BOT
 
 """
-import sys
+
 import logging
+import sys
 
 from . import printe
+
 logger = logging.getLogger(__name__)
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
@@ -18,7 +20,16 @@ class ASK_BOT:
     def __init__(self):
         pass
 
-    def ask_put(self, nodiff=False, newtext="", text="", message="", job="Genral", username="", summary=""):
+    def ask_put(
+        self,
+        nodiff=False,
+        newtext="",
+        text="",
+        message="",
+        job="Genral",
+        username="",
+        summary="",
+    ):
         """
         Prompts the user to confirm saving changes to a page, optionally displaying a diff.
 
@@ -42,7 +53,9 @@ class ASK_BOT:
                         logger.info("showDiff error..")
                 # ---
                 logger.info(f"diference in bytes: {len(newtext) - len(text):,}")
-                logger.info(f"len of text: {len(text):,}, len of newtext: {len(newtext):,}")
+                logger.info(
+                    f"len of text: {len(text):,}, len of newtext: {len(newtext):,}"
+                )
             # ---
             if summary:
                 logger.info(f"-Edit summary: {summary}")

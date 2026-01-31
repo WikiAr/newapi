@@ -2,9 +2,11 @@
 from .super.handel_errors import HANDEL_ERRORS
 
 """
-import sys
+
 # from newapi import printe
 import logging
+import sys
+
 logger = logging.getLogger(__name__)
 
 
@@ -13,7 +15,13 @@ class HANDEL_ERRORS:
         # printe.output("class HANDEL_ERRORS:")
         pass
 
-    def handel_err(self, error: dict, function: str = "", params: dict = None, do_error: bool = True):
+    def handel_err(
+        self,
+        error: dict,
+        function: str = "",
+        params: dict = None,
+        do_error: bool = True,
+    ):
         """Handle errors based on the provided error dictionary.
 
         This function processes an error dictionary and performs actions based
@@ -56,7 +64,12 @@ class HANDEL_ERRORS:
             abusefilter = error.get("abusefilter", "")
             description = abusefilter.get("description", "")
             logger.info(f"<<lightred>> ** abusefilter-disallowed: {description} ")
-            if description in ["تأخير البوتات 3 ساعات", "تأخير البوتات 3 ساعات- 3 من 3", "تأخير البوتات 3 ساعات- 1 من 3", "تأخير البوتات 3 ساعات- 2 من 3"]:
+            if description in [
+                "تأخير البوتات 3 ساعات",
+                "تأخير البوتات 3 ساعات- 3 من 3",
+                "تأخير البوتات 3 ساعات- 1 من 3",
+                "تأخير البوتات 3 ساعات- 2 من 3",
+            ]:
                 return False
             return description
         # ---
@@ -78,9 +91,11 @@ class HANDEL_ERRORS:
             return False
         # ---
         if do_error:
-            params['data'] = {}
-            params['text'] = {}
-            logger.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
+            params["data"] = {}
+            params["text"] = {}
+            logger.error(
+                f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}"
+            )
         # ---
         if "raise" in sys.argv:
             raise Exception(error)
