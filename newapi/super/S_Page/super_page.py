@@ -1,9 +1,6 @@
 """
 Usage:
 # ---
-from newapi.mdwiki_page import MainPage
-page      = MainPage(title, 'www', family='mdwiki')
-# ---
 from newapi.page import MainPage
 page      = MainPage(title, 'ar', family='wikipedia')
 # ---
@@ -46,21 +43,21 @@ purge       = page.purge()
 '''
 
 """
-
-import logging
+import os
+from warnings import warn
 import sys
-
 import wikitextparser as wtp
 
-from ...api_utils import botEdit, txtlib
-from ...api_utils.ask_bot import ASK_BOT
-from ...api_utils.lang_codes import change_codes
 from .ar_err import find_edit_error
 from .bot import PAGE_APIS
-from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
+from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, TemplateData
+
+from ...api_utils import printe, txtlib, botEdit
+from ...api_utils.except_err import exception_err, warn_err
+from ...api_utils.ask_bot import ASK_BOT
+from ...api_utils.lang_codes import change_codes
 
 print_test = {1: "test" in sys.argv}
-logger = logging.getLogger(__name__)
 
 
 class MainPage(PAGE_APIS, ASK_BOT):
@@ -98,16 +95,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         super().__init__(login_bot)
 
-    def post_params(
-        self,
-        params,
-        Type="get",
-        addtoken=False,
-        GET_CSRF=True,
-        files=None,
-        do_error=False,
-        max_retry=0,
-    ):
+    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
         return self.login_bot.post_params(
             params,
@@ -116,7 +104,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             GET_CSRF=GET_CSRF,
             files=files,
             do_error=do_error,
-            max_retry=max_retry,
+            max_retry=max_retry
         )
 
     def false_edit(self):
@@ -141,7 +129,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if len(self.newtext) < 0.1 * len(self.text):
             text_err = f"Edit will remove 90% of the text. {len(self.newtext)} < 0.1 * {len(self.text)}"
             text_err += f"title: {self.title}, summary: {self.content.summary}"
-            logger.exception(text_err)
+            exception_err("", text=text_err)
             return True
         # ---
         if self.lang == "ar" and self.ns == 0:
@@ -173,7 +161,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         done = data.get("import", [{}])[0].get("revisions", 0)
         # ---
-        logger.info(f"<<lightgreen>> imported {done} revisions")
+        printe.output(f"<<lightgreen>> imported {done} revisions")
         # ---
         return data
 
@@ -194,7 +182,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "rvprop": "timestamp|ids|user",
             "rvslots": "*",
             "rvlimit": "1",
-            "rvdir": "newer",
+            "rvdir": "newer"
         }
         # ---
         data = self.post_params(params)
@@ -207,9 +195,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
-                    "timestamp": page_data["timestamp"],
-                    "user": page_data.get("user", ""),
-                    "anon": page_data.get("anon", False),
+                    "timestamp" : page_data["timestamp"],
+                    "user" : page_data.get("user", ""),
+                    "anon" : page_data.get("anon", False),
                 }
             # ---
             break
@@ -248,7 +236,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         for k, v in pages.items():
             # ---
             if print_test[1] or "printdata" in sys.argv:
-                logger.error(f"<<lightyellow>> data: {v}")
+                warn(warn_err(f"v:{str(v)}"), UserWarning)
             # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !
@@ -262,9 +250,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # title = v["title"]
             # ---
             pageprops = v.get("pageprops", {})
-            self.meta.wikibase_item = (
-                pageprops.get("wikibase_item") or self.meta.wikibase_item
-            )
+            self.meta.wikibase_item = pageprops.get("wikibase_item") or self.meta.wikibase_item
             # ---
             # "flagged": { "stable_revid": 61366100, "level": 0, "level_text": "stable"}
             self.meta.flagged = v.get("flagged", False) is not False
@@ -275,19 +261,15 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             self.text = page_data.get("slots", {}).get("main", {}).get("*", "")
             self.user = page_data.get("user") or self.user
-            self.revisions_data.revid = (
-                page_data.get("revid") or self.revisions_data.revid
-            )
+            self.revisions_data.revid = page_data.get("revid") or self.revisions_data.revid
             # ---
-            self.revisions_data.timestamp = (
-                page_data.get("timestamp") or self.revisions_data.timestamp
-            )
+            self.revisions_data.timestamp = page_data.get("timestamp") or self.revisions_data.timestamp
             # ---
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
-                    "timestamp": page_data["timestamp"],
-                    "user": page_data.get("user", ""),
-                    "anon": page_data.get("anon", False),
+                    "timestamp" : page_data["timestamp"],
+                    "user" : page_data.get("user", ""),
+                    "anon" : page_data.get("anon", False),
                 }
             # ---
             break
@@ -373,18 +355,13 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             # {"lang": "ca", "*": "UCI World Tour 2023"} or {'lang': 'bh', 'title': 'टेम्पलेट:AWB'}
             # ---
-            self.langlinks = {
-                ta["lang"]: ta.get("*") or ta.get("title")
-                for ta in ta.get("langlinks", [])
-            }
+            self.langlinks = {ta["lang"]: ta.get("*") or ta.get("title") for ta in ta.get("langlinks", [])}
         # ---
         if ta.get("templates", []) != []:
             # ---
             # 'templates': [{'ns': 10, 'title': 'قالب:No redirect'}],
             # ---
-            self.template_data.templates_API = [
-                ta["title"] for ta in ta.get("templates", [])
-            ]
+            self.template_data.templates_API = [ta["title"] for ta in ta.get("templates", [])]
         # ---
         # "linkshere": [{"pageid": 189150,"ns": 0,"title": "طواف فرنسا"}, {"pageid": 308641,"ns": 10,"title": "قالب:AWB","redirect": ""}]
         self.links_data.links_here = ta.get("linkshere", [])
@@ -429,7 +406,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         to = redirects.get("to", "")
         # ---
         if to:
-            logger.info(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
+            printe.output(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
         # ---
         return to
 
@@ -530,12 +507,10 @@ class MainPage(PAGE_APIS, ASK_BOT):
     def isDisambiguation(self):
         # ---
         # if the title ends with '(توضيح)' or '(disambiguation)'
-        self.meta.is_Disambig = self.title.endswith("(توضيح)") or self.title.endswith(
-            "(disambiguation)"
-        )
+        self.meta.is_Disambig = self.title.endswith("(توضيح)") or self.title.endswith("(disambiguation)")
         # ---
         if self.meta.is_Disambig:
-            logger.info(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
+            printe.output(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
         # ---
         return self.meta.is_Disambig
 
@@ -552,10 +527,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
 
     def get_hidden_categories(self):
         # ---
-        if (
-            self.categories_data.categories == {}
-            and self.categories_data.hidden_categories == {}
-        ):
+        if self.categories_data.categories == {} and self.categories_data.hidden_categories == {}:
             self.get_infos()
         # ---
         return self.categories_data.hidden_categories
@@ -627,9 +599,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if not self.text:
             self.text = self.get_text()
         # ---
-        self.meta.can_be_edit = botEdit.bot_May_Edit(
-            text=self.text, title_page=self.title, botjob=script, page=self, delay=delay
-        )
+        self.meta.can_be_edit = botEdit.bot_May_Edit(text=self.text, title_page=self.title, botjob=script, page=self, delay=delay)
         # ---
         return self.meta.can_be_edit
 
@@ -686,7 +656,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if not self.meta.Exists:
             self.get_text()
         if not self.meta.Exists:
-            logger.info(f'page "{self.title}" not in {self.lang}:{self.family}')
+            printe.output(f'page "{self.title}" not exists in {self.lang}:{self.family}')
         return self.meta.Exists
 
     def namespace(self):
@@ -705,16 +675,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)
         return self.template_data.templates
 
-    def save(
-        self,
-        newtext="",
-        summary="",
-        nocreate=1,
-        minor="0",
-        tags="",
-        nodiff=False,
-        ASK=False,
-    ):
+    def save(self, newtext="", summary="", nocreate=1, minor="0", tags="", nodiff=False, ASK=False):
         """
         Saves new text to the page, updating its content and metadata.
 
@@ -742,20 +703,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         message = f"Do you want to save this page? ({self.lang}:{self.title})"
         # ---
-        user = self.meta.username or getattr(self, "user_login", "")
+        user = self.meta.username or getattr(self, 'user_login', '')
         # ---
-        if (
-            self.ask_put(
-                nodiff=nodiff,
-                newtext=newtext,
-                text=self.text,
-                message=message,
-                job="save",
-                username=user,
-                summary=self.content.summary,
-            )
-            is False
-        ):
+        if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=user, summary=self.content.summary) is False:
             return False
         # ---
         params = {
@@ -792,29 +742,17 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if result.lower() == "success":
             self.text = newtext
             self.user = ""
-            logger.info(
-                f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] "
-            )
+            printe.output(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # printe.output('Done True...')
             # ---
             if "printpop" in sys.argv:
                 print(pop)
             # ---
-            self.revisions_data.pageid = (
-                edit.get("pageid") or self.revisions_data.pageid
-            )
-            self.revisions_data.revid = (
-                edit.get("newrevid") or self.revisions_data.revid
-            )
-            self.revisions_data.newrevid = (
-                edit.get("newrevid") or self.revisions_data.newrevid
-            )
-            self.revisions_data.touched = (
-                edit.get("touched") or self.revisions_data.touched
-            )
-            self.revisions_data.timestamp = (
-                edit.get("newtimestamp") or self.revisions_data.timestamp
-            )
+            self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
+            self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
+            self.revisions_data.newrevid = edit.get("newrevid") or self.revisions_data.newrevid
+            self.revisions_data.touched = edit.get("touched") or self.revisions_data.touched
+            self.revisions_data.timestamp = edit.get("newtimestamp") or self.revisions_data.timestamp
             # ---
             return True
         # ---
@@ -838,7 +776,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         data = self.post_params(params, addtoken=True)
         # ---
         if not data:
-            logger.info("<<lightred>> ** error. ")
+            printe.output("<<lightred>> ** purge error. ")
             return False
         # ---
         title2 = self.title
@@ -857,7 +795,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             if title2 == ti and "purged" in t:
                 return True
             if "missing" in t:
-                logger.info(f'page "{t["title"]}" missing')
+                printe.output(f"page \"{t['title']}\" missing")
                 return "missing"
         return False
 
@@ -883,19 +821,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
             # ---
-            user = self.meta.username or getattr(self, "user_login", "")
+            user = self.meta.username or getattr(self, 'user_login', '')
             # ---
-            if (
-                self.ask_put(
-                    nodiff=nodiff,
-                    newtext=text,
-                    message=message,
-                    job="create",
-                    username=user,
-                    summary=summary,
-                )
-                is False
-            ):
+            if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary) is False:
                 return False
         # ---
         params = {
@@ -926,26 +854,14 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             self.text = text
             # ---
-            logger.info(
-                f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] "
-            )
+            printe.output(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # printe.output('Done True... time.sleep() ')
             # ---
-            self.revisions_data.pageid = (
-                edit.get("pageid") or self.revisions_data.pageid
-            )
-            self.revisions_data.revid = (
-                edit.get("newrevid") or self.revisions_data.revid
-            )
-            self.revisions_data.touched = (
-                edit.get("touched") or self.revisions_data.touched
-            )
-            self.revisions_data.newrevid = (
-                edit.get("newrevid") or self.revisions_data.newrevid
-            )
-            self.revisions_data.timestamp = (
-                edit.get("newtimestamp") or self.revisions_data.timestamp
-            )
+            self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
+            self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
+            self.revisions_data.touched = edit.get("touched") or self.revisions_data.touched
+            self.revisions_data.newrevid = edit.get("newrevid") or self.revisions_data.newrevid
+            self.revisions_data.timestamp = edit.get("newtimestamp") or self.revisions_data.timestamp
             # ---
             return True
         # ---

@@ -1,11 +1,11 @@
 """
 Usage:
 
-from newapi.wiki_page import CatDepth
+from newapi.page import CatDepth
 
 # cat_members = CatDepth(title, sitecode='en', family="wikipedia", depth=0, ns="all", nslist=[], without_lang="", with_lang="", tempyes=[])
 
-from newapi.wiki_page import MainPage, NEW_API
+from newapi.page import MainPage, NEW_API
 # api_new = NEW_API('en', family='wikipedia')
 # json1    = api_new.post_params(params, addtoken=False)
 # move_it  = api_new.move(old_title, to, reason="", noredirect=False, movesubpages=False)
@@ -23,23 +23,23 @@ from newapi.wiki_page import MainPage, NEW_API
 # wantedcats  = api_new.querypage_list(qppage='Wantedcategories', qplimit="max", Max=5000)
 # pages  = api_new.Get_template_pages(title, namespace="*", Max=10000)
 """
-
 # ---
 import os
-
-from ..accounts.user_account_new import User_tables_wiki
-from ..api_utils import lang_codes
-from ..api_utils.user_agent import default_user_agent
-from ..super.login_wrap import LoginWrap
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
+
 from ..super.S_Page import super_page
+from ..super.login_wrap import LoginWrap
+from ..api_utils.user_agent import default_user_agent
+from ..api_utils import lang_codes
+
+from ..accounts.user_account_new import User_tables_wiki
 
 home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_wiki
 # ---
-print(f"wiki_page.py use {User_tables['username']} account.")
+print(f"page.py use {User_tables['username']} account.")
 # ---
 user_agent = default_user_agent()
 # ---
@@ -70,9 +70,7 @@ def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
     login_bot = log_it(sitecode, family)
     # ---
-    result = catdepth_new.subcatquery(
-        login_bot, title, sitecode=sitecode, family=family, **kwargs
-    )
+    result = catdepth_new.subcatquery(login_bot, title, sitecode=sitecode, family=family, **kwargs)
     # ---
     return result
 
@@ -87,10 +85,10 @@ def NEW_API(lang="", family="wikipedia"):
 
 
 __all__ = [
-    "home_dir",
-    "user_agent",
-    "MainPage",
-    "NEW_API",
-    "CatDepth",
-    "change_codes",
+    'home_dir',
+    'user_agent',
+    'MainPage',
+    'NEW_API',
+    'CatDepth',
+    'change_codes',
 ]
