@@ -247,7 +247,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if error_code == "maxlag" and max_retry < 4:
                 lage = int(error.get("lag", "0"))
                 # ---
-                logger.test_print(params)
+                logger.debug(params)
                 # ---
                 logger.info(
                     f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}"
@@ -280,8 +280,8 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         _p_2_empty=None,
     ):
         # ---
-        logger.test_print("_______________________")
-        logger.test_print(f"post_continue, start. {action=}, {_p_=}")
+        logger.debug("_______________________")
+        logger.debug(f"post_continue, start. {action=}, {_p_=}")
         # ---
         if not isinstance(Max, int) and Max.isdigit():
             Max = int(Max)
@@ -306,16 +306,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             if continue_params:
                 # params = {**params, **continue_params}
-                logger.test_print("continue_params:")
+                logger.debug("continue_params:")
                 for k, v in continue_params.items():
                     params2[k] = v
                 # params2.update(continue_params)
-                logger.test_print(params2)
+                logger.debug(params2)
             # ---
             json1 = self.post_params(params2)
             # ---
             if not json1:
-                logger.test_print("post_continue, json1 is empty. break")
+                logger.debug("post_continue, json1 is empty. break")
                 break
             # ---
             continue_params = {}
@@ -344,13 +344,13 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                             data = data.get(_p_2, _p_2_empty)
             # ---
             if not data:
-                logger.test_print("post continue, data is empty. break")
+                logger.debug("post continue, data is empty. break")
                 break
             # ---
-            logger.test_print(f"post continue, len:{len(data)}, all: {len(results)}")
+            logger.debug(f"post continue, len:{len(data)}, all: {len(results)}")
             # ---
             if Max <= len(results) and len(results) > 1:
-                logger.test_print(f"post continue, {Max=} <= {len(results)=}. break")
+                logger.debug(f"post continue, {Max=} <= {len(results)=}. break")
                 break
             # ---
             if isinstance(results, list):
@@ -361,6 +361,6 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 print(f"{type(data)=}")
                 results = {**results, **data}
         # ---
-        logger.test_print(f"post continue, {len(results)=}")
+        logger.debug(f"post continue, {len(results)=}")
         # ---
         return results

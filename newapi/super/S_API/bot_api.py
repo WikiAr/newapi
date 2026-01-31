@@ -314,7 +314,7 @@ class NEW_API(BOTS_APIS):
         limit_all=100000,
     ):
         # ---
-        logger.test_print(
+        logger.debug(
             f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}"
         )
         # ---
@@ -345,13 +345,13 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="allpages", p_empty=[], Max=limit_all
         )
         # ---
-        logger.test_print(
+        logger.debug(
             f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages."
         )
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        logger.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
         logger.info(f"bot_api.py Get_All_pages : find {len(Main_table)} pages.")
         # ---
@@ -378,7 +378,7 @@ class NEW_API(BOTS_APIS):
             list: A list of titles that match the prefix search.
         """
         # ---
-        logger.test_print(
+        logger.debug(
             f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}"
         )
         # ---
@@ -410,11 +410,11 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="prefixsearch", p_empty=[], Max=limit_all
         )
         # ---
-        logger.test_print(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
+        logger.debug(f"<<lightpurple>> --- PrefixSearch : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
-        logger.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
         logger.info(f"bot_api.py PrefixSearch : find {len(Main_table)} pages.")
         # ---
@@ -430,7 +430,7 @@ class NEW_API(BOTS_APIS):
         limit_all=100000,
     ):
         # ---
-        logger.test_print(
+        logger.debug(
             f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
         )
         # ---
@@ -462,13 +462,13 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="pages", p_empty=[], Max=limit_all
         )
         # ---
-        logger.test_print(
+        logger.debug(
             f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages."
         )
         # ---
         Main_table = {x["title"]: x for x in newp}
         # ---
-        logger.test_print(f"len of Main_table {len(Main_table)}.")
+        logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
         logger.info(
             f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages."
@@ -486,7 +486,7 @@ class NEW_API(BOTS_APIS):
         addparams=None,
     ):
         # ---
-        logger.test_print(f'bot_api.Search for "{value}",ns:{ns}')
+        logger.debug(f'bot_api.Search for "{value}",ns:{ns}')
         # ---
         if not srlimit:
             srlimit = "max"
@@ -521,7 +521,7 @@ class NEW_API(BOTS_APIS):
             else:
                 results.append(pag["title"])
         # ---
-        logger.test_print(
+        logger.debug(
             f'bot_api.Search find "{len(search)}" all result: {len(results)}'
         )
         # ---
@@ -573,7 +573,7 @@ class NEW_API(BOTS_APIS):
 
         Main_table = [x["title"] for x in json1]
 
-        logger.test_print(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
+        logger.debug(f'bot_api.Get_Newpages find "{len(Main_table)}" result. s')
 
         return Main_table
 
@@ -645,7 +645,7 @@ class NEW_API(BOTS_APIS):
         """
 
         # ---
-        logger.test_print(
+        logger.debug(
             f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}'
         )
         # ---
@@ -670,7 +670,7 @@ class NEW_API(BOTS_APIS):
         # ---
         if targtsitecode:
             params["lllang"] = targtsitecode
-            logger.test_print(f'params["lllang"] = {targtsitecode}')
+            logger.debug(f'params["lllang"] = {targtsitecode}')
         # ---
         find_targtsitecode = 0
         normalized = {}
@@ -872,13 +872,13 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="querypage", p_empty=[], Max=Max
         )
         # ---
-        logger.test_print(f"querypage_list len(results) = {len(results)}")
+        logger.debug(f"querypage_list len(results) = {len(results)}")
         # ---
         return results
 
     def Get_template_pages(self, title, namespace="*", Max=10000):
         # ---
-        logger.test_print(
+        logger.debug(
             f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"'
         )
         # ---
@@ -906,7 +906,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        logger.test_print(f'Get_image_url for file:"{title}":')
+        logger.debug(f'Get_image_url for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -938,7 +938,7 @@ class NEW_API(BOTS_APIS):
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
-        logger.test_print(f'Get_imageinfo for file:"{title}":')
+        logger.debug(f'Get_imageinfo for file:"{title}":')
         # ---
         params = {
             "action": "query",
@@ -981,7 +981,7 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="pageswithprop", p_empty=[], Max=Max
         )
         # ---
-        logger.test_print(f"pageswithprop len(results) = {len(results)}")
+        logger.debug(f"pageswithprop len(results) = {len(results)}")
         # ---
         return results
 
@@ -1071,7 +1071,7 @@ class NEW_API(BOTS_APIS):
         # ---
         results = self.post_continue(params, "query", _p_="users", p_empty=[])
         # ---
-        logger.test_print(f"users_infos len(results) = {len(results)}")
+        logger.debug(f"users_infos len(results) = {len(results)}")
         # ---
         results = [dict(x) for x in results]
         # ---

@@ -33,7 +33,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             logger.info('** Add_To_Bottom ..  text == ""')
             return False
         # ---
-        logger.test_print(f"** Add_To_Bottom .. [[{title}]] ")
+        logger.debug(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
         user = self.username or getattr(self, "user_login", "")
@@ -116,7 +116,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             params["reason"] = reason
         # ---
         if old_title == to:
-            logger.test_print(f"<<lightred>>** old_title == to {to} ")
+            logger.debug(f"<<lightred>>** old_title == to {to} ")
             return {}
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
