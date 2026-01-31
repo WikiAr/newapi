@@ -3,7 +3,7 @@
 page_old.py
 tests/super_login_old.py
 *.tmp.py
-*.txt
+
 super/S_Login/jar.py
 super/S_Login/mwclient.pyyy.py
 wait_time_errors.bash
@@ -12,3 +12,5 @@ super/Login_db/lite.py
 /.claude
 .github/workflows/python-publish.yml
 scan.py
+/newapi/super/cookies
+pformat.txt
