@@ -32,18 +32,19 @@ from newapi.ncc_page import NEW_API
 
 import os
 
-# import sys
-# ---
-home_dir = os.getenv("HOME")
 from ..accounts.user_account_ncc import FAMILY, SITECODE, User_tables
 from ..api_utils import lang_codes
 from ..api_utils.user_agent import default_user_agent
 from ..super.login_wrap import LoginWrap
-
-# ---
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
+
+# import sys
+# ---
+home_dir = os.getenv("HOME")
+
+# ---
 
 # ---
 user_agent = default_user_agent()

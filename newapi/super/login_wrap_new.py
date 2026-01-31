@@ -11,8 +11,9 @@ from .super.login_wrap import LoginWrap
 import logging
 from functools import lru_cache
 
-logger = logging.getLogger(__name__)
 from .super_login import Login
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=128)

@@ -51,9 +51,10 @@ from datetime import timedelta
 # ---
 import tqdm
 
-logger = logging.getLogger(__name__)
 from ...api_utils.lang_codes import change_codes
 from .bot import BOTS_APIS
+
+logger = logging.getLogger(__name__)
 
 
 class NEW_API(BOTS_APIS):

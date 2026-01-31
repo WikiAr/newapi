@@ -7,12 +7,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from newapi import db_bot
+
 Dir = Path(__file__).resolve().parent
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi import db_bot
 
 LiteDB = db_bot.LiteDB
 

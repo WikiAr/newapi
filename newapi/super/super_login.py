@@ -20,9 +20,10 @@ import sys
 import time
 import urllib.parse
 
-logger = logging.getLogger(__name__)
 from ..api_utils.user_agent import default_user_agent
 from .handel_errors import HANDEL_ERRORS
+
+logger = logging.getLogger(__name__)
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS

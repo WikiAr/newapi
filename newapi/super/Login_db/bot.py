@@ -14,8 +14,9 @@ import os
 import sys
 from configparser import ConfigParser
 
-logger = logging.getLogger(__name__)
 from ...DB_bots.pymysql_bot import sql_connect_pymysql
+
+logger = logging.getLogger(__name__)
 
 LOGS_IS_ENABLED = os.getenv("LOGIN_LOGS_IS_ENABLED", "0") == "1"
 

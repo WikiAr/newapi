@@ -10,8 +10,9 @@ import sys
 import time
 from functools import lru_cache
 
-logger = logging.getLogger(__name__)
 from .bot import CategoryDepth
+
+logger = logging.getLogger(__name__)
 
 SITECODE = "en"
 FAMILY = "wikipedia"

@@ -14,14 +14,15 @@ from http.cookiejar import MozillaCookieJar
 
 import requests
 
-logger = logging.getLogger(__name__)
 from ..api_utils.user_agent import default_user_agent
 from .cookies_bot import del_cookies_file, get_file_name
 from .Login_db.bot import log_one
-
-# from mwclient.client import Site
 from .mwclient.client import Site
 from .params_help import PARAMS_HELPS
+
+logger = logging.getLogger(__name__)
+
+# from mwclient.client import Site
 
 # import mwclient
 

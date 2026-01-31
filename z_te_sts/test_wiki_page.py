@@ -4,10 +4,11 @@ Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 
 import sys
 
+from newapi.wiki_page import CatDepth, MainPage
+
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.wiki_page import CatDepth, MainPage
 
 """
 page      = MainPage(title, 'ar', family='wikipedia')

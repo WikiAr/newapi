@@ -3,14 +3,15 @@ from newapi.api_utils import botEdit
 bot_edit!
 """
 
-#
-#
 import datetime
 import logging
 import sys
 
-logger = logging.getLogger(__name__)
+#
+#
 from . import txtlib
+
+logger = logging.getLogger(__name__)
 
 # ---
 edit_username = {1: "Mr.Ibrahembot"}

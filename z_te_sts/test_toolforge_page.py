@@ -4,11 +4,13 @@ Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 
 import sys
 
-sys.path.append("I:/mdwiki/pybot")
-sys.argv.append("ask")
 from copy_to_en.bots import medwiki_account
 
 from newapi import toolforge_page
+
+sys.path.append("I:/mdwiki/pybot")
+sys.argv.append("ask")
+
 
 User_tables_md = {
     "username": medwiki_account.username,

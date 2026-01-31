@@ -4,10 +4,11 @@ Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 
 import sys
 
-sys.argv.append("printurl")
-sys.argv.append("ask")
 from newapi.accounts.useraccount import User_tables_bot
 from newapi.super import super_login
+
+sys.argv.append("printurl")
+sys.argv.append("ask")
 
 User_tables = User_tables_bot
 User_tables["password"] += "123"

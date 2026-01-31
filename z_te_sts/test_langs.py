@@ -4,10 +4,11 @@ Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 
 import sys
 
+from newapi.page import NEW_API, MainPage
+
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.page import MainPage
 
 page = MainPage("وب:ملعب", "ar")
 exists = page.exists()
@@ -15,7 +16,6 @@ exists = page.exists()
 # ---
 print("--------------")
 print("simple:")
-from newapi.page import NEW_API
 
 # ---
 en_api_new = NEW_API("simple", family="wikipedia")

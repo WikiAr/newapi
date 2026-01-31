@@ -4,10 +4,11 @@ Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 
 import sys
 
+from newapi.ncc_page import CatDepth, MainPage
+
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.ncc_page import CatDepth, MainPage
 
 title = "Category:Pages_with_script_errors"
 

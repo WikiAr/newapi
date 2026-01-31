@@ -38,9 +38,18 @@ purge       = page.purge()
 '''
 """
 
-# ---
 import os
 import sys
+
+from ..accounts.user_account_new import FAMILY, SITECODE, User_tables
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from ..super.login_wrap import LoginWrap
+from ..super.S_API import bot_api
+from ..super.S_Category import catdepth_new
+
+# ---
+from ..super.S_Page import super_page
 
 # ---
 home_dir = os.getenv("HOME")
@@ -49,13 +58,6 @@ if "mwclient" not in sys.argv:
     sys.argv.append("nomwclient")
     # print("sys.argv.append('nomwclient')")
 
-from ..accounts.user_account_new import FAMILY, SITECODE, User_tables
-from ..api_utils import lang_codes
-from ..api_utils.user_agent import default_user_agent
-from ..super.login_wrap import LoginWrap
-from ..super.S_API import bot_api
-from ..super.S_Category import catdepth_new
-from ..super.S_Page import super_page
 
 # ---
 user_agent = default_user_agent()
