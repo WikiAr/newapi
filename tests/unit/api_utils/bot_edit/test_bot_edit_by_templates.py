@@ -1,7 +1,7 @@
 """
 Unit tests for is_bot_edit_allowed function.
 
-Tests cover all scenarios including bypass conditions, template restrictions,
+Tests cover all scenarios including template restrictions,
 caching behavior, and special template handling (nobots, bots).
 """
 import sys
@@ -36,35 +36,6 @@ def original_argv():
 def bot_username():
     """Return the bot username for testing."""
     return edit_username.get(1, "Mr.Ibrahembot")
-
-
-# Test bypass conditions
-class TestBypassConditions:
-    """Test cases for bypass conditions via command line arguments."""
-
-    def test_bypass_with_botedit_arg(self, original_argv):
-        """Should return True when 'botedit' is in sys.argv."""
-        sys.argv = ["script", "botedit"]
-        text = "{{nobots}}"
-        assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
-
-    def test_bypass_with_editbot_arg(self, original_argv):
-        """Should return True when 'editbot' is in sys.argv."""
-        sys.argv = ["script", "editbot"]
-        text = "{{nobots}}"
-        assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
-
-    def test_bypass_with_workibrahem_arg(self, original_argv):
-        """Should return True when 'workibrahem' is in sys.argv."""
-        sys.argv = ["script", "workibrahem"]
-        text = "{{nobots}}"
-        assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
-
-    def test_no_bypass_without_args(self, original_argv):
-        """Should check templates when no bypass args are present."""
-        sys.argv = ["script"]
-        text = "{{nobots}}"
-        assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
 
 # Test bot job normalization
