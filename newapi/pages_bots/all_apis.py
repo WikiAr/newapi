@@ -52,7 +52,7 @@ class ALL_APIS:
         # ---
         login_bot = Login(self.lang, family=self.family)
         # ---
-        printe.output(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})", p=True)
+        printe.output(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})")
         # ---
         user_tables = {
             self.family: {

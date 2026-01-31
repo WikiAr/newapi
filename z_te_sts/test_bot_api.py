@@ -203,10 +203,10 @@ class testmybot:
         # ---
         for n, func in defs.items():
             name = func.__name__
-            printe.output(f"<<lightgreen>> start def number {n}, name:{name}:", p=True)
+            printe.output(f"<<lightgreen>> start def number {n}, name:{name}:")
             # ---
             def_name = func.__doc__
-            printe.output(f"<<lightyellow>> test: {def_name}:", p=True)
+            printe.output(f"<<lightyellow>> test: {def_name}:")
             # ---
             if "tat" in sys.argv:
                 continue
@@ -242,7 +242,7 @@ class testmybot:
                 printe.output("<<purple>> add 'printresult' to sys.argv to print result")
             # ---
             if result:
-                printe.output(f"{len(result)=}", p=True)
+                printe.output(f"{len(result)=}")
             # ---
             printe.output("=====================")
             printe.output(f"<<lightyellow>> test: {def_name} end...")
