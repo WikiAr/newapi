@@ -1,0 +1,2 @@
+
+from newapi.api_utils.bot_edit.bot_edit_by_templates import is_bot_edit_allowed
