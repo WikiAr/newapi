@@ -345,9 +345,7 @@ class NEW_API(BOTS_APIS):
             params, "query", _p_="allpages", p_empty=[], Max=limit_all
         )
         # ---
-        logger.debug(
-            f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages."
-        )
+        logger.debug(f"<<lightpurple>> --- Get_All_pages : find {len(newp)} pages.")
         # ---
         Main_table = [x["title"] for x in newp]
         # ---
@@ -378,9 +376,7 @@ class NEW_API(BOTS_APIS):
             list: A list of titles that match the prefix search.
         """
         # ---
-        logger.debug(
-            f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}"
-        )
+        logger.debug(f"PrefixSearch for start:{pssearch}, pslimit:{pslimit}, ns:{ns}")
         # ---
         pssearch = pssearch.strip() if pssearch else ""
         # ---
@@ -521,9 +517,7 @@ class NEW_API(BOTS_APIS):
             else:
                 results.append(pag["title"])
         # ---
-        logger.debug(
-            f'bot_api.Search find "{len(search)}" all result: {len(results)}'
-        )
+        logger.debug(f'bot_api.Search find "{len(search)}" all result: {len(results)}')
         # ---
         return results
 
