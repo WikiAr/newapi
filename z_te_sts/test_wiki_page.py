@@ -6,7 +6,7 @@ import sys
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.wiki_page import MainPage, CatDepth
+from newapi.page import MainPage, CatDepth
 
 """
 page      = MainPage(title, 'ar', family='wikipedia')

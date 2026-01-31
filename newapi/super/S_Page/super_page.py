@@ -1,9 +1,6 @@
 """
 Usage:
 # ---
-from newapi.mdwiki_page import MainPage
-page      = MainPage(title, 'www', family='mdwiki')
-# ---
 from newapi.page import MainPage
 page      = MainPage(title, 'ar', family='wikipedia')
 # ---
