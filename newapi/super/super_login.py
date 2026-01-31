@@ -230,7 +230,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # code = error.get("code", "")
             # ---
             if do_error:
-                logger.info(f"<<red>> super_login(post): error: {error}")
+                logger.error(f"<<red>> super_login(post): error: {error}")
             # ---
             if Invalid == "Invalid CSRF token.":
                 logger.info(

@@ -359,7 +359,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         except requests.exceptions.ReadTimeout:
             self.log_error("ReadTimeout", u_action, params=params)
-            logger.info(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
+            logger.error(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
 
         except Exception as e:
             self.log_error("Exception", u_action, params=params)
