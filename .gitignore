@@ -11,3 +11,4 @@ super/Login_db/bot1.py
 super/Login_db/lite.py
 /.claude
 .github/workflows/python-publish.yml
+scan.py

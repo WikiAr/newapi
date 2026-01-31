@@ -124,11 +124,12 @@ def wrap_color_messages(format_message):
 
 def setup_logging(
     level: str = "WARNING",
+    name: str = __name__,
 ) -> None:
     """
     Configure logging for the entire project namespace only.
     """
-    project_logger = logging.getLogger(__name__)
+    project_logger = logging.getLogger(name)
 
     if project_logger.handlers:
         return
