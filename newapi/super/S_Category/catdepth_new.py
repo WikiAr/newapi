@@ -1,7 +1,5 @@
 """
 
-# cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
-
 """
 import time
 import sys
