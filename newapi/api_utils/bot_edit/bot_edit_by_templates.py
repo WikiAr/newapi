@@ -2,10 +2,12 @@
 from newapi.api_utils import botEdit
 bot_edit!
 """
+
 #
 #
 import logging
 import sys
+
 import wikitextparser as wtp
 
 logger = logging.getLogger(__name__)
@@ -126,7 +128,7 @@ def is_bot_edit_allowed(text="", title_page="", botjob="all"):
         title = str(template.normal_name()).strip()
         # ---
         params = {
-            str(param.name).strip() : str(param.value).strip()
+            str(param.name).strip(): str(param.value).strip()
             for param in template.arguments
             if str(param.value).strip()
         }
@@ -140,7 +142,7 @@ def is_bot_edit_allowed(text="", title_page="", botjob="all"):
             Bot_Cache[botjob][title_page] = False
             return False
         # ---
-        logger.debug('<<lightred>>botEdit.py title:(%s), params:(%s).' % (title, str(params)))
+        logger.debug("<<lightred>>botEdit.py title:(%s), params:(%s)." % (title, str(params)))
         # ---
         if title.lower() == "nobots":
             return _handle_nobots_template(params, title_page, botjob, _template)

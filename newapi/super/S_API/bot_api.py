@@ -40,16 +40,19 @@ if login_done_lang[1] != code:
     api_new = NEW_API(code, family='wikipedia')
     api_new.Login_to_wiki()
 """
+
+import datetime
+import sys
+import time
+from collections.abc import KeysView
+from datetime import timedelta
+
 # ---
 import tqdm
-import time
-import sys
-from collections.abc import KeysView
-import datetime
-from datetime import timedelta
+
 from ...api_utils import printe
-from .bot import BOTS_APIS
 from ...api_utils.lang_codes import change_codes
+from .bot import BOTS_APIS
 
 
 class NEW_API(BOTS_APIS):
@@ -74,25 +77,14 @@ class NEW_API(BOTS_APIS):
     def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
         return self.login_bot.post_params(
-            params,
-            Type=Type,
-            addtoken=addtoken,
-            GET_CSRF=GET_CSRF,
-            files=files,
-            do_error=do_error,
-            max_retry=max_retry
+            params, Type=Type, addtoken=addtoken, GET_CSRF=GET_CSRF, files=files, do_error=do_error, max_retry=max_retry
         )
 
-    def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
+    def post_continue(
+        self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None
+    ):
         return self.login_bot.post_continue(
-            params,
-            action,
-            _p_=_p_,
-            p_empty=p_empty,
-            Max=Max,
-            first=first,
-            _p_2=_p_2,
-            _p_2_empty=_p_2_empty
+            params, action, _p_=_p_, p_empty=p_empty, Max=Max, first=first, _p_2=_p_2, _p_2_empty=_p_2_empty
         )
 
     def get_username(self):
@@ -140,7 +132,7 @@ class NEW_API(BOTS_APIS):
         query_table = all_jsons.get("query", {})
         # ---
         normalz = query_table.get("normalized", [])
-        normalized = {red["to"] : red["from"] for red in normalz}
+        normalized = {red["to"]: red["from"] for red in normalz}
         # ---
         query_pages = query_table.get("pages", [])
         # ---
@@ -174,7 +166,15 @@ class NEW_API(BOTS_APIS):
         # ---
         return table
 
-    def Find_pages_exists_or_not_with_qids(self, liste, get_redirect=False, noprint=False, return_all_jsons=False, use_user_input_title=False, chunk_size=50):
+    def Find_pages_exists_or_not_with_qids(
+        self,
+        liste,
+        get_redirect=False,
+        noprint=False,
+        return_all_jsons=False,
+        use_user_input_title=False,
+        chunk_size=50,
+    ):
         # ---
         done = 0
         # ---
@@ -240,10 +240,7 @@ class NEW_API(BOTS_APIS):
             if use_user_input_title and title_tab.get("user_input"):
                 title_x = title_tab["user_input"]
             # ---
-            table.setdefault(title_x, {
-                "wikibase_item": wikibase_item,
-                "exist": False
-            })
+            table.setdefault(title_x, {"wikibase_item": wikibase_item, "exist": False})
             # ---
             if title_tab:
                 table[title_x]["title_tab"] = title_tab
@@ -272,7 +269,9 @@ class NEW_API(BOTS_APIS):
 
     def Get_All_pages(self, start="", namespace="0", limit="max", apfilterredir="", ppprop="", limit_all=100000):
         # ---
-        printe.test_print(f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}")
+        printe.test_print(
+            f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}"
+        )
         # ---
         params = {
             "action": "query",
@@ -368,9 +367,13 @@ class NEW_API(BOTS_APIS):
         # ---
         return Main_table
 
-    def Get_All_pages_generator(self, start="", namespace="0", limit="max", filterredir="", ppprop="", limit_all=100000):
+    def Get_All_pages_generator(
+        self, start="", namespace="0", limit="max", filterredir="", ppprop="", limit_all=100000
+    ):
         # ---
-        printe.test_print(f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}")
+        printe.test_print(
+            f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
+        )
         # ---
         params = {
             "action": "query",
@@ -449,7 +452,16 @@ class NEW_API(BOTS_APIS):
         # ---
         return results
 
-    def Get_Newpages(self, limit=5000, namespace="0", rcstart="", user="", three_houers=False, offset_minutes=False, offset_hours=False):
+    def Get_Newpages(
+        self,
+        limit=5000,
+        namespace="0",
+        rcstart="",
+        user="",
+        three_houers=False,
+        offset_minutes=False,
+        offset_hours=False,
+    ):
         if three_houers:
             dd = datetime.datetime.utcnow() - timedelta(hours=3)
             rcstart = dd.strftime("%Y-%m-%dT%H:%M:00.000Z")
@@ -617,7 +629,9 @@ class NEW_API(BOTS_APIS):
                     if lang["lang"] == targtsitecode:
                         find_targtsitecode += 1
         # ---
-        printe.output(f'bot_api.Get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}')
+        printe.output(
+            f'bot_api.Get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}'
+        )
         # ---
         return table
 
@@ -933,10 +947,22 @@ class NEW_API(BOTS_APIS):
             "utf8": 1,
             "formatversion": "2",
             "usprop": "groups|implicitgroups|editcount|gender|registration",
-            "ususers": "Mr.Ibrahembot"
+            "ususers": "Mr.Ibrahembot",
         }
         # ---
-        all_usprops = ["groups", "implicitgroups", "cancreate", "editcount", "centralids", "blockinfo", "emailable", "gender", "groupmemberships", "registration", "rights"]
+        all_usprops = [
+            "groups",
+            "implicitgroups",
+            "cancreate",
+            "editcount",
+            "centralids",
+            "blockinfo",
+            "emailable",
+            "gender",
+            "groupmemberships",
+            "registration",
+            "rights",
+        ]
         # ---
         ususers = list(set(ususers))
         # ---

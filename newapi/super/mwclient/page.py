@@ -1,8 +1,8 @@
 import time
-from .util import parse_timestamp, handle_limit
 
-from . import listing
-from . import errors
+from . import errors, listing
+from .util import handle_limit, parse_timestamp
+
 
 class Page:
 
@@ -16,67 +16,61 @@ class Page:
 
         if not info:
             if extra_properties:
-                prop = 'info|' + '|'.join(extra_properties.keys())
+                prop = "info|" + "|".join(extra_properties.keys())
                 extra_props = []
                 for extra_prop in extra_properties.values():
                     extra_props.extend(extra_prop)
             else:
-                prop = 'info'
+                prop = "info"
                 extra_props = ()
 
             if type(name) is int:
-                info = self.site.get('query', prop=prop, pageids=name,
-                                     inprop='protection', *extra_props)
+                info = self.site.get("query", prop=prop, pageids=name, inprop="protection", *extra_props)
             else:
-                info = self.site.get('query', prop=prop, titles=name,
-                                     inprop='protection', *extra_props)
-            info = next(iter(info['query']['pages'].values()))
+                info = self.site.get("query", prop=prop, titles=name, inprop="protection", *extra_props)
+            info = next(iter(info["query"]["pages"].values()))
         self._info = info
 
-        if 'invalid' in info:
-            print(errors.InvalidPageTitle(info.get('invalidreason')))
+        if "invalid" in info:
+            print(errors.InvalidPageTitle(info.get("invalidreason")))
 
-        self.namespace = info.get('ns', 0)
-        self.name = info.get('title', '')
+        self.namespace = info.get("ns", 0)
+        self.name = info.get("title", "")
         if self.namespace:
             self.page_title = self.strip_namespace(self.name)
         else:
             self.page_title = self.name
 
-        self.base_title = self.page_title.split('/')[0]
-        self.base_name = self.name.split('/')[0]
+        self.base_title = self.page_title.split("/")[0]
+        self.base_name = self.name.split("/")[0]
 
-        self.touched = parse_timestamp(info.get('touched'))
-        self.revision = info.get('lastrevid', 0)
-        self.exists = 'missing' not in info
-        self.length = info.get('length')
-        self.protection = {
-            i['type']: (i['level'], i.get('expiry'))
-            for i in info.get('protection', ())
-            if i
-        }
-        self.redirect = 'redirect' in info
-        self.pageid = info.get('pageid', None)
-        self.contentmodel = info.get('contentmodel', None)
-        self.pagelanguage = info.get('pagelanguage', None)
-        self.restrictiontypes = info.get('restrictiontypes', None)
+        self.touched = parse_timestamp(info.get("touched"))
+        self.revision = info.get("lastrevid", 0)
+        self.exists = "missing" not in info
+        self.length = info.get("length")
+        self.protection = {i["type"]: (i["level"], i.get("expiry")) for i in info.get("protection", ()) if i}
+        self.redirect = "redirect" in info
+        self.pageid = info.get("pageid", None)
+        self.contentmodel = info.get("contentmodel", None)
+        self.pagelanguage = info.get("pagelanguage", None)
+        self.restrictiontypes = info.get("restrictiontypes", None)
 
         self.last_rev_time = None
         self.edit_time = None
 
     def redirects_to(self):
-        """ Get the redirect target page, or None if the page is not a redirect."""
-        info = self.site.get('query', prop='pageprops', titles=self.name, redirects='')
-        if 'redirects' in info['query']:
-            for page in info['query']['redirects']:
-                if page['from'] == self.name:
-                    return Page(self.site, page['to'])
+        """Get the redirect target page, or None if the page is not a redirect."""
+        info = self.site.get("query", prop="pageprops", titles=self.name, redirects="")
+        if "redirects" in info["query"]:
+            for page in info["query"]["redirects"]:
+                if page["from"] == self.name:
+                    return Page(self.site, page["to"])
             return None
         else:
             return None
 
     def resolve_redirect(self):
-        """ Get the redirect target page, or the current page if its not a redirect."""
+        """Get the redirect target page, or the current page if its not a redirect."""
         target_page = self.redirects_to()
         if target_page is None:
             return self
@@ -84,26 +78,22 @@ class Page:
             return target_page
 
     def __repr__(self):
-        return "<%s object '%s' for %s>" % (
-            self.__class__.__name__,
-            self.name,
-            self.site
-        )
+        return "<%s object '%s' for %s>" % (self.__class__.__name__, self.name, self.site)
 
     @staticmethod
     def strip_namespace(title):
-        if title[0] == ':':
+        if title[0] == ":":
             title = title[1:]
-        return title[title.find(':') + 1:]
+        return title[title.find(":") + 1 :]
 
     @staticmethod
     def normalize_title(title):
         # TODO: Make site dependent
         title = title.strip()
-        if title[0] == ':':
+        if title[0] == ":":
             title = title[1:]
         title = title[0].upper() + title[1:]
-        title = title.replace(' ', '_')
+        title = title.replace(" ", "_")
         return title
 
     def can(self, action):
@@ -116,15 +106,15 @@ class Page:
 
         """
         level = self.protection.get(action, (action,))[0]
-        if level == 'sysop':
-            level = 'editprotected'
+        if level == "sysop":
+            level = "editprotected"
 
         return level in self.site.rights
 
     def get_token(self, type, force=False):
         return self.site.get_token(type, force, title=self.name)
 
-    def text(self, section=None, expandtemplates=False, cache=True, slot='main'):
+    def text(self, section=None, expandtemplates=False, cache=True, slot="main"):
         """Get the current wikitext of the page, or of a specific section.
 
         If the page does not exist, an empty string is returned. By
@@ -139,10 +129,10 @@ class Page:
             cache (bool): Use in-memory caching (default: `True`)
         """
 
-        if not self.can('read'):
+        if not self.can("read"):
             print(errors.InsufficientPermission(self))
         if not self.exists:
-            return ''
+            return ""
         if section is not None:
             section = str(section)
 
@@ -153,17 +143,16 @@ class Page:
         # we set api_chunk_size not max_items because otherwise revisions'
         # default api_chunk_size of 50 gets used and we get 50 revisions;
         # no need to set max_items as well as we only iterate one time
-        revs = self.revisions(prop='content|timestamp', api_chunk_size=1, section=section,
-                              slots=slot)
+        revs = self.revisions(prop="content|timestamp", api_chunk_size=1, section=section, slots=slot)
         try:
             rev = next(revs)
-            if 'slots' in rev:
-                text = rev['slots'][slot]['*']
+            if "slots" in rev:
+                text = rev["slots"][slot]["*"]
             else:
-                text = rev['*']
-            self.last_rev_time = rev['timestamp']
+                text = rev["*"]
+            self.last_rev_time = rev["timestamp"]
         except StopIteration:
-            text = ''
+            text = ""
             self.last_rev_time = None
         if not expandtemplates:
             self.edit_time = time.gmtime()
@@ -180,21 +169,16 @@ class Page:
         """Alias for edit, for maintaining backwards compatibility."""
         return self.edit(*args, **kwargs)
 
-    def edit(self, text, summary='', minor=False, bot=True, section=None, **kwargs):
-        """Update the text of a section or the whole page by performing an edit operation.
-        """
+    def edit(self, text, summary="", minor=False, bot=True, section=None, **kwargs):
+        """Update the text of a section or the whole page by performing an edit operation."""
         return self._edit(summary, minor, bot, section, text=text, **kwargs)
 
-    def append(self, text, summary='', minor=False, bot=True, section=None,
-               **kwargs):
-        """Append text to a section or the whole page by performing an edit operation.
-        """
+    def append(self, text, summary="", minor=False, bot=True, section=None, **kwargs):
+        """Append text to a section or the whole page by performing an edit operation."""
         return self._edit(summary, minor, bot, section, appendtext=text, **kwargs)
 
-    def prepend(self, text, summary='', minor=False, bot=True, section=None,
-                **kwargs):
-        """Prepend text to a section or the whole page by performing an edit operation.
-        """
+    def prepend(self, text, summary="", minor=False, bot=True, section=None, **kwargs):
+        """Prepend text to a section or the whole page by performing an edit operation."""
         return self._edit(summary, minor, bot, section, prependtext=text, **kwargs)
 
     def _edit(self, summary, minor, bot, section, **kwargs):
@@ -202,42 +186,40 @@ class Page:
             print(errors.AssertUserFailedError())
         if self.site.blocked:
             print(errors.UserBlocked(self.site.blocked))
-        if not self.can('edit'):
+        if not self.can("edit"):
             print(errors.ProtectedPageError(self))
 
         data = {}
         if minor:
-            data['minor'] = '1'
+            data["minor"] = "1"
         if not minor:
-            data['notminor'] = '1'
+            data["notminor"] = "1"
         if self.last_rev_time:
-            data['basetimestamp'] = time.strftime('%Y%m%d%H%M%S', self.last_rev_time)
+            data["basetimestamp"] = time.strftime("%Y%m%d%H%M%S", self.last_rev_time)
         if self.edit_time:
-            data['starttimestamp'] = time.strftime('%Y%m%d%H%M%S', self.edit_time)
+            data["starttimestamp"] = time.strftime("%Y%m%d%H%M%S", self.edit_time)
         if bot:
-            data['bot'] = '1'
+            data["bot"] = "1"
         if section is not None:
-            data['section'] = section
+            data["section"] = section
 
         data.update(kwargs)
 
         if self.site.force_login:
-            data['assert'] = 'user'
+            data["assert"] = "user"
 
         def do_edit():
-            result = self.site.post('edit', title=self.name, summary=summary,
-                                    token=self.get_token('edit'),
-                                    **data)
-            if result['edit'].get('result').lower() == 'failure':
-                print(errors.EditError(self, result['edit']))
+            result = self.site.post("edit", title=self.name, summary=summary, token=self.get_token("edit"), **data)
+            if result["edit"].get("result").lower() == "failure":
+                print(errors.EditError(self, result["edit"]))
             return result
 
         try:
             result = do_edit()
         except errors.APIError as e:
-            if e.code == 'badtoken':
+            if e.code == "badtoken":
                 # Retry, but only once to avoid an infinite loop
-                self.get_token('edit', force=True)
+                self.get_token("edit", force=True)
                 try:
                     result = do_edit()
                 except errors.APIError as e:
@@ -246,29 +228,37 @@ class Page:
                 self.handle_edit_error(e, summary)
 
         # 'newtimestamp' is not included if no change was made
-        if 'newtimestamp' in result['edit'].keys():
-            self.last_rev_time = parse_timestamp(result['edit'].get('newtimestamp'))
+        if "newtimestamp" in result["edit"].keys():
+            self.last_rev_time = parse_timestamp(result["edit"].get("newtimestamp"))
 
         # Workaround for https://phabricator.wikimedia.org/T211233
         for cookie in self.site.connection.cookies:
-            if 'PostEditRevision' in cookie.name:
-                self.site.connection.cookies.clear(cookie.domain, cookie.path,
-                                                   cookie.name)
+            if "PostEditRevision" in cookie.name:
+                self.site.connection.cookies.clear(cookie.domain, cookie.path, cookie.name)
 
         # clear the page text cache
         self._textcache = {}
-        return result['edit']
+        return result["edit"]
 
     def handle_edit_error(self, e, summary):
-        if e.code == 'editconflict':
+        if e.code == "editconflict":
             print(errors.EditError(self, summary, e.info))
-        elif e.code in {'protectedtitle', 'cantcreate', 'cantcreate-anon',
-                        'noimageredirect-anon', 'noimageredirect', 'noedit-anon',
-                        'noedit', 'protectedpage', 'cascadeprotected',
-                        'customcssjsprotected',
-                        'protectednamespace-interface', 'protectednamespace'}:
+        elif e.code in {
+            "protectedtitle",
+            "cantcreate",
+            "cantcreate-anon",
+            "noimageredirect-anon",
+            "noimageredirect",
+            "noedit-anon",
+            "noedit",
+            "protectedpage",
+            "cascadeprotected",
+            "customcssjsprotected",
+            "protectednamespace-interface",
+            "protectednamespace",
+        }:
             print(errors.ProtectedPageError(self, e.code, e.info))
-        elif e.code == 'assertuserfailed':
+        elif e.code == "assertuserfailed":
             print(errors.AssertUserFailedError())
         else:
             print(e)
@@ -281,10 +271,9 @@ class Page:
         """
         if not self.exists:
             return
-        self.append('')
+        self.append("")
 
-    def move(self, new_title, reason='', move_talk=True, no_redirect=False,
-             move_subpages=False, ignore_warnings=False):
+    def move(self, new_title, reason="", move_talk=True, no_redirect=False, move_subpages=False, ignore_warnings=False):
         """Move (rename) page to new_title.
 
         If user account is an administrator, specify no_redirect as True to not
@@ -294,73 +283,89 @@ class Page:
         exception is raised.
 
         """
-        if not self.can('move'):
+        if not self.can("move"):
             print(errors.InsufficientPermission(self))
 
         data = {}
         if move_talk:
-            data['movetalk'] = '1'
+            data["movetalk"] = "1"
         if no_redirect:
-            data['noredirect'] = '1'
+            data["noredirect"] = "1"
         if move_subpages:
-            data['movesubpages'] = '1'
+            data["movesubpages"] = "1"
         if ignore_warnings:
-            data['ignorewarnings'] = '1'
-        result = self.site.post('move', ('from', self.name), to=new_title,
-                                token=self.get_token('move'), reason=reason, **data)
-        return result['move']
+            data["ignorewarnings"] = "1"
+        result = self.site.post(
+            "move", ("from", self.name), to=new_title, token=self.get_token("move"), reason=reason, **data
+        )
+        return result["move"]
 
-    def delete(self, reason='', watch=False, unwatch=False, oldimage=False):
+    def delete(self, reason="", watch=False, unwatch=False, oldimage=False):
         """Delete page.
 
         If user does not have permission to delete page, an InsufficientPermission
         exception is raised.
 
         """
-        if not self.can('delete'):
+        if not self.can("delete"):
             print(errors.InsufficientPermission(self))
 
         data = {}
         if watch:
-            data['watch'] = '1'
+            data["watch"] = "1"
         if unwatch:
-            data['unwatch'] = '1'
+            data["unwatch"] = "1"
         if oldimage:
-            data['oldimage'] = oldimage
-        result = self.site.post('delete', title=self.name,
-                                token=self.get_token('delete'),
-                                reason=reason, **data)
-        return result['delete']
+            data["oldimage"] = oldimage
+        result = self.site.post("delete", title=self.name, token=self.get_token("delete"), reason=reason, **data)
+        return result["delete"]
 
     def purge(self):
         """Purge server-side cache of page. This will re-render templates and other
         dynamic content.
 
         """
-        self.site.post('purge', titles=self.name)
+        self.site.post("purge", titles=self.name)
 
     # def watch: requires 1.14
 
     # Properties
-    def backlinks(self, namespace=None, filterredir='all', redirect=False,
-                  limit=None, generator=True, max_items=None, api_chunk_size=None):
+    def backlinks(
+        self,
+        namespace=None,
+        filterredir="all",
+        redirect=False,
+        limit=None,
+        generator=True,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """List pages that link to the current page, similar to Special:Whatlinkshere.
 
         API doc: https://www.mediawiki.org/wiki/API:Backlinks
 
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        prefix = listing.List.get_prefix('bl', generator)
-        kwargs = dict(listing.List.generate_kwargs(
-            prefix, namespace=namespace, filterredir=filterredir,
-        ))
+        prefix = listing.List.get_prefix("bl", generator)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                prefix,
+                namespace=namespace,
+                filterredir=filterredir,
+            )
+        )
         if redirect:
-            kwargs['%sredirect' % prefix] = '1'
-        kwargs[prefix + 'title'] = self.name
+            kwargs["%sredirect" % prefix] = "1"
+        kwargs[prefix + "title"] = self.name
 
         return listing.List.get_list(generator)(
-            self.site, 'backlinks', 'bl', max_items=max_items,
-            api_chunk_size=api_chunk_size, return_values='title', **kwargs
+            self.site,
+            "backlinks",
+            "bl",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            return_values="title",
+            **kwargs,
         )
 
     def categories(self, generator=True, show=None):
@@ -376,23 +381,18 @@ class Page:
         Returns:
             listings.PagePropertyGenerator
         """
-        prefix = listing.List.get_prefix('cl', generator)
-        kwargs = dict(listing.List.generate_kwargs(
-            prefix, show=show
-        ))
+        prefix = listing.List.get_prefix("cl", generator)
+        kwargs = dict(listing.List.generate_kwargs(prefix, show=show))
 
         if generator:
-            return listing.PagePropertyGenerator(
-                self, 'categories', 'cl', **kwargs
-            )
+            return listing.PagePropertyGenerator(self, "categories", "cl", **kwargs)
         else:
             # TODO: return sortkey if wanted
-            return listing.PageProperty(
-                self, 'categories', 'cl', return_values='title', **kwargs
-            )
+            return listing.PageProperty(self, "categories", "cl", return_values="title", **kwargs)
 
-    def embeddedin(self, namespace=None, filterredir='all', limit=None, generator=True,
-                   max_items=None, api_chunk_size=None):
+    def embeddedin(
+        self, namespace=None, filterredir="all", limit=None, generator=True, max_items=None, api_chunk_size=None
+    ):
         """List pages that transclude the current page.
 
         API doc: https://www.mediawiki.org/wiki/API:Embeddedin
@@ -410,14 +410,18 @@ class Page:
             listings.List: Page iterator
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        prefix = listing.List.get_prefix('ei', generator)
-        kwargs = dict(listing.List.generate_kwargs(prefix, namespace=namespace,
-                                                            filterredir=filterredir))
-        kwargs[prefix + 'title'] = self.name
+        prefix = listing.List.get_prefix("ei", generator)
+        kwargs = dict(listing.List.generate_kwargs(prefix, namespace=namespace, filterredir=filterredir))
+        kwargs[prefix + "title"] = self.name
 
         return listing.List.get_list(generator)(
-            self.site, 'embeddedin', 'ei', max_items=max_items,
-            api_chunk_size=api_chunk_size, return_values='title', **kwargs
+            self.site,
+            "embeddedin",
+            "ei",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            return_values="title",
+            **kwargs,
         )
 
     def extlinks(self):
@@ -426,7 +430,7 @@ class Page:
         API doc: https://www.mediawiki.org/wiki/API:Extlinks
 
         """
-        return listing.PageProperty(self, 'extlinks', 'el', return_values='*')
+        return listing.PageProperty(self, "extlinks", "el", return_values="*")
 
     def images(self, generator=True):
         """List files/images embedded in the current page.
@@ -435,10 +439,9 @@ class Page:
 
         """
         if generator:
-            return listing.PagePropertyGenerator(self, 'images', '')
+            return listing.PagePropertyGenerator(self, "images", "")
         else:
-            return listing.PageProperty(self, 'images', '',
-                                                 return_values='title')
+            return listing.PageProperty(self, "images", "", return_values="title")
 
     def iwlinks(self):
         """List interwiki links from the current page.
@@ -446,8 +449,7 @@ class Page:
         API doc: https://www.mediawiki.org/wiki/API:Iwlinks
 
         """
-        return listing.PageProperty(self, 'iwlinks', 'iw',
-                                             return_values=('prefix', '*'))
+        return listing.PageProperty(self, "iwlinks", "iw", return_values=("prefix", "*"))
 
     def langlinks(self, **kwargs):
         """List interlanguage links from the current page.
@@ -455,9 +457,7 @@ class Page:
         API doc: https://www.mediawiki.org/wiki/API:Langlinks
 
         """
-        return listing.PageProperty(self, 'langlinks', 'll',
-                                             return_values=('lang', '*'),
-                                             **kwargs)
+        return listing.PageProperty(self, "langlinks", "ll", return_values=("lang", "*"), **kwargs)
 
     def links(self, namespace=None, generator=True, redirects=False):
         """List links to other pages from the current page.
@@ -465,23 +465,35 @@ class Page:
         API doc: https://www.mediawiki.org/wiki/API:Links
 
         """
-        prefix = listing.List.get_prefix('pl', generator)
+        prefix = listing.List.get_prefix("pl", generator)
         kwargs = dict(listing.List.generate_kwargs(prefix, namespace=namespace))
 
         if redirects:
-            kwargs['redirects'] = '1'
+            kwargs["redirects"] = "1"
         if generator:
-            return listing.PagePropertyGenerator(self, 'links', 'pl', **kwargs)
+            return listing.PagePropertyGenerator(self, "links", "pl", **kwargs)
         else:
-            return listing.PageProperty(self, 'links', 'pl',
-                                                 return_values='title', **kwargs)
+            return listing.PageProperty(self, "links", "pl", return_values="title", **kwargs)
 
-    def revisions(self, startid=None, endid=None, start=None, end=None,
-                  dir='older', user=None, excludeuser=None, limit=None,
-                  prop='ids|timestamp|flags|comment|user',
-                  expandtemplates=False, section=None,
-                  diffto=None, slots=None, uselang=None, max_items=None,
-                  api_chunk_size=50):
+    def revisions(
+        self,
+        startid=None,
+        endid=None,
+        start=None,
+        end=None,
+        dir="older",
+        user=None,
+        excludeuser=None,
+        limit=None,
+        prop="ids|timestamp|flags|comment|user",
+        expandtemplates=False,
+        section=None,
+        diffto=None,
+        slots=None,
+        uselang=None,
+        max_items=None,
+        api_chunk_size=50,
+    ):
         """List revisions of the current page.
 
         API doc: https://www.mediawiki.org/wiki/API:Revisions
@@ -512,27 +524,35 @@ class Page:
             listings.List: Revision iterator
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs(
-            'rv', startid=startid, endid=endid, start=start, end=end, user=user,
-            excludeuser=excludeuser, diffto=diffto, slots=slots
-        ))
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                "rv",
+                startid=startid,
+                endid=endid,
+                start=start,
+                end=end,
+                user=user,
+                excludeuser=excludeuser,
+                diffto=diffto,
+                slots=slots,
+            )
+        )
 
-        if self.site.version[:2] < (1, 32) and 'rvslots' in kwargs:
+        if self.site.version[:2] < (1, 32) and "rvslots" in kwargs:
             # https://github.com/mwclient/mwclient/issues/199
-            del kwargs['rvslots']
+            del kwargs["rvslots"]
 
-        kwargs['rvdir'] = dir
-        kwargs['rvprop'] = prop
-        kwargs['uselang'] = uselang
+        kwargs["rvdir"] = dir
+        kwargs["rvprop"] = prop
+        kwargs["uselang"] = uselang
         if expandtemplates:
-            kwargs['rvexpandtemplates'] = '1'
+            kwargs["rvexpandtemplates"] = "1"
         if section is not None:
-            kwargs['rvsection'] = section
+            kwargs["rvsection"] = section
 
-        return listing.RevisionsIterator(self, 'revisions', 'rv',
-                                                  max_items=max_items,
-                                                  api_chunk_size=api_chunk_size,
-                                                  **kwargs)
+        return listing.RevisionsIterator(
+            self, "revisions", "rv", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+        )
 
     def templates(self, namespace=None, generator=True):
         """List templates used on the current page.
@@ -540,11 +560,9 @@ class Page:
         API doc: https://www.mediawiki.org/wiki/API:Templates
 
         """
-        prefix = listing.List.get_prefix('tl', generator)
+        prefix = listing.List.get_prefix("tl", generator)
         kwargs = dict(listing.List.generate_kwargs(prefix, namespace=namespace))
         if generator:
-            return listing.PagePropertyGenerator(self, 'templates', prefix,
-                                                          **kwargs)
+            return listing.PagePropertyGenerator(self, "templates", prefix, **kwargs)
         else:
-            return listing.PageProperty(self, 'templates', prefix,
-                                                 return_values='title', **kwargs)
+            return listing.PageProperty(self, "templates", prefix, return_values="title", **kwargs)

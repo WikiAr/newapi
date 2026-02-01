@@ -1,25 +1,23 @@
-import warnings
+import json
 import logging
-
+import warnings
 from collections import OrderedDict
 
-import json
 import requests
-from requests.auth import HTTPBasicAuth, AuthBase
+from requests.auth import AuthBase, HTTPBasicAuth
 from requests_oauthlib import OAuth1
 
-from . import errors
-from . import listing
-# from .sleep import Sleepers
-from .util import parse_timestamp, read_in_chunks, handle_limit
 from ..Login_db.bot import log_one
+from . import errors, listing
 
-__version__ = '0.11.0'
+# from .sleep import Sleepers
+from .util import handle_limit, parse_timestamp, read_in_chunks
+
+__version__ = "0.11.0"
 
 log = logging.getLogger(__name__)
 
-USER_AGENT = 'mwclient/{} ({})'.format(__version__,
-                                       'https://github.com/mwclient/mwclient')
+USER_AGENT = "mwclient/{} ({})".format(__version__, "https://github.com/mwclient/mwclient")
 
 
 class Site:
@@ -88,14 +86,34 @@ class Site:
             (where e is the exception object) and will be one of the API:Login errors. The
             most common error code is "Failed", indicating a wrong username or password.
     """
+
     api_limit = 500
 
-    def __init__(self, host, path='/w/', ext='.php', pool=None, retry_timeout=30,
-                 max_retries=25, wait_callback=lambda *x: None, clients_useragent=None,
-                 max_lag=3, compress=True, force_login=True, do_init=True, httpauth=None,
-                 connection_options=None, consumer_token=None, consumer_secret=None,
-                 access_token=None, access_secret=None, client_certificate=None,
-                 custom_headers=None, scheme='https', reqs=None):
+    def __init__(
+        self,
+        host,
+        path="/w/",
+        ext=".php",
+        pool=None,
+        retry_timeout=30,
+        max_retries=25,
+        wait_callback=lambda *x: None,
+        clients_useragent=None,
+        max_lag=3,
+        compress=True,
+        force_login=True,
+        do_init=True,
+        httpauth=None,
+        connection_options=None,
+        consumer_token=None,
+        consumer_secret=None,
+        access_token=None,
+        access_secret=None,
+        client_certificate=None,
+        custom_headers=None,
+        scheme="https",
+        reqs=None,
+    ):
         # Setup member variables
         self.host = host
         self.path = path
@@ -106,19 +124,14 @@ class Site:
         self.max_lag = str(max_lag)
         self.force_login = force_login
         if reqs and connection_options:
-            print(ValueError(
-                "reqs is a deprecated alias of connection_options. Do not specify both."
-            ))
+            print(ValueError("reqs is a deprecated alias of connection_options. Do not specify both."))
         if reqs:
-            warnings.warn(
-                "reqs is deprecated in mwclient 1.0.0. Use connection_options instead",
-                DeprecationWarning
-            )
+            warnings.warn("reqs is deprecated in mwclient 1.0.0. Use connection_options instead", DeprecationWarning)
             connection_options = reqs
         self.requests = connection_options or {}
         self.scheme = scheme
-        if 'timeout' not in self.requests:
-            self.requests['timeout'] = 30  # seconds
+        if "timeout" not in self.requests:
+            self.requests["timeout"] = 30  # seconds
 
         if consumer_token is not None:
             auth = OAuth1(consumer_token, consumer_secret, access_token, access_secret)
@@ -126,24 +139,22 @@ class Site:
             # workaround weird requests default to encode as latin-1
             # https://github.com/mwclient/mwclient/issues/315
             # https://github.com/psf/requests/issues/4564
-            httpauth = [
-                it.encode("utf-8") if isinstance(it, str) else it for it in httpauth
-            ]
+            httpauth = [it.encode("utf-8") if isinstance(it, str) else it for it in httpauth]
             auth = HTTPBasicAuth(*httpauth)
         elif httpauth is None or isinstance(httpauth, (AuthBase,)):
             auth = httpauth
         else:
             # FIXME: Raise a specific exception instead of a generic RuntimeError.
-            print(RuntimeError('Authentication is not a tuple or an instance of AuthBase'))
+            print(RuntimeError("Authentication is not a tuple or an instance of AuthBase"))
 
         # self.sleepers = Sleepers(max_retries, retry_timeout, wait_callback)
 
         # Site properties
-        self.blocked = False    # Whether current user is blocked
+        self.blocked = False  # Whether current user is blocked
         self.hasmsg = False  # Whether current user has new messages
-        self.groups = []    # Groups current user belongs to
-        self.rights = []    # Rights current user has
-        self.tokens = {}    # Edit tokens of the current user
+        self.groups = []  # Groups current user belongs to
+        self.rights = []  # Rights current user has
+        self.tokens = {}  # Edit tokens of the current user
         self.version = None
 
         self.namespaces = self.default_namespaces
@@ -157,10 +168,10 @@ class Site:
 
             # Set User-Agent header field
             if clients_useragent:
-                ua = clients_useragent + ' ' + USER_AGENT
+                ua = clients_useragent + " " + USER_AGENT
             else:
                 ua = USER_AGENT
-            self.connection.headers['User-Agent'] = ua
+            self.connection.headers["User-Agent"] = ua
 
             if custom_headers:
                 self.connection.headers.update(custom_headers)
@@ -187,11 +198,11 @@ class Site:
             try:
                 self.site_init()
             except errors.APIError as e:
-                if e.args[0] == 'mwoauth-invalid-authorization':
+                if e.args[0] == "mwoauth-invalid-authorization":
                     print(errors.OAuthAuthorizationError(self, e.code, e.info))
 
                 # Private wiki, do init after login
-                if e.args[0] not in {'unknown_action', 'readapidenied'}:
+                if e.args[0] not in {"unknown_action", "readapidenied"}:
                     # raise
                     print("raise")
 
@@ -201,39 +212,38 @@ class Site:
         `do_init=False` constructor argument."""
 
         if self.initialized:
-            info = self.get('query', meta='userinfo', uiprop='groups|rights')
-            userinfo = info['query']['userinfo']
-            self.username = userinfo['name']
-            self.groups = userinfo.get('groups', [])
-            self.rights = userinfo.get('rights', [])
+            info = self.get("query", meta="userinfo", uiprop="groups|rights")
+            userinfo = info["query"]["userinfo"]
+            self.username = userinfo["name"]
+            self.groups = userinfo.get("groups", [])
+            self.rights = userinfo.get("rights", [])
             self.tokens = {}
             return
 
-        meta = self.get('query', meta='siteinfo|userinfo',
-                        siprop='general|namespaces', uiprop='groups|rights',
-                        retry_on_error=False)
+        meta = self.get(
+            "query", meta="siteinfo|userinfo", siprop="general|namespaces", uiprop="groups|rights", retry_on_error=False
+        )
 
         # Extract site info
-        self.site = meta['query']['general']
+        self.site = meta["query"]["general"]
         self.namespaces = {
-            namespace['id']: namespace.get('*', '')
-            for namespace in meta['query']['namespaces'].values()
+            namespace["id"]: namespace.get("*", "") for namespace in meta["query"]["namespaces"].values()
         }
 
-        self.version = self.version_tuple_from_generator(self.site['generator'])
+        self.version = self.version_tuple_from_generator(self.site["generator"])
 
         # Require MediaWiki version >= 1.16
         self.require(1, 16)
 
         # User info
-        userinfo = meta['query']['userinfo']
-        self.username = userinfo['name']
-        self.groups = userinfo.get('groups', [])
-        self.rights = userinfo.get('rights', [])
+        userinfo = meta["query"]["userinfo"]
+        self.username = userinfo["name"]
+        self.groups = userinfo.get("groups", [])
+        self.rights = userinfo.get("rights", [])
         self.initialized = True
 
     @staticmethod
-    def version_tuple_from_generator(string, prefix='MediaWiki '):
+    def version_tuple_from_generator(string, prefix="MediaWiki "):
         """Return a version tuple from a MediaWiki Generator string.
 
         Example:
@@ -248,9 +258,9 @@ class Site:
             A tuple containing the individual elements of the given version number.
         """
         if not string.startswith(prefix):
-            print(errors.MediaWikiVersionError('Unknown generator {}'.format(string)))
+            print(errors.MediaWikiVersionError("Unknown generator {}".format(string)))
 
-        version = string[len(prefix):].split('.')
+        version = string[len(prefix) :].split(".")
 
         def split_num(s):
             """Split the string on the first non-digit character.
@@ -261,28 +271,43 @@ class Site:
             """
             i = 0
             while i < len(s):
-                if s[i] < '0' or s[i] > '9':
+                if s[i] < "0" or s[i] > "9":
                     break
                 i += 1
             if s[i:]:
-                return (int(s[:i]), s[i:], )
+                return (
+                    int(s[:i]),
+                    s[i:],
+                )
             else:
-                return (int(s[:i]), )
+                return (int(s[:i]),)
 
         version_tuple = sum((split_num(s) for s in version), ())
 
         if len(version_tuple) < 2:
-            print(errors.MediaWikiVersionError('Unknown MediaWiki {}'
-                                               .format('.'.join(version))))
+            print(errors.MediaWikiVersionError("Unknown MediaWiki {}".format(".".join(version))))
 
         return version_tuple
 
     default_namespaces = {
-        0: '', 1: 'Talk', 2: 'User', 3: 'User talk', 4: 'Project',
-        5: 'Project talk', 6: 'Image', 7: 'Image talk', 8: 'MediaWiki',
-        9: 'MediaWiki talk', 10: 'Template', 11: 'Template talk', 12: 'Help',
-        13: 'Help talk', 14: 'Category', 15: 'Category talk',
-        -1: 'Special', -2: 'Media'
+        0: "",
+        1: "Talk",
+        2: "User",
+        3: "User talk",
+        4: "Project",
+        5: "Project talk",
+        6: "Image",
+        7: "Image talk",
+        8: "MediaWiki",
+        9: "MediaWiki talk",
+        10: "Template",
+        11: "Template talk",
+        12: "Help",
+        13: "Help talk",
+        14: "Category",
+        15: "Category talk",
+        -1: "Special",
+        -2: "Media",
     }
 
     def __repr__(self):
@@ -300,7 +325,7 @@ class Site:
         Returns:
             The raw response from the API call, as a dictionary.
         """
-        return self.api(action, 'GET', *args, **kwargs)
+        return self.api(action, "GET", *args, **kwargs)
 
     def post(self, action, *args, **kwargs):
         """Perform a generic API call using POST.
@@ -314,9 +339,9 @@ class Site:
         Returns:
             The raw response from the API call, as a dictionary.
         """
-        return self.api(action, 'POST', *args, **kwargs)
+        return self.api(action, "POST", *args, **kwargs)
 
-    def api(self, action, http_method='POST', *args, **kwargs):
+    def api(self, action, http_method="POST", *args, **kwargs):
         """Perform a generic API call and handle errors.
 
         All arguments will be passed on.
@@ -343,17 +368,17 @@ class Site:
         """
         kwargs.update(args)
 
-        if action == 'query' and 'continue' not in kwargs:
-            kwargs['continue'] = ''
-        if action == 'query':
-            if 'meta' in kwargs:
-                kwargs['meta'] += '|userinfo'
+        if action == "query" and "continue" not in kwargs:
+            kwargs["continue"] = ""
+        if action == "query":
+            if "meta" in kwargs:
+                kwargs["meta"] += "|userinfo"
             else:
-                kwargs['meta'] = 'userinfo'
-            if 'uiprop' in kwargs:
-                kwargs['uiprop'] += '|blockinfo|hasmsg'
+                kwargs["meta"] = "userinfo"
+            if "uiprop" in kwargs:
+                kwargs["uiprop"] += "|blockinfo|hasmsg"
             else:
-                kwargs['uiprop'] = 'blockinfo|hasmsg'
+                kwargs["uiprop"] = "blockinfo|hasmsg"
 
         # sleeper = self.sleepers.make()
 
@@ -362,7 +387,7 @@ class Site:
         if not info:
             info = {}
         # if self.handle_api_result(info, sleeper=sleeper):
-        self.handle_api_result(info)#, sleeper=sleeper
+        self.handle_api_result(info)  # , sleeper=sleeper
         return info
 
     def log_error(self, result, action, params=None) -> None:
@@ -386,59 +411,50 @@ class Site:
         # if sleeper is None: sleeper = self.sleepers.make()
 
         try:
-            userinfo = info['query']['userinfo']
+            userinfo = info["query"]["userinfo"]
         except KeyError:
             userinfo = ()
-        if 'blockedby' in userinfo:
-            self.blocked = (userinfo['blockedby'], userinfo.get('blockreason', ''))
+        if "blockedby" in userinfo:
+            self.blocked = (userinfo["blockedby"], userinfo.get("blockreason", ""))
         else:
             self.blocked = False
-        self.hasmsg = 'messages' in userinfo
-        self.logged_in = 'anon' not in userinfo and 'temp' not in userinfo
-        if 'warnings' in info:
-            for module, warning in info['warnings'].items():
-                if '*' in warning:
-                    log.warning(warning['*'])
+        self.hasmsg = "messages" in userinfo
+        self.logged_in = "anon" not in userinfo and "temp" not in userinfo
+        if "warnings" in info:
+            for module, warning in info["warnings"].items():
+                if "*" in warning:
+                    log.warning(warning["*"])
 
-        if 'error' in info:
-            if info['error'].get('code') in {'internal_api_error_DBConnectionError',
-                                             'internal_api_error_DBQueryError'}:
+        if "error" in info:
+            if info["error"].get("code") in {"internal_api_error_DBConnectionError", "internal_api_error_DBQueryError"}:
                 # sleeper.sleep()
                 return False
 
             # cope with https://phabricator.wikimedia.org/T106066
-            if (
-                info['error'].get('code') == 'mwoauth-invalid-authorization'
-                and 'Nonce already used' in info['error'].get('info')
-            ):
-                log.warning('Retrying due to nonce error, see'
-                            'https://phabricator.wikimedia.org/T106066')
+            if info["error"].get("code") == "mwoauth-invalid-authorization" and "Nonce already used" in info[
+                "error"
+            ].get("info"):
+                log.warning("Retrying due to nonce error, see" "https://phabricator.wikimedia.org/T106066")
                 # sleeper.sleep()
                 return False
 
-            if 'query' in info['error']:
+            if "query" in info["error"]:
                 # Semantic Mediawiki does not follow the standard error format
-                print(errors.APIError(None, info['error']['query'], kwargs))
+                print(errors.APIError(None, info["error"]["query"], kwargs))
 
-            if '*' in info['error']:
-                print(errors.APIError(info['error']['code'],
-                                      info['error']['info'], info['error']['*']))
-            print(errors.APIError(info['error']['code'],
-                                  info['error']['info'], kwargs))
+            if "*" in info["error"]:
+                print(errors.APIError(info["error"]["code"], info["error"]["info"], info["error"]["*"]))
+            print(errors.APIError(info["error"]["code"], info["error"]["info"], kwargs))
         return True
 
     @staticmethod
     def _query_string(*args, **kwargs):
         kwargs.update(args)
-        qs1 = [
-            (k, v) for k, v in kwargs.items() if k not in {'wpEditToken', 'token'}
-        ]
-        qs2 = [
-            (k, v) for k, v in kwargs.items() if k in {'wpEditToken', 'token'}
-        ]
+        qs1 = [(k, v) for k, v in kwargs.items() if k not in {"wpEditToken", "token"}]
+        qs2 = [(k, v) for k, v in kwargs.items() if k in {"wpEditToken", "token"}]
         return OrderedDict(qs1 + qs2)
 
-    def raw_call(self, script, data, files=None, retry_on_error=True, http_method='POST'):
+    def raw_call(self, script, data, files=None, retry_on_error=True, http_method="POST"):
         """
         Perform a generic request and return the raw text.
 
@@ -471,40 +487,39 @@ class Site:
         """
         headers = {}
         if self.compress:
-            headers['Accept-Encoding'] = 'gzip'
+            headers["Accept-Encoding"] = "gzip"
         # sleeper = self.sleepers.make((script, data))
 
         scheme = self.scheme
         host = self.host
         if isinstance(host, (list, tuple)):
             warnings.warn(
-                'Specifying host as a tuple is deprecated as of mwclient 0.10.1. '
-                + 'Please use the new scheme argument instead.',
-                DeprecationWarning
+                "Specifying host as a tuple is deprecated as of mwclient 0.10.1. "
+                + "Please use the new scheme argument instead.",
+                DeprecationWarning,
             )
             scheme, host = host
 
-        url = '{scheme}://{host}{path}{script}{ext}'.format(scheme=scheme, host=host,
-                                                            path=self.path, script=script,
-                                                            ext=self.ext)
+        url = "{scheme}://{host}{path}{script}{ext}".format(
+            scheme=scheme, host=host, path=self.path, script=script, ext=self.ext
+        )
 
         # while True:
         toraise = None
         wait_time = 0
-        args = {'files': files, 'headers': headers}
+        args = {"files": files, "headers": headers}
         for k, v in self.requests.items():
             args[k] = v
-        if http_method == 'GET':
-            args['params'] = data
+        if http_method == "GET":
+            args["params"] = data
         else:
-            args['data'] = data
-        maxlag = data.get('maxlag', self.max_lag)
+            args["data"] = data
+        maxlag = data.get("maxlag", self.max_lag)
         try:
             stream = self.connection.request(http_method, url, **args)
-            if stream.headers.get('x-database-lag'):
-                wait_time = int(stream.headers.get('retry-after'))
-                log.warning('Database lag exceeds max lag. '
-                            f'Waiting for {wait_time} seconds, maxlag:{maxlag}')
+            if stream.headers.get("x-database-lag"):
+                wait_time = int(stream.headers.get("retry-after"))
+                log.warning("Database lag exceeds max lag. " f"Waiting for {wait_time} seconds, maxlag:{maxlag}")
                 # fall through to the sleep
             elif stream.status_code == 200:
                 return stream.text
@@ -513,25 +528,22 @@ class Site:
             else:
                 if not retry_on_error:
                     stream.raise_for_status()
-                log.warning('Received {status} response: {text}. '
-                            'Retrying in a moment.'
-                            .format(status=stream.status_code,
-                                    text=stream.text))
+                log.warning(
+                    "Received {status} response: {text}. "
+                    "Retrying in a moment.".format(status=stream.status_code, text=stream.text)
+                )
                 toraise = "stream"
                 # fall through to the sleep
             return stream.text
 
-        except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout
-        ) as err:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as err:
             # In the event of a network problem
             # (e.g. DNS failure, refused connection, etc),
             # Requests will raise a ConnectionError exception.
             if not retry_on_error:
                 print("raise")
             print(err)
-            log.warning('Connection error. Retrying in a moment.')
+            log.warning("Connection error. Retrying in a moment.")
             toraise = err
             # proceed to the sleep
 
@@ -547,7 +559,7 @@ class Site:
             else:
                 print("raise")
 
-    def raw_api(self, action, http_method='POST', retry_on_error=True, *args, **kwargs):
+    def raw_api(self, action, http_method="POST", retry_on_error=True, *args, **kwargs):
         """Send a call to the API.
 
         Args:
@@ -572,11 +584,10 @@ class Site:
                 performing the API request.
             requests.exceptions.Timeout: The API request timed out.
         """
-        kwargs['action'] = action
-        kwargs['format'] = 'json'
+        kwargs["action"] = action
+        kwargs["format"] = "json"
         data = self._query_string(*args, **kwargs)
-        res = self.raw_call('api', data, retry_on_error=retry_on_error,
-                            http_method=http_method)
+        res = self.raw_call("api", data, retry_on_error=retry_on_error, http_method=http_method)
         try:
             # data = json.loads(res, object_pairs_hook=OrderedDict)
             data2 = json.loads(res)
@@ -588,11 +599,11 @@ class Site:
         except ValueError:
             self.log_error("ValueError", action, params=data)
             # ---
-            if res.startswith('MediaWiki API is not enabled for this site.'):
+            if res.startswith("MediaWiki API is not enabled for this site."):
                 print(errors.APIDisabledError)
             print(errors.InvalidResponse(res))
 
-    def raw_index(self, action, http_method='POST', *args, **kwargs):
+    def raw_index(self, action, http_method="POST", *args, **kwargs):
         """Sends a call to index.php rather than the API.
 
         Args:
@@ -614,11 +625,11 @@ class Site:
                 performing the API request.
             requests.exceptions.Timeout: The API request timed out.
         """
-        kwargs['action'] = action
+        kwargs["action"] = action
         data = self._query_string(*args, **kwargs)
-        if not data.get('maxlag'):
-            data['maxlag'] = self.max_lag
-        return self.raw_call('index', data, http_method=http_method)
+        if not data.get("maxlag"):
+            data["maxlag"] = self.max_lag
+        return self.raw_call("index", data, http_method=http_method)
 
     def require(self, major, minor, revision=None, raise_error=True):
         """Check whether the current wiki matches the required version.
@@ -650,17 +661,19 @@ class Site:
             if raise_error is None:
                 return
             # FIXME: Replace this with a specific error
-            print(RuntimeError('Site %s has not yet been initialized' % repr(self)))
+            print(RuntimeError("Site %s has not yet been initialized" % repr(self)))
 
         if revision is None:
             if self.version[:2] >= (major, minor):
                 return True
             elif raise_error:
-                print(errors.MediaWikiVersionError(
-                    'Requires version {required[0]}.{required[1]}, '
-                    'current version is {current[0]}.{current[1]}'
-                    .format(required=(major, minor),
-                            current=(self.version[:2])))
+                print(
+                    errors.MediaWikiVersionError(
+                        "Requires version {required[0]}.{required[1]}, "
+                        "current version is {current[0]}.{current[1]}".format(
+                            required=(major, minor), current=(self.version[:2])
+                        )
+                    )
                 )
             else:
                 return False
@@ -691,13 +704,12 @@ class Site:
             EmailError (mwclient.errors.EmailError): Other email errors
         """
 
-        token = self.get_token('email')
+        token = self.get_token("email")
 
         try:
-            info = self.post('emailuser', target=user, subject=subject,
-                             text=text, ccme=cc, token=token)
+            info = self.post("emailuser", target=user, subject=subject, text=text, ccme=cc, token=token)
         except errors.APIError as e:
-            if e.args[0] == 'noemail':
+            if e.args[0] == "noemail":
                 print(errors.NoSpecifiedEmail(user, e.args[1]))
             print(errors.EmailError(*e))
 
@@ -749,40 +761,35 @@ class Site:
 
         if self.credentials:
             # sleeper = self.sleepers.make()
-            kwargs = {
-                'lgname': self.credentials[0],
-                'lgpassword': self.credentials[1]
-            }
+            kwargs = {"lgname": self.credentials[0], "lgpassword": self.credentials[1]}
             if self.credentials[2]:
-                kwargs['lgdomain'] = self.credentials[2]
+                kwargs["lgdomain"] = self.credentials[2]
 
             # Try to login using the scheme for MW 1.27+. If the wiki is read protected,
             # it is not possible to get the wiki version upfront using the API, so we just
             # have to try. If the attempt fails, we try the old method.
             try:
-                kwargs['lgtoken'] = self.get_token('login')
+                kwargs["lgtoken"] = self.get_token("login")
             except (errors.APIError, KeyError):
-                log.debug('Failed to get login token, MediaWiki is older than 1.27.')
-
+                log.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
             # while True:
-            login = self.post('login', **kwargs)
+            login = self.post("login", **kwargs)
 
-            if login['login']['result'] == 'Success':
-                login_result = 'Success'
+            if login["login"]["result"] == "Success":
+                login_result = "Success"
                 # break
-            elif login['login']['result'] == 'NeedToken':
-                login_result = 'NeedToken'
-                kwargs['lgtoken'] = login['login']['token']
-            elif login['login']['result'] == 'Throttled':
-                login_result = 'Throttled'
-                so = int(login['login'].get('wait', 5))
+            elif login["login"]["result"] == "NeedToken":
+                login_result = "NeedToken"
+                kwargs["lgtoken"] = login["login"]["token"]
+            elif login["login"]["result"] == "Throttled":
+                login_result = "Throttled"
+                so = int(login["login"].get("wait", 5))
                 # sleeper.sleep(so)
                 print(f"so: {so}")
             else:
-                login_result = login['login']['result']
-                print(errors.LoginError(self, login['login']['result'],
-                                        login['login']['reason']))
+                login_result = login["login"]["result"]
+                print(errors.LoginError(self, login["login"]["result"], login["login"]["reason"]))
 
         self.site_init()
 
@@ -836,26 +843,25 @@ class Site:
             # Try to login using the scheme for MW 1.27+. If the wiki is read protected,
             # it is not possible to get the wiki version upfront using the API, so we just
             # have to try. If the attempt fails, we try the old method.
-            if 'logintoken' not in kwargs:
+            if "logintoken" not in kwargs:
                 try:
-                    kwargs['logintoken'] = self.get_token('login')
+                    kwargs["logintoken"] = self.get_token("login")
                 except (errors.APIError, KeyError):
-                    log.debug('Failed to get login token, MediaWiki is older than 1.27.')
+                    log.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
-            if 'logincontinue' not in kwargs and 'loginreturnurl' not in kwargs:
+            if "logincontinue" not in kwargs and "loginreturnurl" not in kwargs:
                 # should be great if API didn't require this...
-                kwargs['loginreturnurl'] = '%s://%s' % (self.scheme, self.host)
+                kwargs["loginreturnurl"] = "%s://%s" % (self.scheme, self.host)
 
             # while True:
-            login = self.post('clientlogin', **kwargs)
-            status = login['clientlogin'].get('status')
-            if status == 'PASS':
+            login = self.post("clientlogin", **kwargs)
+            status = login["clientlogin"].get("status")
+            if status == "PASS":
                 return True
-            elif status in ('UI', 'REDIRECT'):
-                return login['clientlogin']
+            elif status in ("UI", "REDIRECT"):
+                return login["clientlogin"]
             else:
-                print(errors.LoginError(self, status,
-                                        login['clientlogin'].get('message')))
+                print(errors.LoginError(self, status, login["clientlogin"].get("message")))
 
     def get_token(self, type, force=False, title=None):
         """Request a MediaWiki access token of the given `type`.
@@ -876,41 +882,49 @@ class Site:
         if self.version is None or self.version[:2] >= (1, 24):
             # The 'csrf' (cross-site request forgery) token introduced in 1.24 replaces
             # the majority of older tokens, like edittoken and movetoken.
-            if type not in {'watch', 'patrol', 'rollback', 'userrights', 'login'}:
-                type = 'csrf'
+            if type not in {"watch", "patrol", "rollback", "userrights", "login"}:
+                type = "csrf"
 
         if type not in self.tokens:
-            self.tokens[type] = '0'
+            self.tokens[type] = "0"
 
-        if self.tokens.get(type, '0') == '0' or force:
+        if self.tokens.get(type, "0") == "0" or force:
 
             if self.version is None or self.version[:2] >= (1, 24):
                 # We use raw_api() rather than api() because api() is adding "userinfo"
                 # to the query and this raises a readapideniederror if the wiki is read
                 # protected, and we're trying to fetch a login token.
-                info = self.raw_api('query', 'GET', meta='tokens', type=type)
+                info = self.raw_api("query", "GET", meta="tokens", type=type)
 
                 self.handle_api_result(info)
 
                 # Note that for read protected wikis, we don't know the version when
                 # fetching the login token. If it's < 1.27, the request below will
                 # raise a KeyError that we should catch.
-                self.tokens[type] = info['query']['tokens']['%stoken' % type]
+                self.tokens[type] = info["query"]["tokens"]["%stoken" % type]
 
             else:
                 if title is None:
                     # Some dummy title was needed to get a token prior to 1.24
-                    title = 'Test'
-                info = self.post('query', titles=title,
-                                 prop='info', intoken=type)
-                for i in info['query']['pages'].values():
-                    if i['title'] == title:
-                        self.tokens[type] = i['%stoken' % type]
+                    title = "Test"
+                info = self.post("query", titles=title, prop="info", intoken=type)
+                for i in info["query"]["pages"].values():
+                    if i["title"] == title:
+                        self.tokens[type] = i["%stoken" % type]
 
         return self.tokens[type]
 
-    def upload(self, file=None, filename=None, description='', ignore=False,
-               file_size=None, url=None, filekey=None, comment=None):
+    def upload(
+        self,
+        file=None,
+        filename=None,
+        description="",
+        ignore=False,
+        file_size=None,
+        url=None,
+        filekey=None,
+        comment=None,
+    ):
         """Upload a file to the site.
 
         Note that one of `file`, `filekey` and `url` must be specified, but not
@@ -945,21 +959,16 @@ class Site:
 
         if file_size is not None:
             # Note that DeprecationWarning is hidden by default since Python 2.7
-            warnings.warn(
-                'file_size is deprecated since mwclient 0.7',
-                DeprecationWarning
-            )
+            warnings.warn("file_size is deprecated since mwclient 0.7", DeprecationWarning)
 
         if filename is None:
-            print(TypeError('filename must be specified'))
+            print(TypeError("filename must be specified"))
 
         if len([x for x in [file, filekey, url] if x is not None]) != 1:
-            print(TypeError(
-                "exactly one of 'file', 'filekey' and 'url' must be specified"
-            ))
+            print(TypeError("exactly one of 'file', 'filekey' and 'url' must be specified"))
 
         image = self.Images[filename]
-        if not image.can('upload'):
+        if not image.can("upload"):
             print(errors.InsufficientPermission(filename))
 
         if comment is None:
@@ -970,8 +979,8 @@ class Site:
             text = description
 
         if file is not None:
-            if not hasattr(file, 'read'):
-                file = open(file, 'rb')
+            if not hasattr(file, "read"):
+                file = open(file, "rb")
 
             content_size = file.seek(0, 2)
             file.seek(0)
@@ -980,25 +989,25 @@ class Site:
                 return self.chunk_upload(file, filename, ignore, comment, text)
 
         predata = {
-            'action': 'upload',
-            'format': 'json',
-            'filename': filename,
-            'comment': comment,
-            'text': text,
-            'token': image.get_token('edit'),
+            "action": "upload",
+            "format": "json",
+            "filename": filename,
+            "comment": comment,
+            "text": text,
+            "token": image.get_token("edit"),
         }
 
         if ignore:
-            predata['ignorewarnings'] = 'true'
+            predata["ignorewarnings"] = "true"
         if url:
-            predata['url'] = url
+            predata["url"] = url
 
         # sessionkey was renamed to filekey in MediaWiki 1.18
         # https://phabricator.wikimedia.org/rMW5f13517e36b45342f228f3de4298bb0fe186995d
         if self.version[:2] < (1, 18):
-            predata['sessionkey'] = filekey
+            predata["sessionkey"] = filekey
         else:
-            predata['filekey'] = filekey
+            predata["filekey"] = filekey
 
         postdata = predata
         files = None
@@ -1009,25 +1018,27 @@ class Site:
             # Since the filename in Content-Disposition is not interpreted,
             # we can send some ascii-only dummy name rather than the real
             # filename, which might contain non-ascii.
-            files = {'file': ('fake-filename', file)}
+            files = {"file": ("fake-filename", file)}
 
         # sleeper = self.sleepers.make()
         # while True:
-        data = self.raw_call('api', postdata, files)
+        data = self.raw_call("api", postdata, files)
         info = json.loads(data)
         if not info:
             info = {}
-        if self.handle_api_result(info, kwargs=predata
-            #, sleeper=sleeper
-            ):
-            response = info.get('upload', {})
+        if self.handle_api_result(
+            info,
+            kwargs=predata,
+            # , sleeper=sleeper
+        ):
+            response = info.get("upload", {})
             # Workaround for https://github.com/mwclient/mwclient/issues/211
             # ----------------------------------------------------------------
             # Raise an error if the file already exists. This is necessary because
             # MediaWiki returns a warning, not an error, leading to silent failure.
             # The user must explicitly set ignore=True (ignorewarnings=True) to
             # overwrite an existing file.
-            if ignore is False and 'exists' in response.get('warnings', {}):
+            if ignore is False and "exists" in response.get("warnings", {}):
                 print(errors.FileExists(filename))
             # break
 
@@ -1052,36 +1063,38 @@ class Site:
         file.seek(0)
 
         params = {
-            'action': 'upload',
-            'format': 'json',
-            'stash': 1,
-            'offset': 0,
-            'filename': filename,
-            'filesize': content_size,
-            'token': image.get_token('edit'),
+            "action": "upload",
+            "format": "json",
+            "stash": 1,
+            "offset": 0,
+            "filename": filename,
+            "filesize": content_size,
+            "token": image.get_token("edit"),
         }
         if ignorewarnings:
-            params['ignorewarnings'] = 'true'
+            params["ignorewarnings"] = "true"
 
         # sleeper = self.sleepers.make()
         offset = 0
         for chunk in read_in_chunks(file, self.chunk_size):
             while True:
-                data = self.raw_call('api', params, files={'chunk': chunk})
+                data = self.raw_call("api", params, files={"chunk": chunk})
                 info = json.loads(data)
-                if self.handle_api_result(info, kwargs=params
-                #, sleeper=sleeper
+                if self.handle_api_result(
+                    info,
+                    kwargs=params,
+                    # , sleeper=sleeper
                 ):
-                    response = info.get('upload', {})
+                    response = info.get("upload", {})
                     break
 
             offset += chunk.tell()
             chunk.close()
-            log.debug('%s: Uploaded %d of %d bytes', filename, offset, content_size)
-            params['filekey'] = response['filekey']
-            if response['result'] == 'Continue':
-                params['offset'] = response['offset']
-            elif response['result'] == 'Success':
+            log.debug("%s: Uploaded %d of %d bytes", filename, offset, content_size)
+            params["filekey"] = response["filekey"]
+            if response["result"] == "Continue":
+                params["offset"] = response["offset"]
+            elif response["result"] == "Success":
                 file.close()
                 break
             else:
@@ -1091,15 +1104,14 @@ class Site:
                 file.close()
                 return response
 
-        del params['action']
-        del params['stash']
-        del params['offset']
-        params['comment'] = comment
-        params['text'] = text
-        return self.post('upload', **params)
+        del params["action"]
+        del params["stash"]
+        del params["offset"]
+        params["comment"] = comment
+        params["text"] = text
+        return self.post("upload", **params)
 
-    def parse(self, text=None, title=None, page=None, prop=None,
-              redirects=False, mobileformat=False):
+    def parse(self, text=None, title=None, page=None, prop=None, redirects=False, mobileformat=False):
         """Parses the given content and returns parser output.
 
         Args:
@@ -1119,19 +1131,19 @@ class Site:
         """
         kwargs = {}
         if text is not None:
-            kwargs['text'] = text
+            kwargs["text"] = text
         if title is not None:
-            kwargs['title'] = title
+            kwargs["title"] = title
         if page is not None:
-            kwargs['page'] = page
+            kwargs["page"] = page
         if prop is not None:
-            kwargs['prop'] = prop
+            kwargs["prop"] = prop
         if redirects:
-            kwargs['redirects'] = '1'
+            kwargs["redirects"] = "1"
         if mobileformat:
-            kwargs['mobileformat'] = '1'
-        result = self.post('parse', **kwargs)
-        return result['parse']
+            kwargs["mobileformat"] = "1"
+        result = self.post("parse", **kwargs)
+        return result["parse"]
 
     # def block(self): TODO?
     # def unblock: TODO?
@@ -1167,101 +1179,192 @@ class Site:
             - ``tags`` requires at least MediaWiki 1.27.
         """
         if self.require(1, 17, raise_error=False):
-            token = self.get_token('patrol')
+            token = self.get_token("patrol")
         else:
             # For MediaWiki versions earlier than 1.17, the patrol token is the same the
             # edit token.
-            token = self.get_token('edit')
+            token = self.get_token("edit")
 
-        result = self.post('patrol', rcid=rcid, revid=revid, tags=tags, token=token)
-        return result['patrol']
+        result = self.post("patrol", rcid=rcid, revid=revid, tags=tags, token=token)
+        return result["patrol"]
 
     # Lists
-    def allpages(self, start=None, prefix=None, namespace='0', filterredir='all',
-                 minsize=None, maxsize=None, prtype=None, prlevel=None,
-                 limit=None, dir='ascending', filterlanglinks='all', generator=True,
-                 end=None, max_items=None, api_chunk_size=None):
+    def allpages(
+        self,
+        start=None,
+        prefix=None,
+        namespace="0",
+        filterredir="all",
+        minsize=None,
+        maxsize=None,
+        prtype=None,
+        prlevel=None,
+        limit=None,
+        dir="ascending",
+        filterlanglinks="all",
+        generator=True,
+        end=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve all pages on the wiki as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        pfx = listing.List.get_prefix('ap', generator)
-        kwargs = dict(listing.List.generate_kwargs(
-            pfx, ('from', start), ('to', end), prefix=prefix,
-            minsize=minsize, maxsize=maxsize, prtype=prtype, prlevel=prlevel,
-            namespace=namespace, filterredir=filterredir, dir=dir,
-            filterlanglinks=filterlanglinks,
-        ))
-        return listing.List.get_list(generator)(self, 'allpages', 'ap',
-                                                max_items=max_items,
-                                                api_chunk_size=api_chunk_size,
-                                                return_values='title',
-                                                **kwargs)
+        pfx = listing.List.get_prefix("ap", generator)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                pfx,
+                ("from", start),
+                ("to", end),
+                prefix=prefix,
+                minsize=minsize,
+                maxsize=maxsize,
+                prtype=prtype,
+                prlevel=prlevel,
+                namespace=namespace,
+                filterredir=filterredir,
+                dir=dir,
+                filterlanglinks=filterlanglinks,
+            )
+        )
+        return listing.List.get_list(generator)(
+            self, "allpages", "ap", max_items=max_items, api_chunk_size=api_chunk_size, return_values="title", **kwargs
+        )
 
-    def allimages(self, start=None, prefix=None, minsize=None, maxsize=None, limit=None,
-                  dir='ascending', sha1=None, sha1base36=None, generator=True, end=None,
-                  max_items=None, api_chunk_size=None):
+    def allimages(
+        self,
+        start=None,
+        prefix=None,
+        minsize=None,
+        maxsize=None,
+        limit=None,
+        dir="ascending",
+        sha1=None,
+        sha1base36=None,
+        generator=True,
+        end=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve all images on the wiki as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        pfx = listing.List.get_prefix('ai', generator)
-        kwargs = dict(listing.List.generate_kwargs(
-            pfx, ('from', start), ('to', end), prefix=prefix,
-            minsize=minsize, maxsize=maxsize,
-            dir=dir, sha1=sha1, sha1base36=sha1base36,
-        ))
-        return listing.List.get_list(generator)(self, 'allimages', 'ai',
-                                                max_items=max_items,
-                                                api_chunk_size=api_chunk_size,
-                                                return_values='timestamp|url',
-                                                **kwargs)
+        pfx = listing.List.get_prefix("ai", generator)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                pfx,
+                ("from", start),
+                ("to", end),
+                prefix=prefix,
+                minsize=minsize,
+                maxsize=maxsize,
+                dir=dir,
+                sha1=sha1,
+                sha1base36=sha1base36,
+            )
+        )
+        return listing.List.get_list(generator)(
+            self,
+            "allimages",
+            "ai",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            return_values="timestamp|url",
+            **kwargs,
+        )
 
-    def alllinks(self, start=None, prefix=None, unique=False, prop='title',
-                 namespace='0', limit=None, generator=True, end=None, max_items=None,
-                 api_chunk_size=None):
+    def alllinks(
+        self,
+        start=None,
+        prefix=None,
+        unique=False,
+        prop="title",
+        namespace="0",
+        limit=None,
+        generator=True,
+        end=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve a list of all links on the wiki as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        pfx = listing.List.get_prefix('al', generator)
-        kwargs = dict(listing.List.generate_kwargs(pfx, ('from', start), ('to', end),
-                                                   prefix=prefix,
-                                                   prop=prop, namespace=namespace))
+        pfx = listing.List.get_prefix("al", generator)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                pfx, ("from", start), ("to", end), prefix=prefix, prop=prop, namespace=namespace
+            )
+        )
         if unique:
-            kwargs[pfx + 'unique'] = '1'
-        return listing.List.get_list(generator)(self, 'alllinks', 'al',
-                                                max_items=max_items,
-                                                api_chunk_size=api_chunk_size,
-                                                return_values='title', **kwargs)
+            kwargs[pfx + "unique"] = "1"
+        return listing.List.get_list(generator)(
+            self, "alllinks", "al", max_items=max_items, api_chunk_size=api_chunk_size, return_values="title", **kwargs
+        )
 
-    def allcategories(self, start=None, prefix=None, dir='ascending', limit=None,
-                      generator=True, end=None, max_items=None, api_chunk_size=None):
+    def allcategories(
+        self,
+        start=None,
+        prefix=None,
+        dir="ascending",
+        limit=None,
+        generator=True,
+        end=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve all categories on the wiki as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        pfx = listing.List.get_prefix('ac', generator)
-        kwargs = dict(listing.List.generate_kwargs(pfx, ('from', start), ('to', end),
-                                                   prefix=prefix, dir=dir))
-        return listing.List.get_list(generator)(self, 'allcategories', 'ac',
-                                                max_items=max_items,
-                                                api_chunk_size=api_chunk_size, **kwargs)
+        pfx = listing.List.get_prefix("ac", generator)
+        kwargs = dict(listing.List.generate_kwargs(pfx, ("from", start), ("to", end), prefix=prefix, dir=dir))
+        return listing.List.get_list(generator)(
+            self, "allcategories", "ac", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+        )
 
-    def allusers(self, start=None, prefix=None, group=None, prop=None, limit=None,
-                 witheditsonly=False, activeusers=False, rights=None, end=None,
-                 max_items=None, api_chunk_size=None):
+    def allusers(
+        self,
+        start=None,
+        prefix=None,
+        group=None,
+        prop=None,
+        limit=None,
+        witheditsonly=False,
+        activeusers=False,
+        rights=None,
+        end=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve all users on the wiki as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('au', ('from', start), ('to', end),
-                                                   prefix=prefix,
-                                                   group=group, prop=prop,
-                                                   rights=rights,
-                                                   witheditsonly=witheditsonly,
-                                                   activeusers=activeusers))
-        return listing.List(self, 'allusers', 'au', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                "au",
+                ("from", start),
+                ("to", end),
+                prefix=prefix,
+                group=group,
+                prop=prop,
+                rights=rights,
+                witheditsonly=witheditsonly,
+                activeusers=activeusers,
+            )
+        )
+        return listing.List(self, "allusers", "au", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def blocks(self, start=None, end=None, dir='older', ids=None, users=None, limit=None,
-               prop='id|user|by|timestamp|expiry|reason|flags', max_items=None,
-               api_chunk_size=None):
+    def blocks(
+        self,
+        start=None,
+        end=None,
+        dir="older",
+        ids=None,
+        users=None,
+        limit=None,
+        prop="id|user|by|timestamp|expiry|reason|flags",
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve blocks as a generator.
 
         API doc: https://www.mediawiki.org/wiki/API:Blocks
@@ -1288,23 +1391,30 @@ class Site:
 
         # TODO: Fix. Fix what?
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('bk', start=start, end=end, dir=dir,
-                                                   ids=ids, users=users, prop=prop))
-        return listing.List(self, 'blocks', 'bk', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs("bk", start=start, end=end, dir=dir, ids=ids, users=users, prop=prop)
+        )
+        return listing.List(self, "blocks", "bk", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def deletedrevisions(self, start=None, end=None, dir='older', namespace=None,
-                         limit=None, prop='user|comment', max_items=None,
-                         api_chunk_size=None):
+    def deletedrevisions(
+        self,
+        start=None,
+        end=None,
+        dir="older",
+        namespace=None,
+        limit=None,
+        prop="user|comment",
+        max_items=None,
+        api_chunk_size=None,
+    ):
         # TODO: Fix
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('dr', start=start, end=end, dir=dir,
-                                                   namespace=namespace, prop=prop))
-        return listing.List(self, 'deletedrevs', 'dr', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(listing.List.generate_kwargs("dr", start=start, end=end, dir=dir, namespace=namespace, prop=prop))
+        return listing.List(self, "deletedrevs", "dr", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def exturlusage(self, query, prop=None, protocol='http', namespace=None, limit=None,
-                    max_items=None, api_chunk_size=None):
+    def exturlusage(
+        self, query, prop=None, protocol="http", namespace=None, limit=None, max_items=None, api_chunk_size=None
+    ):
         r"""Retrieve the list of pages that link to a particular domain or URL,
          as a generator.
 
@@ -1327,33 +1437,44 @@ class Site:
         """
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('eu', query=query, prop=prop,
-                                                   protocol=protocol,
-                                                   namespace=namespace))
-        return listing.List(self, 'exturlusage', 'eu', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs("eu", query=query, prop=prop, protocol=protocol, namespace=namespace)
+        )
+        return listing.List(self, "exturlusage", "eu", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def logevents(self, type=None, prop=None, start=None, end=None,
-                  dir='older', user=None, title=None, limit=None, action=None,
-                  max_items=None, api_chunk_size=None):
+    def logevents(
+        self,
+        type=None,
+        prop=None,
+        start=None,
+        end=None,
+        dir="older",
+        user=None,
+        title=None,
+        limit=None,
+        action=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """Retrieve logevents as a generator."""
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('le', prop=prop, type=type,
-                                                   start=start, end=end, dir=dir,
-                                                   user=user, title=title, action=action))
-        return listing.List(self, 'logevents', 'le', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                "le", prop=prop, type=type, start=start, end=end, dir=dir, user=user, title=title, action=action
+            )
+        )
+        return listing.List(self, "logevents", "le", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def checkuserlog(self, user=None, target=None, limit=None, dir='older',
-                     start=None, end=None, max_items=None, api_chunk_size=10):
+    def checkuserlog(
+        self, user=None, target=None, limit=None, dir="older", start=None, end=None, max_items=None, api_chunk_size=10
+    ):
         """Retrieve checkuserlog items as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('cul', target=target, start=start,
-                                                   end=end, dir=dir, user=user))
-        return listing.NestedList('entries', self, 'checkuserlog', 'cul',
-                                  max_items=max_items, api_chunk_size=api_chunk_size,
-                                  **kwargs)
+        kwargs = dict(listing.List.generate_kwargs("cul", target=target, start=start, end=end, dir=dir, user=user))
+        return listing.NestedList(
+            "entries", self, "checkuserlog", "cul", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+        )
 
     # def protectedtitles requires 1.15
     def random(self, namespace, limit=None, max_items=None, api_chunk_size=20):
@@ -1368,24 +1489,41 @@ class Site:
         """
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('rn', namespace=namespace))
-        return listing.List(self, 'random', 'rn', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(listing.List.generate_kwargs("rn", namespace=namespace))
+        return listing.List(self, "random", "rn", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def recentchanges(self, start=None, end=None, dir='older', namespace=None,
-                      prop=None, show=None, limit=None, type=None, toponly=None,
-                      max_items=None, api_chunk_size=None):
-        """List recent changes to the wiki, à la Special:Recentchanges.
-        """
+    def recentchanges(
+        self,
+        start=None,
+        end=None,
+        dir="older",
+        namespace=None,
+        prop=None,
+        show=None,
+        limit=None,
+        type=None,
+        toponly=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
+        """List recent changes to the wiki, à la Special:Recentchanges."""
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('rc', start=start, end=end, dir=dir,
-                                                   namespace=namespace, prop=prop,
-                                                   show=show, type=type,
-                                                   toponly='1' if toponly else None))
-        return listing.List(self, 'recentchanges', 'rc', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                "rc",
+                start=start,
+                end=end,
+                dir=dir,
+                namespace=namespace,
+                prop=prop,
+                show=show,
+                type=type,
+                toponly="1" if toponly else None,
+            )
+        )
+        return listing.List(self, "recentchanges", "rc", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def revisions(self, revids, prop='ids|timestamp|flags|comment|user'):
+    def revisions(self, revids, prop="ids|timestamp|flags|comment|user"):
         """Get data about a list of revisions.
 
         See also the `Page.revisions()` method.
@@ -1404,24 +1542,21 @@ class Site:
         Returns:
             A list of revisions
         """
-        kwargs = {
-            'prop': 'revisions',
-            'rvprop': prop,
-            'revids': '|'.join(map(str, revids))
-        }
+        kwargs = {"prop": "revisions", "rvprop": prop, "revids": "|".join(map(str, revids))}
 
         revisions = []
-        pages = self.get('query', **kwargs).get('query', {}).get('pages', {}).values()
+        pages = self.get("query", **kwargs).get("query", {}).get("pages", {}).values()
         for page in pages:
-            for revision in page.get('revisions', ()):
-                revision['pageid'] = page.get('pageid')
-                revision['pagetitle'] = page.get('title')
-                revision['timestamp'] = parse_timestamp(revision['timestamp'])
+            for revision in page.get("revisions", ()):
+                revision["pageid"] = page.get("pageid")
+                revision["pagetitle"] = page.get("title")
+                revision["timestamp"] = parse_timestamp(revision["timestamp"])
                 revisions.append(revision)
         return revisions
 
-    def search(self, search, namespace='0', what=None, redirects=False, limit=None,
-               max_items=None, api_chunk_size=None):
+    def search(
+        self, search, namespace="0", what=None, redirects=False, limit=None, max_items=None, api_chunk_size=None
+    ):
         """Perform a full text search.
 
         API doc: https://www.mediawiki.org/wiki/API:Search
@@ -1447,39 +1582,62 @@ class Site:
             mwclient.listings.List: Search results iterator
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('sr', search=search,
-                                                   namespace=namespace, what=what))
+        kwargs = dict(listing.List.generate_kwargs("sr", search=search, namespace=namespace, what=what))
         if redirects:
-            kwargs['srredirects'] = '1'
-        return listing.List(self, 'search', 'sr', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+            kwargs["srredirects"] = "1"
+        return listing.List(self, "search", "sr", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
-    def usercontributions(self, user, start=None, end=None, dir='older', namespace=None,
-                          prop=None, show=None, limit=None, uselang=None, max_items=None,
-                          api_chunk_size=None):
+    def usercontributions(
+        self,
+        user,
+        start=None,
+        end=None,
+        dir="older",
+        namespace=None,
+        prop=None,
+        show=None,
+        limit=None,
+        uselang=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """
         List the contributions made by a given user to the wiki.
 
         API doc: https://www.mediawiki.org/wiki/API:Usercontribs
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('uc', user=user, start=start, end=end,
-                                                   dir=dir, namespace=namespace,
-                                                   prop=prop, show=show))
-        return listing.List(self, 'usercontribs', 'uc', max_items=max_items,
-                            api_chunk_size=api_chunk_size, uselang=uselang, **kwargs)
+        kwargs = dict(
+            listing.List.generate_kwargs(
+                "uc", user=user, start=start, end=end, dir=dir, namespace=namespace, prop=prop, show=show
+            )
+        )
+        return listing.List(
+            self, "usercontribs", "uc", max_items=max_items, api_chunk_size=api_chunk_size, uselang=uselang, **kwargs
+        )
 
-    def users(self, users, prop='blockinfo|groups|editcount'):
+    def users(self, users, prop="blockinfo|groups|editcount"):
         """
         Get information about a list of users.
 
         API doc: https://www.mediawiki.org/wiki/API:Users
         """
 
-        return listing.List(self, 'users', 'us', ususers='|'.join(users), usprop=prop)
+        return listing.List(self, "users", "us", ususers="|".join(users), usprop=prop)
 
-    def watchlist(self, allrev=False, start=None, end=None, namespace=None, dir='older',
-                  prop=None, show=None, limit=None, max_items=None, api_chunk_size=None):
+    def watchlist(
+        self,
+        allrev=False,
+        start=None,
+        end=None,
+        namespace=None,
+        dir="older",
+        prop=None,
+        show=None,
+        limit=None,
+        max_items=None,
+        api_chunk_size=None,
+    ):
         """
         List the pages on the current user's watchlist.
 
@@ -1487,13 +1645,12 @@ class Site:
         """
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        kwargs = dict(listing.List.generate_kwargs('wl', start=start, end=end,
-                                                   namespace=namespace, dir=dir,
-                                                   prop=prop, show=show))
+        kwargs = dict(
+            listing.List.generate_kwargs("wl", start=start, end=end, namespace=namespace, dir=dir, prop=prop, show=show)
+        )
         if allrev:
-            kwargs['wlallrev'] = '1'
-        return listing.List(self, 'watchlist', 'wl', max_items=max_items,
-                            api_chunk_size=api_chunk_size, **kwargs)
+            kwargs["wlallrev"] = "1"
+        return listing.List(self, "watchlist", "wl", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
 
     def expandtemplates(self, text, title=None, generatexml=False):
         """
@@ -1509,17 +1666,17 @@ class Site:
 
         kwargs = {}
         if title is not None:
-            kwargs['title'] = title
+            kwargs["title"] = title
         if generatexml:
             # FIXME: Deprecated and replaced by `prop=parsetree`.
-            kwargs['generatexml'] = '1'
+            kwargs["generatexml"] = "1"
 
-        result = self.post('expandtemplates', text=text, **kwargs)
+        result = self.post("expandtemplates", text=text, **kwargs)
 
         if generatexml:
-            return result['expandtemplates']['*'], result['parsetree']['*']
+            return result["expandtemplates"]["*"], result["parsetree"]["*"]
         else:
-            return result['expandtemplates']['*']
+            return result["expandtemplates"]["*"]
 
     def ask(self, query, title=None):
         """
@@ -1545,15 +1702,16 @@ class Site:
         """
         kwargs = {}
         if title is None:
-            kwargs['title'] = title
+            kwargs["title"] = title
 
         offset = 0
         while offset is not None:
-            results = self.raw_api('ask', query='{query}|offset={offset}'.format(
-                query=query, offset=offset), http_method='GET', **kwargs)
+            results = self.raw_api(
+                "ask", query="{query}|offset={offset}".format(query=query, offset=offset), http_method="GET", **kwargs
+            )
             self.handle_api_result(results)  # raises APIError on error
-            offset = results.get('query-continue-offset')
-            answers = results['query'].get('results', [])
+            offset = results.get("query-continue-offset")
+            answers = results["query"].get("results", [])
 
             if isinstance(answers, dict):
                 # In older versions of Semantic MediaWiki (at least until 2.3.0)

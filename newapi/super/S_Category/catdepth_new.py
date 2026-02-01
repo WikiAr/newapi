@@ -1,8 +1,7 @@
-"""
+""" """
 
-"""
-import time
 import sys
+import time
 from functools import lru_cache
 
 from ...api_utils import printe
@@ -37,7 +36,7 @@ def args_group(title, kwargs):
         "with_lang": None,
         "tempyes": None,
         "props": None,
-        "only_titles": None
+        "only_titles": None,
     }
     # ---
     for k, v in kwargs.items():
@@ -58,7 +57,9 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     args2 = args_group(title, kwargs)
     # ---
     if print_s:
-        printe.output(f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}")
+        printe.output(
+            f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
+        )
     # ---
     start = time.time()
     # ---
@@ -77,6 +78,8 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     if print_s:
         lenpages = bot.get_len_pages()
         # ---
-        printe.output(f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}")
+        printe.output(
+            f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}"
+        )
     # ---
     return result

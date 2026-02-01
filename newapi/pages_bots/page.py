@@ -1,15 +1,16 @@
-"""
-"""
+""" """
+
 # ---
 import functools
 import os
 import sys
-from ..super.S_API import bot_api
-from ..api_utils.user_agent import default_user_agent
-from ..api_utils import lang_codes
-from .all_apis import ALL_APIS
 
 from ..accounts.useraccount import User_tables_bot, User_tables_ibrahem
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from ..super.S_API import bot_api
+from .all_apis import ALL_APIS
+
 home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_bot
@@ -58,10 +59,10 @@ def NEW_API(lang="", family="wikipedia") -> bot_api.NEW_API:
 
 
 __all__ = [
-    'home_dir',
-    'user_agent',
-    'MainPage',
-    'NEW_API',
-    'CatDepth',
-    'change_codes',
+    "home_dir",
+    "user_agent",
+    "MainPage",
+    "NEW_API",
+    "CatDepth",
+    "change_codes",
 ]

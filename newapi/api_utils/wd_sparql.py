@@ -6,8 +6,10 @@ get_query_result = wd_sparql.get_query_result
 get_query_data = wd_sparql.get_query_data
 
 """
+
 import sys
-from SPARQLWrapper import SPARQLWrapper, JSON
+
+from SPARQLWrapper import JSON, SPARQLWrapper
 
 
 def get_query_data(query):

@@ -1,13 +1,12 @@
-"""
-"""
+""" """
+
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
-import sys
-from unittest.mock import patch, MagicMock
-
 from newapi.api_utils.bot_edit.bot_edit_by_templates import (
-    is_bot_edit_allowed,
     Bot_Cache,
+    is_bot_edit_allowed,
 )
 
 # ==================== Fixtures ====================
@@ -27,7 +26,7 @@ def reset_environment():
     # Setup
     Bot_Cache.clear()
     original_argv = sys.argv.copy()
-    sys.argv = ['test']
+    sys.argv = ["test"]
 
     yield
 
@@ -39,13 +38,14 @@ def reset_environment():
 @pytest.fixture
 def mock_wtp():
     """Provide a mocked wikitextparser."""
-    with patch('newapi.api_utils.bot_edit.bot_edit_by_templates.wtp') as mock:
+    with patch("newapi.api_utils.bot_edit.bot_edit_by_templates.wtp") as mock:
         yield mock
 
 
 @pytest.fixture
 def create_mock_template():
     """Factory fixture for creating mock templates."""
+
     def _create_template(name, arguments=None):
         mock_template = MagicMock()
         mock_template.normal_name.return_value = name
@@ -70,12 +70,13 @@ def create_mock_template():
 @pytest.fixture
 def setup_parser(mock_wtp, create_mock_template):
     """Factory fixture for setting up parser with templates."""
+
     def _setup(templates_config):
         templates = []
         for config in templates_config:
             if isinstance(config, dict):
-                name = config.get('name')
-                arguments = config.get('arguments')
+                name = config.get("name")
+                arguments = config.get("arguments")
                 templates.append(create_mock_template(name, arguments))
             else:
                 # If just a string, create template with that name
@@ -92,6 +93,7 @@ def setup_parser(mock_wtp, create_mock_template):
 
 # ==================== Command Line Bypass Tests ====================
 
+
 class TestCommandLineBypass:
     """Test command line argument bypass functionality."""
 
@@ -99,7 +101,7 @@ class TestCommandLineBypass:
     def test_argv_bypasses_all_checks(self, argv_value, setup_parser):
         """Test that specific argv values bypass all restrictions."""
         sys.argv.append(argv_value)
-        setup_parser([{'name': 'nobots', 'arguments': None}])
+        setup_parser([{"name": "nobots", "arguments": None}])
 
         text = "{{nobots}}"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")

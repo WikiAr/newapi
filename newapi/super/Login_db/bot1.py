@@ -6,19 +6,21 @@ from newapi.super.Login_db.bot import log_one
 # log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=login_result)
 
 """
-import sys
-import os
-import json
-import pymysql
+
 import datetime
+import json
+import os
+import sys
+
+import pymysql
 
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'password',
-    'database': 'login_db',
-    'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor
+    "host": "localhost",
+    "user": "root",
+    "password": "password",
+    "database": "login_db",
+    "charset": "utf8mb4",
+    "cursorclass": pymysql.cursors.DictCursor,
 }
 
 LOGS_IS_ENABLED = os.getenv("LOGIN_LOGS_IS_ENABLED", "0") == "1"

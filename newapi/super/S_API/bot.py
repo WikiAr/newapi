@@ -3,10 +3,12 @@
 from .super.S_API.bot import BOTS_APIS
 
 """
+
 import sys
+
 from ...api_utils import printe
-from ..handel_errors import HANDEL_ERRORS
 from ...api_utils.ask_bot import ASK_BOT
+from ..handel_errors import HANDEL_ERRORS
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
@@ -33,9 +35,15 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         printe.test_print(f"** Add_To_Bottom .. [[{title}]] ")
         # printe.showDiff("", text)
         # ---
-        user = self.username or getattr(self, 'user_login', '')
+        user = self.username or getattr(self, "user_login", "")
         # ---
-        ask = self.ask_put(newtext=text, message=f"** Add_To {poss} .. [[{title}]] ", job="Add_To_Bottom", username=user, summary=summary)
+        ask = self.ask_put(
+            newtext=text,
+            message=f"** Add_To {poss} .. [[{title}]] ",
+            job="Add_To_Bottom",
+            username=user,
+            summary=summary,
+        )
         # ---
         if ask is False:
             return False
@@ -104,7 +112,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
         # ---
-        user = self.username or getattr(self, 'user_login', '')
+        user = self.username or getattr(self, "user_login", "")
         # ---
         if not self.ask_put(message=message, job="move", username=user):
             return {}
@@ -123,9 +131,30 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
                 "reason": "wrong title",
                 "redirectcreated": True,
                 "moveoverredirect": False,
-                "talkmove-errors": [{"message": "content-not-allowed-here", "params": ["Structured Discussions board", "User talk:Mr. Ibrahem/x", "main"], "code": "contentnotallowedhere", "type": "error"}, {"message": "flow-error-allowcreation-flow-create-board", "params": [], "code": "flow-error-allowcreation-flow-create-board", "type": "error"}],
-                "subpages": {"errors": [{"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}]},
-                "subpages-talk": {"errors": [{"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}]},
+                "talkmove-errors": [
+                    {
+                        "message": "content-not-allowed-here",
+                        "params": ["Structured Discussions board", "User talk:Mr. Ibrahem/x", "main"],
+                        "code": "contentnotallowedhere",
+                        "type": "error",
+                    },
+                    {
+                        "message": "flow-error-allowcreation-flow-create-board",
+                        "params": [],
+                        "code": "flow-error-allowcreation-flow-create-board",
+                        "type": "error",
+                    },
+                ],
+                "subpages": {
+                    "errors": [
+                        {"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}
+                    ]
+                },
+                "subpages-talk": {
+                    "errors": [
+                        {"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}
+                    ]
+                },
             }
         }
         # ---
@@ -146,7 +175,14 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         if error:
             if error_code == "ratelimited":
                 printe.output("<<red>> move ratelimited:")
-                return self.move(old_title, to, reason=reason, noredirect=noredirect, movesubpages=movesubpages, return_dict=return_dict)
+                return self.move(
+                    old_title,
+                    to,
+                    reason=reason,
+                    noredirect=noredirect,
+                    movesubpages=movesubpages,
+                    return_dict=return_dict,
+                )
 
             if error_code == "articleexists":
                 printe.output("<<red>> articleexists")

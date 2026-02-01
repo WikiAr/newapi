@@ -9,10 +9,7 @@ class TestNewAPI:
 
     def test_find_pages_exists(self, api_client):
         """Test Find_pages_exists_or_not method"""
-        result = api_client.Find_pages_exists_or_not(
-            ["Thyrotropin alfa", "Thiamine"],
-            get_redirect=True
-        )
+        result = api_client.Find_pages_exists_or_not(["Thyrotropin alfa", "Thiamine"], get_redirect=True)
         assert result is not None
         assert isinstance(result, (dict, list))
 

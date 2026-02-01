@@ -13,8 +13,9 @@ from . import txtlib
 """
 # from ..other_bots import printe
 
-import wikitextparser as wtp
 from functools import lru_cache
+
+import wikitextparser as wtp
 
 
 @lru_cache(maxsize=512)
@@ -24,7 +25,7 @@ def extract_templates_and_params(text):
     # ---
     parsed = wtp.parse(text)
     templates = parsed.templates
-    arguments = 'arguments'
+    arguments = "arguments"
     # ---
     for template in templates:
         # ---
@@ -46,10 +47,10 @@ def extract_templates_and_params(text):
         namestrip = name
         # ---
         ficrt = {
-            'name': f"قالب:{name}",
-            'namestrip': namestrip,
-            'params': params,
-            'item': pa_item,
+            "name": f"قالب:{name}",
+            "namestrip": namestrip,
+            "params": params,
+            "item": pa_item,
         }
         # ---
         result.append(ficrt)
@@ -65,7 +66,7 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
     if tempname:
         temps.append(tempname)
     # ---
-    temps = [x.replace("قالب:", "").replace("Template:", "").replace('_', ' ').strip() for x in temps]
+    temps = [x.replace("قالب:", "").replace("Template:", "").replace("_", " ").strip() for x in temps]
     # ---
     if lowers:
         temps = [x.lower() for x in temps]
@@ -78,7 +79,7 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
     for temp in ingr:
         # ---
         # name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
-        namestrip, params = temp['namestrip'], temp['params']
+        namestrip, params = temp["namestrip"], temp["params"]
         # ---
         if lowers:
             namestrip = namestrip.lower()
@@ -89,9 +90,7 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
             # ---
             # print("te:%s, namestrip:%s" % (te,namestrip) )
             # ---
-            tabe = {
-                namestrip: params
-            }
+            tabe = {namestrip: params}
             named.append(tabe)
     # ---
     return named
@@ -108,7 +107,7 @@ def get_all_temps_params(text, templates=None, lowers=False):
 
 
 # ---
-test_text = '''
+test_text = """
 {{ص.م/صورة مضاعفة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}
 | صورة1 ={{{علم|{{{flag|{{{صورة علم|}}}}}}}}}
 | تعليق1 ={{#لو:{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{وصف العلم|{{{flagcaption|}}}}}}|خاصية=P163|rank=best}}|{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{وصف العلم|{{{flagcaption|}}}}}}|خاصية=P163|rank=best}}|{{فصع}}}}
@@ -122,15 +121,15 @@ test_text = '''
 }}
 
 {{ourworldindatamirror|https://owidm.wmcloud.org/grapher/cancer-death-rates?tab=map {{Webarchive}}}}
-'''
+"""
 # ---
-if __name__ == '__main__':
+if __name__ == "__main__":
     # ---
     # ---
     ingr = extract_templates_and_params(test_text)
     for temp in ingr:
         # ---
-        name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
+        name, namestrip, params, template = temp["name"], temp["namestrip"], temp["params"], temp["item"]
         # ---
         print("-----------------------------")
         print(f"name: {name}")
