@@ -34,7 +34,6 @@ flowchart TD
     click PageOps "https://github.com/wikiar/newapi/blob/main/page.py"
     click PageOps "https://github.com/wikiar/newapi/blob/main/wiki_page.py"
     click PageOps "https://github.com/wikiar/newapi/blob/main/mdwiki_page.py"
-    click PageOps "https://github.com/wikiar/newapi/blob/main/ncc_page.py"
     click PageOps "https://github.com/wikiar/newapi/tree/main/super/page_bots/"
 
     %% Click Events for Bot Functionality Modules
