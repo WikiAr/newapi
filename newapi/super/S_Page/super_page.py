@@ -336,15 +336,15 @@ class MainPage(PAGE_APIS, ASK_BOT):
             if "sortkey" in cat:
                 del cat["sortkey"]
             # ---
-            tit = cat["title"]
+            category_title = cat["title"]
             # ---
-            self.categories_data.all_categories_with_hidden[tit] = cat
+            self.categories_data.all_categories_with_hidden[category_title] = cat
             # ---
             if cat.get("hidden") is True:
-                self.categories_data.hidden_categories[tit] = cat
+                self.categories_data.hidden_categories[category_title] = cat
             else:
                 del cat["hidden"]
-                self.categories_data.categories[tit] = cat
+                self.categories_data.categories[category_title] = cat
         # ---
         if ta.get("langlinks", []) != []:
             # ---
@@ -883,6 +883,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             return er
             # ---
         return False
+
+    def create(self, text="", summary="", nodiff="", noask=False):
+        return self.Create(text=text, summary=summary, nodiff=nodiff, noask=noask)
 
     def page_backlinks(self, ns=0):
         params = {
