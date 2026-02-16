@@ -7,7 +7,9 @@ from .super.login_wrap import LoginWrap
 # login_bot = LoginWrap(sitecode, family, User_tables)
 
 """
+
 from functools import lru_cache
+
 from ..api_utils import printe
 from .super_login import Login
 
@@ -45,7 +47,9 @@ def LoginWrap(sitecode, family, bots_login_cache, User_tables):
     # ---
     cache_info = _create_login_bot.cache_info()
     if cache_info.hits > 0 and cache_info.hits % 100 == 0:
-        printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {cache_info.hits}", p=True)
+        printe.output(
+            f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {cache_info.hits}", p=True
+        )
     # ---
     # Return bots_login_cache for backward compatibility
     return login_bot, bots_login_cache

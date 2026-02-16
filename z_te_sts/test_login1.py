@@ -1,13 +1,13 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
-from newapi.super import super_login
-
 from newapi.accounts.useraccount import User_tables_bot
+from newapi.super import super_login
 
 User_tables = User_tables_bot
 User_tables["password"] += "123"
@@ -20,7 +20,14 @@ Login = super_login.Login
 bot = Login("simple", family="wikipedia")
 login = bot.Log_to_wiki()
 # ---
-params = {"action": "query", "titles": "User:Mr. Ibrahem", "prop": "revisions", "rvprop": "content", "rvslots": "*", "format": "json"}
+params = {
+    "action": "query",
+    "titles": "User:Mr. Ibrahem",
+    "prop": "revisions",
+    "rvprop": "content",
+    "rvslots": "*",
+    "format": "json",
+}
 # ---
 json1 = bot.post(params, Type="post", addtoken=False)
 # ---

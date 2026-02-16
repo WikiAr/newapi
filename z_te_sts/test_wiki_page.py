@@ -1,12 +1,13 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.page import MainPage, CatDepth
+from newapi.page import CatDepth, MainPage
 
 """
 page      = MainPage(title, 'ar', family='wikipedia')
@@ -46,7 +47,9 @@ print(f"{len(page_backlinks)=}")
 # print('---------------------------')
 # print(f'hidden_categories:{hidden_categories}')
 # ---
-cat_members = CatDepth("Association football players by nationality", sitecode="en", family="wikipedia", depth=0, ns="14")
+cat_members = CatDepth(
+    "Association football players by nationality", sitecode="en", family="wikipedia", depth=0, ns="14"
+)
 # ---
 print(f"{len(cat_members)=}")
 # ---

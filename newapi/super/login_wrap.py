@@ -8,10 +8,12 @@ from .super.login_wrap import LoginWrap
 # bots_login_cache.update(catbots_login2)
 
 """
+
 from ..api_utils import printe
 from .super_login import Login
 
 hases = {}
+
 
 def LoginWrap(sitecode, family, bots_login_cache, User_tables):
     # ---
@@ -30,7 +32,10 @@ def LoginWrap(sitecode, family, bots_login_cache, User_tables):
         hases[cache_key] += 1
         # ---
         if hases[cache_key] % 100 == 0:
-            printe.output(f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {hases[cache_key]}", p=True)
+            printe.output(
+                f"### <<green>> LoginWrap has bot for ({sitecode}.{family}.org|{username}) count: {hases[cache_key]}",
+                p=True,
+            )
     else:
         login_bot = Login(sitecode, family=family)
         # ---

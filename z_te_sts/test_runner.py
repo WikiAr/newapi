@@ -4,12 +4,12 @@ Test runner for all z_te_sts/*.py files
 Usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
 
-import io
-from contextlib import redirect_stdout
-import sys
-import os
 import importlib.util
+import io
+import os
+import sys
 import traceback
+from contextlib import redirect_stdout
 from pathlib import Path
 
 # Add current directory to path for imports

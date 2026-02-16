@@ -9,18 +9,17 @@ printe.output('<<red>>red')  # prints 'red' in red color
 printe.showDiff('old text', 'new text')  # prints the differences between 'old text' and 'new text'
 """
 
+import difflib
+
 # ---
 import functools
-import difflib
+import logging
 import re
 import sys
-
 from collections import abc
+from collections.abc import Iterable, Sequence
 from difflib import _format_range_unified as format_range_unified
 from itertools import zip_longest
-from collections.abc import Iterable, Sequence
-
-import logging
 
 if "debug" in sys.argv:
     logging.basicConfig(level=logging.DEBUG)
@@ -230,7 +229,7 @@ def get_color_table():
         "lightblack": 108,
         "bold": 1,
     }
-    color_table = {x : f"\033[{v}m%s\033[00m" for x, v in color_numbers.items()}
+    color_table = {x: f"\033[{v}m%s\033[00m" for x, v in color_numbers.items()}
 
     # Add light versions of the colors to the color table
     for color in ["purple", "yellow", "blue", "red", "green", "cyan", "gray"]:
@@ -344,7 +343,9 @@ class Hunk:
     NOT_APPR = -1
     PENDING = 0
 
-    def __init__(self, a: str | Sequence[str], b: str | Sequence[str], grouped_opcode: Sequence[tuple[str, int, int, int, int]]) -> None:
+    def __init__(
+        self, a: str | Sequence[str], b: str | Sequence[str], grouped_opcode: Sequence[tuple[str, int, int, int, int]]
+    ) -> None:
         """
         Initializer.
 
@@ -537,7 +538,9 @@ def get_header_text(a_rng: tuple[int, int], b_rng: tuple[int, int], affix: str =
 
 
 class PatchManager:
-    def __init__(self, text_a: str, text_b: str, context: int = 0, by_letter: bool = False, replace_invisible: bool = False) -> None:
+    def __init__(
+        self, text_a: str, text_b: str, context: int = 0, by_letter: bool = False, replace_invisible: bool = False
+    ) -> None:
         self.a = text_a.splitlines(True)
         self.b = text_b.splitlines(True)
 
@@ -629,7 +632,10 @@ class PatchManager:
         """Dynamically determine context range for a super hunk."""
         a0, a1 = super_hunk.a_rng
         b0, b1 = super_hunk.b_rng
-        return ((a0 - min(super_hunk.pre_context, self.context), a1 + min(super_hunk.post_context, self.context)), (b0 - min(super_hunk.pre_context, self.context), b1 + min(super_hunk.post_context, self.context)))
+        return (
+            (a0 - min(super_hunk.pre_context, self.context), a1 + min(super_hunk.post_context, self.context)),
+            (b0 - min(super_hunk.pre_context, self.context), b1 + min(super_hunk.post_context, self.context)),
+        )
 
     def _generate_diff(self, hunks: _Superhunk) -> str:
         """Generate a diff text for the given hunks."""

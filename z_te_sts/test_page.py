@@ -1,7 +1,9 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
+
 # sys.argv.append("printurl")
 sys.argv.append("ask")
 from newapi.page import MainPage
@@ -9,13 +11,13 @@ from newapi.page import MainPage
 page = MainPage("وبxx:ملعب", "ar")
 print(page.exists())
 
-pageen = MainPage("الصفحة الرxئيسة", 'ar')
+pageen = MainPage("الصفحة الرxئيسة", "ar")
 print(pageen.exists())
 
 
 # ---
 page = MainPage("وب:ملعب", "ar")
-pageen = MainPage("User:Mr. Ibrahem/sandbox", 'simple')
+pageen = MainPage("User:Mr. Ibrahem/sandbox", "simple")
 # ---
 existsen = pageen.exists()
 
@@ -73,4 +75,3 @@ pageen.save(newtext="!!!", nocreate=0)
 
 
 save = page.save(newtext="!")
-

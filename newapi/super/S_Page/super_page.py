@@ -43,19 +43,20 @@ purge       = page.purge()
 '''
 
 """
+
 import os
-from warnings import warn
 import sys
+from warnings import warn
+
 import wikitextparser as wtp
 
+from ...api_utils import botEdit, printe, txtlib
+from ...api_utils.ask_bot import ASK_BOT
+from ...api_utils.except_err import exception_err, warn_err
+from ...api_utils.lang_codes import change_codes
 from .ar_err import find_edit_error
 from .bot import PAGE_APIS
-from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, TemplateData
-
-from ...api_utils import printe, txtlib, botEdit
-from ...api_utils.except_err import exception_err, warn_err
-from ...api_utils.ask_bot import ASK_BOT
-from ...api_utils.lang_codes import change_codes
+from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
 
 print_test = {1: "test" in sys.argv}
 
@@ -98,13 +99,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
     def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
         return self.login_bot.post_params(
-            params,
-            Type=Type,
-            addtoken=addtoken,
-            GET_CSRF=GET_CSRF,
-            files=files,
-            do_error=do_error,
-            max_retry=max_retry
+            params, Type=Type, addtoken=addtoken, GET_CSRF=GET_CSRF, files=files, do_error=do_error, max_retry=max_retry
         )
 
     def false_edit(self):
@@ -182,7 +177,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "rvprop": "timestamp|ids|user",
             "rvslots": "*",
             "rvlimit": "1",
-            "rvdir": "newer"
+            "rvdir": "newer",
         }
         # ---
         data = self.post_params(params)
@@ -195,9 +190,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
-                    "timestamp" : page_data["timestamp"],
-                    "user" : page_data.get("user", ""),
-                    "anon" : page_data.get("anon", False),
+                    "timestamp": page_data["timestamp"],
+                    "user": page_data.get("user", ""),
+                    "anon": page_data.get("anon", False),
                 }
             # ---
             break
@@ -267,9 +262,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
-                    "timestamp" : page_data["timestamp"],
-                    "user" : page_data.get("user", ""),
-                    "anon" : page_data.get("anon", False),
+                    "timestamp": page_data["timestamp"],
+                    "user": page_data.get("user", ""),
+                    "anon": page_data.get("anon", False),
                 }
             # ---
             break
@@ -599,7 +594,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if not self.text:
             self.text = self.get_text()
         # ---
-        self.meta.can_be_edit = botEdit.bot_May_Edit(text=self.text, title_page=self.title, botjob=script, page=self, delay=delay)
+        self.meta.can_be_edit = botEdit.bot_May_Edit(
+            text=self.text, title_page=self.title, botjob=script, page=self, delay=delay
+        )
         # ---
         return self.meta.can_be_edit
 
@@ -703,9 +700,20 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         message = f"Do you want to save this page? ({self.lang}:{self.title})"
         # ---
-        user = self.meta.username or getattr(self, 'user_login', '')
+        user = self.meta.username or getattr(self, "user_login", "")
         # ---
-        if self.ask_put(nodiff=nodiff, newtext=newtext, text=self.text, message=message, job="save", username=user, summary=self.content.summary) is False:
+        if (
+            self.ask_put(
+                nodiff=nodiff,
+                newtext=newtext,
+                text=self.text,
+                message=message,
+                job="save",
+                username=user,
+                summary=self.content.summary,
+            )
+            is False
+        ):
             return False
         # ---
         params = {
@@ -821,9 +829,12 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
             # ---
-            user = self.meta.username or getattr(self, 'user_login', '')
+            user = self.meta.username or getattr(self, "user_login", "")
             # ---
-            if self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary) is False:
+            if (
+                self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary)
+                is False
+            ):
                 return False
         # ---
         params = {

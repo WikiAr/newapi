@@ -1,14 +1,16 @@
 """
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
+
 import sys
 import time
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
 
-from newapi.page import NEW_API
 from newapi import printe
+from newapi.page import NEW_API
+
 
 class testmybot:
     def __init__(self):
@@ -136,7 +138,9 @@ class testmybot:
     def test11(self):
         """move"""
         api_new = NEW_API("ar", family="wikipedia")
-        move_it = api_new.move("الصفحة_الرئيسة", "الصفحة_الرئيسة2", reason="test!", noredirect=False, movesubpages=False)
+        move_it = api_new.move(
+            "الصفحة_الرئيسة", "الصفحة_الرئيسة2", reason="test!", noredirect=False, movesubpages=False
+        )
         return move_it
 
     def test12(self):
@@ -189,7 +193,7 @@ class testmybot:
             11: self.test11,
             12: self.test12,
             13: self.test13,
-            14: self.test14
+            14: self.test14,
         }
         # ---
         for arg in sys.argv:

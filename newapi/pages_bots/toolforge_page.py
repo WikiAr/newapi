@@ -12,12 +12,13 @@ CatDepth = toolforge_page.subcatquery
 MainPage = toolforge_page.MainPage(title, lang, family="toolforge")
 # ---
 """
+
+from ..super.login_wrap import LoginWrap
+from ..super.S_API import bot_api
+
 # ---
 from ..super.S_Category import catdepth_new
-
-from ..super.S_API import bot_api
 from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
 
 User_tables = {}
 logins_cache = {}

@@ -9,8 +9,8 @@ User_tables = {
 # ---
 """
 
-import os
 import configparser
+import os
 
 home_dir = os.getenv("HOME")
 project = home_dir if home_dir else "I:/ncc"

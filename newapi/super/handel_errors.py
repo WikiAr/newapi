@@ -2,7 +2,9 @@
 from .super.handel_errors import HANDEL_ERRORS
 
 """
+
 import sys
+
 # from newapi import printe
 from ..api_utils import printe
 
@@ -55,7 +57,12 @@ class HANDEL_ERRORS:
             abusefilter = error.get("abusefilter", "")
             description = abusefilter.get("description", "")
             printe.output(f"<<lightred>> ** abusefilter-disallowed: {description} ")
-            if description in ["تأخير البوتات 3 ساعات", "تأخير البوتات 3 ساعات- 3 من 3", "تأخير البوتات 3 ساعات- 1 من 3", "تأخير البوتات 3 ساعات- 2 من 3"]:
+            if description in [
+                "تأخير البوتات 3 ساعات",
+                "تأخير البوتات 3 ساعات- 3 من 3",
+                "تأخير البوتات 3 ساعات- 1 من 3",
+                "تأخير البوتات 3 ساعات- 2 من 3",
+            ]:
                 return False
             return description
         # ---
@@ -77,8 +84,8 @@ class HANDEL_ERRORS:
             return False
         # ---
         if do_error:
-            params['data'] = {}
-            params['text'] = {}
+            params["data"] = {}
+            params["text"] = {}
             printe.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
         # ---
         if "raise" in sys.argv:

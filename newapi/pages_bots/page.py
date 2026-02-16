@@ -25,18 +25,19 @@ from newapi.page import MainPage, NEW_API
 # wantedcats  = api_new.querypage_list(qppage='Wantedcategories', qplimit="max", Max=5000)
 # pages  = api_new.Get_template_pages(title, namespace="*", Max=10000)
 """
+
 # ---
 import os
 import sys
-from ..super.S_API import bot_api
-from ..super.S_Category import catdepth_new
-
-from ..super.S_Page import super_page
-from ..super.login_wrap import LoginWrap
-from ..api_utils.user_agent import default_user_agent
-from ..api_utils import lang_codes
 
 from ..accounts.useraccount import User_tables_bot, User_tables_ibrahem
+from ..api_utils import lang_codes
+from ..api_utils.user_agent import default_user_agent
+from ..super.login_wrap import LoginWrap
+from ..super.S_API import bot_api
+from ..super.S_Category import catdepth_new
+from ..super.S_Page import super_page
+
 home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_bot
@@ -90,10 +91,10 @@ def NEW_API(lang="", family="wikipedia"):
 
 
 __all__ = [
-    'home_dir',
-    'user_agent',
-    'MainPage',
-    'NEW_API',
-    'CatDepth',
-    'change_codes',
+    "home_dir",
+    "user_agent",
+    "MainPage",
+    "NEW_API",
+    "CatDepth",
+    "change_codes",
 ]

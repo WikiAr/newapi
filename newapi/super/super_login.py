@@ -19,9 +19,9 @@ import time
 import urllib.parse
 
 from ..api_utils import printe
-from .handel_errors import HANDEL_ERRORS
 from ..api_utils.except_err import warn_err
 from ..api_utils.user_agent import default_user_agent
+from .handel_errors import HANDEL_ERRORS
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS
@@ -36,6 +36,7 @@ else:
 print_test = {1: "test" in sys.argv}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}
+
 
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """
@@ -79,7 +80,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             no_url = ["lgpassword", "format"]
             no_remove = ["titles", "title"]
             # ---
-            pams2 = {k: v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v for k, v in params.items() if k not in no_url}
+            pams2 = {
+                k: v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v
+                for k, v in params.items()
+                if k not in no_url
+            }
             # ---
             self.url_o_print = f"{self.endpoint}?{urllib.parse.urlencode(pams2)}".replace("&format=json", "")
             # ---
@@ -126,7 +131,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         if self.family == "nccommons" and params.get("bot"):
             del params["bot"]
 
-        if "workibrahem" in sys.argv and "ibrahemsummary" not in sys.argv and params.get("summary", "").find("بوت:") != -1:
+        if (
+            "workibrahem" in sys.argv
+            and "ibrahemsummary" not in sys.argv
+            and params.get("summary", "").find("بوت:") != -1
+        ):
             params["summary"] = ""
 
         if params["action"] in ["query"]:
@@ -226,7 +235,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
 
         return data
 
-    def post_continue(self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None):
+    def post_continue(
+        self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None
+    ):
         # ---
         printe.test_print("_______________________")
         printe.test_print(f"post_continue, start. {action=}, {_p_=}")

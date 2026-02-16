@@ -3,7 +3,9 @@
 from .bot import CategoryDepth
 
 """
+
 import copy
+
 import tqdm
 
 from ...api_utils import printe
@@ -67,13 +69,7 @@ class CategoryDepth:
     def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
         # ---
         return self.login_bot.post_params(
-            params,
-            Type=Type,
-            addtoken=addtoken,
-            GET_CSRF=GET_CSRF,
-            files=files,
-            do_error=do_error,
-            max_retry=max_retry
+            params, Type=Type, addtoken=addtoken, GET_CSRF=GET_CSRF, files=files, do_error=do_error, max_retry=max_retry
         )
 
     def get_revids(self):
@@ -347,7 +343,9 @@ class CategoryDepth:
             new_tab2 = []
             # ---
             if self.limit > 0 and len(self.result_table) >= self.limit:
-                printe.output(f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break ..")
+                printe.output(
+                    f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break .."
+                )
                 break
             # ---
             depth_done += 1

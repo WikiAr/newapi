@@ -1,14 +1,6 @@
-"""
-"""
-from .pages_bots.mdwiki_page import (
-    home_dir,
-    MainPage,
-    md_MainPage,
-    user_agent,
-    NEW_API,
-    CatDepth,
-    change_codes
-)
+""" """
+
+from .pages_bots.mdwiki_page import NEW_API, CatDepth, MainPage, change_codes, home_dir, md_MainPage, user_agent
 
 __all__ = [
     "home_dir",

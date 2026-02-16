@@ -4,14 +4,15 @@ Unit tests for is_bot_edit_allowed function.
 Tests cover all scenarios including template restrictions,
 caching behavior, and special template handling (nobots, bots).
 """
-import sys
-import pytest
 
+import sys
+
+import pytest
 from newapi.api_utils.bot_edit.bot_edit_by_templates import (
-    is_bot_edit_allowed,
     Bot_Cache,
-    stop_edit_temps,
     edit_username,
+    is_bot_edit_allowed,
+    stop_edit_temps,
 )
 
 
@@ -369,10 +370,6 @@ class TestArabicStopTemplates:
         sys.argv = ["script"]
         text = "{{لا للتعريب}}"
         # Should block for 'تعريب' botjob
-        assert not is_bot_edit_allowed(
-            text=text, title_page="Test", botjob="تعريب"
-        )
+        assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="تعريب")
         # Should allow for 'all' botjob (not in 'all' stop list)
-        assert is_bot_edit_allowed(
-            text=text, title_page="Test2", botjob="all"
-        )
+        assert is_bot_edit_allowed(text=text, title_page="Test2", botjob="all")

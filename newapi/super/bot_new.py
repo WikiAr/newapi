@@ -5,20 +5,22 @@ from .super.bot_new import LOGIN_HELPS
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
 """
-import sys
-import os
-import logging
+
 import copy
-import requests
+import logging
+import os
+import sys
 from http.cookiejar import MozillaCookieJar
+
+import requests
 
 from ..api_utils import printe
 from ..api_utils.except_err import exception_err
-from .cookies_bot import get_file_name, del_cookies_file
-
-from .params_help import PARAMS_HELPS
 from ..api_utils.user_agent import default_user_agent
+from .cookies_bot import del_cookies_file, get_file_name
 from .mwclient.client import Site
+from .params_help import PARAMS_HELPS
+
 logins_count = {1: 0}
 logger = logging.getLogger(__name__)
 
@@ -74,10 +76,14 @@ class MwClientSite:
         self.domain = f"{self.lang}.{self.family}.org"
 
         if "dopost" in sys.argv:
-            self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
+            self.site_mwclient = Site(
+                self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login
+            )
         else:
             try:
-                self.site_mwclient = Site(self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login)
+                self.site_mwclient = Site(
+                    self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login
+                )
             except Exception as e:
                 printe.output(f"Could not connect to ({self.domain}): %s" % e)
                 return False
@@ -157,6 +163,7 @@ class MwClientSite:
 # -----
 # -----
 
+
 class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def __init__(self) -> None:
         # ---
@@ -184,7 +191,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
-        if family != "" and table['username'] != "" and table['password'] != "":
+        if family != "" and table["username"] != "" and table["password"] != "":
             # ---
             if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True

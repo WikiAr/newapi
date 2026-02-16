@@ -1,10 +1,11 @@
 """
 python3 core8/pwb.py newapi/pformat
 """
+
 import sys
-import wikitextparser as wtp
 from pathlib import Path
 
+import wikitextparser as wtp
 
 # python3 core8/pwb.py newapi/pformat -title:قالب:Cycling_race/stageclassification3
 # python3 core8/pwb.py newapi/pformat -title:قالب:معلومات_خاصية_ويكي_بيانات/تتبع
@@ -31,27 +32,27 @@ def make_new_text(text):
 
 if __name__ == "__main__":
     # ---
-    sys.argv.append('workibrahem')
-    sys.argv.append('ask')
+    sys.argv.append("workibrahem")
+    sys.argv.append("ask")
     # ---
     Dir = Path(__file__).parent
     # ---
-    title = ''
+    title = ""
     text = open(f"{Dir}/pformat.txt", "r", encoding="utf-8").read()
     for arg in sys.argv:
-        arg, _, value = arg.partition(':')
-        if arg == '-title' or arg == '-page':
+        arg, _, value = arg.partition(":")
+        if arg == "-title" or arg == "-page":
             title = value
     # ---
     if title:
         # ---
         from newapi.page import MainPage
 
-        page = MainPage(title, 'ar', family='wikipedia')
+        page = MainPage(title, "ar", family="wikipedia")
         text = page.get_text()
         newtext = make_new_text(text)
-        if 'save' in sys.argv:
-            save_page = page.save(newtext=newtext, summary='', nocreate=1, minor='')
+        if "save" in sys.argv:
+            save_page = page.save(newtext=newtext, summary="", nocreate=1, minor="")
     else:
         prased = wtp.parse(text)
         newtext = prased.pformat()

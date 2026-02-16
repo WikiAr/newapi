@@ -1,7 +1,9 @@
-"""
-"""
+""" """
+
 import datetime
+
 from .. import printe
+
 Created_Cache = {}
 
 
@@ -80,7 +82,9 @@ def check_last_edit_time(page, title_page, delay):
         # ---
         if diff_minutes < delay:
             printe.output(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
-            printe.output(f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}")
+            printe.output(
+                f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}"
+            )
             return False
     # ---
     return True

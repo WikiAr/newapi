@@ -1,5 +1,6 @@
-import time
 import logging
+import time
+
 from .errors import MaximumRetriesExceeded
 
 log = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class Sleepers:
         retry_timeout (int): The time to sleep for each past retry.
         callback (callable): A callable to be called on each retry.
     """
+
     def __init__(self, max_retries, retry_timeout, callback=lambda *x: None):
         self.max_retries = max_retries
         self.retry_timeout = retry_timeout
@@ -59,6 +61,7 @@ class Sleeper:
         retry_timeout (int): The time to sleep for each past retry.
         callback (callable): A callable to be called on each retry.
     """
+
     def __init__(self, args, max_retries, retry_timeout, callback):
         self.args = args
         self.retries = 0
@@ -85,6 +88,6 @@ class Sleeper:
         if timeout < min_time:
             timeout = min_time
 
-        print(f'mwclient/sleep.py: Sleeping for {timeout} seconds')
+        print(f"mwclient/sleep.py: Sleeping for {timeout} seconds")
 
         # time.sleep(timeout)

@@ -6,19 +6,19 @@ from .super.bot import LOGIN_HELPS
 Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recent login attempts. Please wait 5 minutes before trying again.'}}
 
 """
-import sys
-import os
+
 import logging
-import requests
-
-from .params_help import PARAMS_HELPS
-
+import os
+import sys
 from http.cookiejar import MozillaCookieJar
 
+import requests
+
 from ..api_utils import printe
-from .cookies_bot import get_file_name, del_cookies_file
 from ..api_utils.except_err import exception_err
 from ..api_utils.user_agent import default_user_agent
+from .cookies_bot import del_cookies_file, get_file_name
+from .params_help import PARAMS_HELPS
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
@@ -72,7 +72,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if table["username"].find("bot") == -1 and family == "wikipedia":
             print(f"add_User_tables: {family=}, {table['username']=}")
         # ---
-        if family != "" and table['username'] != "" and table['password'] != "":
+        if family != "" and table["username"] != "" and table["password"] != "":
             # ---
             if self.family == family or (langx == "ar" and self.family.startswith("wik")):  # wiktionary
                 self.user_table_done = True
@@ -112,7 +112,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         Bot_passwords = self.password.find("@") != -1
         logins_count[1] += 1
         printe.output(f"<<{color}>> {botname}/page.py: Log_to_wiki {self.endpoint} count:{logins_count[1]}")
-        printe.output(f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})")
+        printe.output(
+            f"{botname}/page.py: log to {self.lang}.{self.family}.org user:{self.username}, ({Bot_passwords=})"
+        )
 
         logintoken = self.get_logintoken()
 
@@ -143,7 +145,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(r11.status_code, "logintoken")
             # ---
             if not str(r11.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                printe.output(
+                    f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
             # ---
         except Exception as e:
             exception_err(e)
@@ -294,7 +298,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
             self.log_error(req0.status_code, action, params=params)
             # ---
             if not str(req0.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                printe.output(
+                    f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
 
     def raw_request(self, params, files=None, timeout=30):
         # ---
@@ -412,7 +418,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
             req0 = seasons_by_lang[self.sea_key].request("GET", url, headers=self.headers)
             # ---
             if not str(req0.status_code).startswith("2"):
-                printe.output(f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}")
+                printe.output(
+                    f"<<red>> {botname} {req0.status_code} Server Error: Server Hangup for url: {self.endpoint}"
+                )
             # ---
         except Exception as e:
             exception_err(e)
