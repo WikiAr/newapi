@@ -7,6 +7,7 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 """
 import sys
 import os
+import logging
 import copy
 import requests
 from http.cookiejar import MozillaCookieJar
@@ -16,16 +17,10 @@ from ..api_utils.except_err import exception_err
 from .cookies_bot import get_file_name, del_cookies_file
 
 from .params_help import PARAMS_HELPS
-from .Login_db.bot import log_one
 from ..api_utils.user_agent import default_user_agent
-# import mwclient
-
-# from mwclient.client import Site
 from .mwclient.client import Site
-
-# cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
-
+logger = logging.getLogger(__name__)
 
 class MwClientSite:
     def __init__(self, lang, family):
@@ -46,7 +41,7 @@ class MwClientSite:
         # self._start_()
 
     def log_error(self, result, action, params=None) -> None:
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
+        logger.error(f"Error occurred during {action}: {result}")
 
     def _start_(self, username, password):
         self.username = username
