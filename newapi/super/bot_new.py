@@ -22,6 +22,7 @@ from .mwclient.client import Site
 logins_count = {1: 0}
 logger = logging.getLogger(__name__)
 
+
 class MwClientSite:
     def __init__(self, lang, family):
         self.lang = lang
