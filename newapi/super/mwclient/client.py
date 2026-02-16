@@ -6,8 +6,6 @@ from collections import OrderedDict
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from requests_oauthlib import OAuth1
-
-from ..Login_db.bot import log_one
 from . import errors, listing
 
 # from .sleep import Sleepers
@@ -15,7 +13,7 @@ from .util import handle_limit, parse_timestamp, read_in_chunks
 
 __version__ = "0.11.0"
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 USER_AGENT = "mwclient/{} ({})".format(__version__, "https://github.com/mwclient/mwclient")
 
@@ -391,7 +389,7 @@ class Site:
         return info
 
     def log_error(self, result, action, params=None) -> None:
-        log_one(site=self.host, user=self.username, result=result, action=action, params=params)
+        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if
@@ -423,7 +421,7 @@ class Site:
         if "warnings" in info:
             for module, warning in info["warnings"].items():
                 if "*" in warning:
-                    log.warning(warning["*"])
+                    logger.warning(warning["*"])
 
         if "error" in info:
             if info["error"].get("code") in {"internal_api_error_DBConnectionError", "internal_api_error_DBQueryError"}:
@@ -434,7 +432,7 @@ class Site:
             if info["error"].get("code") == "mwoauth-invalid-authorization" and "Nonce already used" in info[
                 "error"
             ].get("info"):
-                log.warning("Retrying due to nonce error, see" "https://phabricator.wikimedia.org/T106066")
+                logger.warning("Retrying due to nonce error, see" "https://phabricator.wikimedia.org/T106066")
                 # sleeper.sleep()
                 return False
 
@@ -519,7 +517,7 @@ class Site:
             stream = self.connection.request(http_method, url, **args)
             if stream.headers.get("x-database-lag"):
                 wait_time = int(stream.headers.get("retry-after"))
-                log.warning("Database lag exceeds max lag. " f"Waiting for {wait_time} seconds, maxlag:{maxlag}")
+                logger.warning("Database lag exceeds max lag. " f"Waiting for {wait_time} seconds, maxlag:{maxlag}")
                 # fall through to the sleep
             elif stream.status_code == 200:
                 return stream.text
@@ -528,7 +526,7 @@ class Site:
             else:
                 if not retry_on_error:
                     stream.raise_for_status()
-                log.warning(
+                logger.warning(
                     "Received {status} response: {text}. "
                     "Retrying in a moment.".format(status=stream.status_code, text=stream.text)
                 )
@@ -543,7 +541,7 @@ class Site:
             if not retry_on_error:
                 print("raise")
             print(err)
-            log.warning("Connection error. Retrying in a moment.")
+            logger.warning("Connection error. Retrying in a moment.")
             toraise = err
             # proceed to the sleep
 
@@ -771,7 +769,7 @@ class Site:
             try:
                 kwargs["lgtoken"] = self.get_token("login")
             except (errors.APIError, KeyError):
-                log.debug("Failed to get login token, MediaWiki is older than 1.27.")
+                logger.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
             # while True:
             login = self.post("login", **kwargs)
@@ -847,7 +845,7 @@ class Site:
                 try:
                     kwargs["logintoken"] = self.get_token("login")
                 except (errors.APIError, KeyError):
-                    log.debug("Failed to get login token, MediaWiki is older than 1.27.")
+                    logger.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
             if "logincontinue" not in kwargs and "loginreturnurl" not in kwargs:
                 # should be great if API didn't require this...
@@ -1090,7 +1088,7 @@ class Site:
 
             offset += chunk.tell()
             chunk.close()
-            log.debug("%s: Uploaded %d of %d bytes", filename, offset, content_size)
+            logger.debug("%s: Uploaded %d of %d bytes", filename, offset, content_size)
             params["filekey"] = response["filekey"]
             if response["result"] == "Continue":
                 params["offset"] = response["offset"]

@@ -8,6 +8,7 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 """
 
 import os
+import logging
 import sys
 from http.cookiejar import MozillaCookieJar
 
@@ -17,14 +18,13 @@ from ..api_utils import printe
 from ..api_utils.except_err import exception_err
 from ..api_utils.user_agent import default_user_agent
 from .cookies_bot import del_cookies_file, get_file_name
-from .Login_db.bot import log_one
 from .params_help import PARAMS_HELPS
 
 # cookies = get_cookies(lang, family, username)
 seasons_by_lang = {}
 users_by_lang = {}
 logins_count = {1: 0}
-
+logger = logging.getLogger(__name__)
 botname = "newapi"
 
 
@@ -58,7 +58,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
-        log_one(site=f"{self.lang}.{self.family}.org", user=self.username, result=result, action=action, params=params)
+        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---
