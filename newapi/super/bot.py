@@ -7,8 +7,8 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 
 """
 
-import logging
 import os
+import logging
 import sys
 from http.cookiejar import MozillaCookieJar
 
@@ -25,7 +25,6 @@ seasons_by_lang = {}
 users_by_lang = {}
 logins_count = {1: 0}
 logger = logging.getLogger(__name__)
-
 botname = "newapi"
 
 
@@ -59,7 +58,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred during {action}: {result}")
+        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def add_User_tables(self, family, table, lang="") -> None:
         # ---

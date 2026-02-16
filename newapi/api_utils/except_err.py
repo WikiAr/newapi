@@ -50,11 +50,3 @@ def exception_err(e, text=""):
     # ---
     printe.warn("CRITICAL:")
     # printe.info("====")
-
-
-if __name__ == "__main__":
-
-    def xx(t, x):
-        exception_err(t, x)
-
-    xx("Exception", "test!!")

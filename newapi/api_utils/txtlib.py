@@ -104,35 +104,3 @@ def get_all_temps_params(text, templates=None, lowers=False):
     tab = get_one_temp_params(text, templates=templates, lowers=lowers, get_all_temps=True)
     # ---
     return tab
-
-
-# ---
-test_text = """
-{{ص.م/صورة مضاعفة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}
-| صورة1 ={{{علم|{{{flag|{{{صورة علم|}}}}}}}}}
-| تعليق1 ={{#لو:{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{وصف العلم|{{{flagcaption|}}}}}}|خاصية=P163|rank=best}}|{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{وصف العلم|{{{flagcaption|}}}}}}|خاصية=P163|rank=best}}|{{فصع}}}}
-| عرض1 ={{{عرض العلم|{{{flagsize|125}}}}}}
-| صورة2 ={{{motto|{{{شعار|}}}}}}
-| تعليق2 ={{#لو:{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{تعليق الشعار|{{{وصف الشعار|}}}}}}|خاصية=P237|rank=best}}|{{قيمة ويكي بيانات|معرف ويكي بيانات={{{معرف ويكي بيانات|}}}|{{{تعليق الشعار|{{{وصف الشعار|}}}}}}|خاصية=P237|rank=best}}|{{فصع}}}}
-| عرض2 = {{{عرض الشعار|125}}}
-| خاصية1 =P41
-| خاصية2 ={{#لو:{{#خاصية:P94}}|P94|P154}}
-|خلفية={{{خلفية|}}}
-}}
-
-{{ourworldindatamirror|https://owidm.wmcloud.org/grapher/cancer-death-rates?tab=map {{Webarchive}}}}
-"""
-# ---
-if __name__ == "__main__":
-    # ---
-    # ---
-    ingr = extract_templates_and_params(test_text)
-    for temp in ingr:
-        # ---
-        name, namestrip, params, template = temp["name"], temp["namestrip"], temp["params"], temp["item"]
-        # ---
-        print("-----------------------------")
-        print(f"name: {name}")
-        print(f"namestrip: {namestrip}")
-        print(f"params: {params}")
-        print(f"template: {template}")
