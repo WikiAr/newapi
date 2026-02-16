@@ -732,16 +732,3 @@ __all__ = [
     "info",
     "test_print",
 ]
-
-if __name__ == "__main__":
-    line = ""
-    numb = 0
-    for co, cac in color_table.items():
-        if cac:
-            numb += 1
-            line += f" {co.ljust(15)} <<{co}>> test.<<default>>"
-            line += "\n"
-            # if numb % 5 == 0: line += "\n"
-    # ---
-    output(line)
-    showDiff(line, f"{line}3434s")

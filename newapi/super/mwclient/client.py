@@ -6,7 +6,6 @@ from collections import OrderedDict
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from requests_oauthlib import OAuth1
-
 from . import errors, listing
 
 # from .sleep import Sleepers
@@ -390,7 +389,7 @@ class Site:
         return info
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred during {action}: {result}")
+        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if

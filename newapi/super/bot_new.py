@@ -21,8 +21,11 @@ from .cookies_bot import del_cookies_file, get_file_name
 from .mwclient.client import Site
 from .params_help import PARAMS_HELPS
 
-logins_count = {1: 0}
 logger = logging.getLogger(__name__)
+
+
+# cookies = get_cookies(lang, family, username)
+logins_count = {1: 0}
 
 
 class MwClientSite:
@@ -44,7 +47,7 @@ class MwClientSite:
         # self._start_()
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred during {action}: {result}")
+        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def _start_(self, username, password):
         self.username = username

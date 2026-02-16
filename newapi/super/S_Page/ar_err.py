@@ -40,8 +40,3 @@ def test_find_edit_error():
     print(f"Test case 3: Result = {result}")
 
     print("All test cases pass!")
-
-
-if __name__ == "__main__":
-    # Run the test
-    test_find_edit_error()
