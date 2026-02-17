@@ -3,7 +3,6 @@ from .super.handel_errors import HANDEL_ERRORS
 
 """
 
-# from newapi import printe
 import logging
 import sys
 

@@ -43,7 +43,6 @@ if login_done_lang[1] != code:
 
 import datetime
 import logging
-import sys
 import time
 from collections.abc import KeysView
 from datetime import timedelta
@@ -1012,7 +1011,7 @@ class NEW_API(BOTS_APIS):
             "ususers": "Mr.Ibrahembot",
         }
         # ---
-        all_usprops = [
+        _all_usprops = [
             "groups",
             "implicitgroups",
             "cancreate",

@@ -11,8 +11,6 @@ from . import txtlib
 # for temp in temps: name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
 
 """
-# from ..other_bots import printe
-
 from functools import lru_cache
 
 import wikitextparser as wtp

@@ -913,7 +913,17 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         return self.links_data.back_links
 
-    def page_links(self):
+    def page_links(self) -> list:
+        """
+        Get the links on the page.
+        Return:
+            list: A list of links on the page, where each link is represented as a dictionary containing its namespace, title, and existence status.
+        Example of returned data:
+            [
+                {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True},
+                {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}
+            ]
+        """
         params = {
             "action": "parse",
             "prop": "links",
@@ -923,7 +933,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # data = self.post_params(params)
         # data = data.get('parse', {}).get('links', [])
         # ---
-        data = self.post_continue(params, "parse", _p_="links", p_empty=[])
+        data: list = self.post_continue(params, "parse", _p_="links", p_empty=[])
         # ---
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
         # ---

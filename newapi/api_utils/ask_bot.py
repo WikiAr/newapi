@@ -3,17 +3,21 @@
 from ...api_utils.ask_bot import ASK_BOT
 
 """
+import sys
+import difflib
 
 import logging
-import sys
-
-from . import printe
-
 logger = logging.getLogger(__name__)
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 
 Save_or_Ask = {}
+
+
+def showDiff(text, newtext):
+    diff = difflib.unified_diff(text.splitlines(), newtext.splitlines(), lineterm="")
+    for line in diff:
+        logger.info(line)
 
 
 class ASK_BOT:
@@ -48,7 +52,7 @@ class ASK_BOT:
             if text or newtext:
                 if "nodiff" not in sys.argv and not nodiff:
                     if len(newtext) < 70000 and len(text) < 70000 or "diff" in sys.argv:
-                        printe.showDiff(text, newtext)
+                        showDiff(text, newtext)
                     else:
                         logger.info("showDiff error..")
                 # ---

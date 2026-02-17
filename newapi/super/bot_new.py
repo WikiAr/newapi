@@ -45,7 +45,9 @@ class MwClientSite:
         # self._start_()
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
+        good_result = [200, "success"]
+        if result not in good_result:
+            logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def _start_(self, username, password):
         self.username = username

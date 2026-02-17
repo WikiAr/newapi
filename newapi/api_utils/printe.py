@@ -1,12 +1,4 @@
 """
-This module provides functions for printing colored text and showing differences between two texts.
-The main functions are `output` and `showDiff`.
-
-Example usage:
-# To print colored text
-logger.info('<<red>>red')  # prints 'red' in red color
-# To show differences between two texts
-printe.showDiff('old text', 'new text')  # prints the differences between 'old text' and 'new text'
 """
 
 import difflib
