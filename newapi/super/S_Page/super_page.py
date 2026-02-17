@@ -46,13 +46,10 @@ purge       = page.purge()
 
 import logging
 import sys
-from warnings import warn
-
 import wikitextparser as wtp
 
 from ...api_utils import botEdit, txtlib
 from ...api_utils.ask_bot import ASK_BOT
-from ...api_utils.except_err import warn_err
 from ...api_utils.lang_codes import change_codes
 from .ar_err import find_edit_error
 from .bot import PAGE_APIS
@@ -232,7 +229,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         for k, v in pages.items():
             # ---
             if print_test[1] or "printdata" in sys.argv:
-                warn(warn_err(f"v:{str(v)}"), UserWarning)
+                logger.warning(f"v:{str(v)}")
             # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !

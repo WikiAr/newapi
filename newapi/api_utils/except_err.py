@@ -1,10 +1,5 @@
 """
-
-python3 bots/new/newapi/except_err.py
-
-from .except_err import exception_err
-from .except_err import exception_err, warn_err
-
+except_err|warn_err|exception_err
 """
 
 import inspect
