@@ -1,5 +1,4 @@
 """
-except_err|warn_err|exception_err
 """
 
 import inspect
