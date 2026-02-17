@@ -1,9 +1,9 @@
 """ """
 
 import datetime
+import logging
 
-from .. import printe
-
+logger = logging.getLogger(__name__)
 Created_Cache = {}
 
 
@@ -42,8 +42,8 @@ def check_create_time(page, title_page):
         wait_time = delay_hours - diff
         # ---
         if diff < delay_hours:
-            printe.output(f"<<yellow>>Page:{title_page} create at ({create_time}).")
-            printe.output(f"<<invert>>Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
+            logger.info(f"<<yellow>>Page:{title_page} create at ({create_time}).")
+            logger.info(f"<<invert>>Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
             return False
     # ---
     return True
@@ -76,13 +76,13 @@ def check_last_edit_time(page, title_page, delay):
         # ---
         diff_minutes = (now - ts_time).total_seconds() / 60
         # ---
-        # printe.output(f"<<grey>> last-edit Δ={diff_minutes:.2f} min for {title_page}")
+        # logger.info(f"<<grey>> last-edit Δ={diff_minutes:.2f} min for {title_page}")
         # ---
         wait_time = delay - diff_minutes
         # ---
         if diff_minutes < delay:
-            printe.output(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
-            printe.output(
+            logger.info(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
+            logger.info(
                 f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}"
             )
             return False

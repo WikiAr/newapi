@@ -1,12 +1,4 @@
 """
-This module provides functions for printing colored text and showing differences between two texts.
-The main functions are `output` and `showDiff`.
-
-Example usage:
-# To print colored text
-printe.output('<<red>>red')  # prints 'red' in red color
-# To show differences between two texts
-printe.showDiff('old text', 'new text')  # prints the differences between 'old text' and 'new text'
 """
 
 import difflib
@@ -344,7 +336,10 @@ class Hunk:
     PENDING = 0
 
     def __init__(
-        self, a: str | Sequence[str], b: str | Sequence[str], grouped_opcode: Sequence[tuple[str, int, int, int, int]]
+        self,
+        a: str | Sequence[str],
+        b: str | Sequence[str],
+        grouped_opcode: Sequence[tuple[str, int, int, int, int]],
     ) -> None:
         """
         Initializer.
@@ -539,7 +534,12 @@ def get_header_text(a_rng: tuple[int, int], b_rng: tuple[int, int], affix: str =
 
 class PatchManager:
     def __init__(
-        self, text_a: str, text_b: str, context: int = 0, by_letter: bool = False, replace_invisible: bool = False
+        self,
+        text_a: str,
+        text_b: str,
+        context: int = 0,
+        by_letter: bool = False,
+        replace_invisible: bool = False,
     ) -> None:
         self.a = text_a.splitlines(True)
         self.b = text_b.splitlines(True)
@@ -633,8 +633,14 @@ class PatchManager:
         a0, a1 = super_hunk.a_rng
         b0, b1 = super_hunk.b_rng
         return (
-            (a0 - min(super_hunk.pre_context, self.context), a1 + min(super_hunk.post_context, self.context)),
-            (b0 - min(super_hunk.pre_context, self.context), b1 + min(super_hunk.post_context, self.context)),
+            (
+                a0 - min(super_hunk.pre_context, self.context),
+                a1 + min(super_hunk.post_context, self.context),
+            ),
+            (
+                b0 - min(super_hunk.pre_context, self.context),
+                b1 + min(super_hunk.post_context, self.context),
+            ),
         )
 
     def _generate_diff(self, hunks: _Superhunk) -> str:

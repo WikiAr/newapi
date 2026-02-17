@@ -4,11 +4,13 @@ from .super.S_API.bot import BOTS_APIS
 
 """
 
+import logging
 import sys
 
-from ...api_utils import printe
 from ...api_utils.ask_bot import ASK_BOT
 from ..handel_errors import HANDEL_ERRORS
+
+logger = logging.getLogger(__name__)
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
@@ -25,15 +27,15 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
     def Add_To_Bottom(self, text, summary, title, poss="Head|Bottom"):
         # ---
         if not title.strip():
-            printe.output('** Add_To_Bottom ..  title == ""')
+            logger.info('** .. title == ""')
             return False
         # ---
         if not text.strip():
-            printe.output('** Add_To_Bottom ..  text == ""')
+            logger.info('** .. text == ""')
             return False
         # ---
-        printe.test_print(f"** Add_To_Bottom .. [[{title}]] ")
-        # printe.showDiff("", text)
+        logger.debug(f"** .. [[{title}]] ")
+
         # ---
         user = self.username or getattr(self, "user_login", "")
         # ---
@@ -72,7 +74,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         result = data.get("result", "")
         # ---
         if result == "Success":
-            printe.output(f"<<lightgreen>>** True. Add_To_Bottom title:({title})")
+            logger.info(f"<<lightgreen>>** True. title:({title})")
             return True
         # ---
         error = results.get("error", {})
@@ -85,9 +87,17 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         return True
 
-    def move(self, old_title, to, reason="", noredirect=False, movesubpages=False, return_dict=False):
+    def move(
+        self,
+        old_title,
+        to,
+        reason="",
+        noredirect=False,
+        movesubpages=False,
+        return_dict=False,
+    ):
         # ---
-        printe.output(f"<<lightyellow>> def move [[{old_title}]] to [[{to}]] ")
+        logger.info(f"<<lightyellow>> def [[{old_title}]] to [[{to}]] ")
         # ---
         params = {
             "action": "move",
@@ -107,7 +117,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             params["reason"] = reason
         # ---
         if old_title == to:
-            printe.test_print(f"<<lightred>>** old_title == to {to} ")
+            logger.debug(f"<<lightred>>** old_title == to {to} ")
             return {}
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
@@ -121,7 +131,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # { "move": { "from": "d", "to": "d2", "reason": "wrong", "redirectcreated": true, "moveoverredirect": false } }
         # ---
         if not data:
-            printe.output("no data")
+            logger.info("no data")
             return {}
         # ---
         _expend_data = {
@@ -134,7 +144,11 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
                 "talkmove-errors": [
                     {
                         "message": "content-not-allowed-here",
-                        "params": ["Structured Discussions board", "User talk:Mr. Ibrahem/x", "main"],
+                        "params": [
+                            "Structured Discussions board",
+                            "User talk:Mr. Ibrahem/x",
+                            "main",
+                        ],
                         "code": "contentnotallowedhere",
                         "type": "error",
                     },
@@ -147,12 +161,22 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
                 ],
                 "subpages": {
                     "errors": [
-                        {"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}
+                        {
+                            "message": "cant-move-subpages",
+                            "params": [],
+                            "code": "cant-move-subpages",
+                            "type": "error",
+                        }
                     ]
                 },
                 "subpages-talk": {
                     "errors": [
-                        {"message": "cant-move-subpages", "params": [], "code": "cant-move-subpages", "type": "error"}
+                        {
+                            "message": "cant-move-subpages",
+                            "params": [],
+                            "code": "cant-move-subpages",
+                            "type": "error",
+                        }
                     ]
                 },
             }
@@ -165,7 +189,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # elif "Please choose another name." in r4:
         # ---
         if move_done:
-            printe.output("<<lightgreen>>** true.")
+            logger.info("<<lightgreen>>** true.")
             # ---
             if return_dict:
                 return move_done
@@ -174,7 +198,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         if error:
             if error_code == "ratelimited":
-                printe.output("<<red>> move ratelimited:")
+                logger.info("<<red>> ratelimited:")
                 return self.move(
                     old_title,
                     to,
@@ -185,11 +209,11 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
                 )
 
             if error_code == "articleexists":
-                printe.output("<<red>> articleexists")
+                logger.info("<<red>> articleexists")
                 return "articleexists"
 
-            printe.output("<<red>> error")
-            printe.output(error)
+            logger.info("<<red>> error")
+            logger.info(error)
 
             return {}
         # ---
@@ -242,7 +266,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
 
     def upload_by_file(self, file_name, text, file_path, comment="", ignorewarnings=False):
         # ---
-        printe.output(f"<<lightyellow>> def upload_by_file. {file_name=}")
+        logger.info(f"<<lightyellow>> def . {file_name=}")
         # ---
         if file_name.startswith("File:"):
             file_name = file_name.replace("File:", "")
@@ -250,7 +274,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         if file_name.startswith("ملف:"):
             file_name = file_name.replace("ملف:", "")
         # ---
-        printe.output(f"<<lightyellow>> {file_path=}...")
+        logger.info(f"<<lightyellow>> {file_path=}...")
         # ---
         params = {
             "action": "upload",
@@ -274,11 +298,11 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         duplicate = upload_result.get("warnings", {}).get("duplicate", [""])[0].replace("_", " ")
         # ---
         if success:
-            printe.output(f"<<lightgreen>> ** upload true .. [[File:{file_name}]] ")
+            logger.info(f"<<lightgreen>> ** upload true .. [[File:{file_name}]] ")
             return True
         # ---
         if duplicate:
-            printe.output(f"<<lightred>> ** duplicate file: {duplicate}.")
+            logger.info(f"<<lightred>> ** duplicate file: {duplicate}.")
         # ---
         return data
 

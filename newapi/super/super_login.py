@@ -13,15 +13,17 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 # ----
 
 """
+
 import copy
+import logging
 import sys
 import time
 import urllib.parse
 
-from ..api_utils import printe
-from ..api_utils.except_err import warn_err
 from ..api_utils.user_agent import default_user_agent
 from .handel_errors import HANDEL_ERRORS
+
+logger = logging.getLogger(__name__)
 
 # if "nomwclient" in sys.argv:
 #     from .bot import LOGIN_HELPS
@@ -81,7 +83,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             no_remove = ["titles", "title"]
             # ---
             pams2 = {
-                k: v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v
+                k: (v[:100] if isinstance(v, str) and len(v) > 100 and k not in no_remove else v)
                 for k, v in params.items()
                 if k not in no_url
             }
@@ -94,7 +96,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             urls_prints[self.url_o_print] += 1
             urls_prints["all"] += 1
             # ---
-            printe.output(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
+            logger.info(f"c: {urls_prints[self.url_o_print]}/{urls_prints['all']}\t {self.url_o_print}")
 
     def make_response(self, params, files=None, timeout=30, do_error=True):
         """
@@ -149,7 +151,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
     def post(self, params, Type="get", addtoken=False, CSRF=True, files=None):
         return self.post_params(params, Type=Type, addtoken=addtoken, GET_CSRF=CSRF, files=files)
 
-    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+    def post_params(
+        self,
+        params,
+        Type="get",
+        addtoken=False,
+        GET_CSRF=True,
+        files=None,
+        do_error=False,
+        max_retry=0,
+    ):
         """
         Make a POST request to the API endpoint with authentication token.
         """
@@ -181,7 +192,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             self.r3_token = self.make_new_r3_token()
 
         if not self.r3_token:
-            printe.output(warn_err('<<red>> self.r3_token == "" '))
+            logger.error('<<red>> self.r3_token == "" ')
 
         params["token"] = self.r3_token
 
@@ -192,7 +203,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         data = self.make_response(params, files=files, do_error=do_error)
 
         if not data:
-            printe.output("<<red>> super_login(post): not data. return {}.")
+            logger.info("<<red>> super_login(post): not data. return {}.")
             return {}
         # ---
         error = data.get("error", {})
@@ -203,10 +214,10 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # code = error.get("code", "")
             # ---
             if do_error:
-                printe.output(f"<<red>> super_login(post): error: {error}")
+                logger.error(f"<<red>> super_login(post): error: {error}")
             # ---
             if Invalid == "Invalid CSRF token.":
-                printe.output(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
+                logger.info(f'<<red>> ** error "Invalid CSRF token.".\n{self.r3_token} ')
                 if GET_CSRF:
                     # ---
                     self.r3_token = self.make_new_r3_token()
@@ -218,9 +229,9 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if error_code == "maxlag" and max_retry < 4:
                 lage = int(error.get("lag", "0"))
                 # ---
-                printe.test_print(params)
+                logger.debug(params)
                 # ---
-                printe.output(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
+                logger.info(f"<<purple>>post_params: <<red>> {lage=} {max_retry=}, sleep: {lage + 1}")
                 # ---
                 time.sleep(lage + 1)
                 # ---
@@ -231,16 +242,24 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 return self.post_params(params, Type=Type, addtoken=addtoken, max_retry=max_retry + 1)
         # ---
         if "printdata" in sys.argv:
-            printe.output(data)
+            logger.info(data)
 
         return data
 
     def post_continue(
-        self, params, action, _p_="pages", p_empty=None, Max=500000, first=False, _p_2="", _p_2_empty=None
+        self,
+        params,
+        action,
+        _p_="pages",
+        p_empty=None,
+        Max=500000,
+        first=False,
+        _p_2="",
+        _p_2_empty=None,
     ):
         # ---
-        printe.test_print("_______________________")
-        printe.test_print(f"post_continue, start. {action=}, {_p_=}")
+        logger.debug("_______________________")
+        logger.debug(f", start. {action=}, {_p_=}")
         # ---
         if not isinstance(Max, int) and Max.isdigit():
             Max = int(Max)
@@ -265,16 +284,16 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             # ---
             if continue_params:
                 # params = {**params, **continue_params}
-                printe.test_print("continue_params:")
+                logger.debug("continue_params:")
                 for k, v in continue_params.items():
                     params2[k] = v
                 # params2.update(continue_params)
-                printe.test_print(params2)
+                logger.debug(params2)
             # ---
             json1 = self.post_params(params2)
             # ---
             if not json1:
-                printe.test_print("post_continue, json1 is empty. break")
+                logger.debug(", json1 is empty. break")
                 break
             # ---
             continue_params = {}
@@ -282,8 +301,8 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             if action == "wbsearchentities":
                 data = json1.get("search", [])
                 # ---
-                # printe.test_print("wbsearchentities json1: ")
-                # printe.test_print(str(json1))
+                # logger.debug("wbsearchentities json1: ")
+                # logger.debug(str(json1))
                 # ---
                 # search_continue = json1.get("search-continue")
                 # ---
@@ -303,13 +322,13 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                             data = data.get(_p_2, _p_2_empty)
             # ---
             if not data:
-                printe.test_print("post continue, data is empty. break")
+                logger.debug("post continue, data is empty. break")
                 break
             # ---
-            printe.test_print(f"post continue, len:{len(data)}, all: {len(results)}")
+            logger.debug(f"post continue, len:{len(data)}, all: {len(results)}")
             # ---
             if Max <= len(results) and len(results) > 1:
-                printe.test_print(f"post continue, {Max=} <= {len(results)=}. break")
+                logger.debug(f"post continue, {Max=} <= {len(results)=}. break")
                 break
             # ---
             if isinstance(results, list):
@@ -320,6 +339,6 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
                 print(f"{type(data)=}")
                 results = {**results, **data}
         # ---
-        printe.test_print(f"post continue, {len(results)=}")
+        logger.debug(f"post continue, {len(results)=}")
         # ---
         return results

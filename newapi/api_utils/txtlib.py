@@ -11,8 +11,6 @@ from . import txtlib
 # for temp in temps: name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
 
 """
-# from ..other_bots import printe
-
 from functools import lru_cache
 
 import wikitextparser as wtp
@@ -42,7 +40,7 @@ def extract_templates_and_params(text):
         # ---
         name = str(template.normal_name()).strip()
         pa_item = template.string
-        # printe.output( "<<lightyellow>> pa_item: %s" % pa_item )
+        # logger.info( "<<lightyellow>> pa_item: %s" % pa_item )
         # ---
         namestrip = name
         # ---

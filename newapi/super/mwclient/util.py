@@ -36,16 +36,12 @@ def handle_limit(limit, max_items, api_chunk_size):
     if limit:
         if api_chunk_size:
             warnings.warn(
-                "limit and api_chunk_size both specified, this is not supported! limit "
-                "is deprecated, will use value of api_chunk_size",
+                "limit and api_chunk_size both specified, this is not supported! limit is deprecated, will use value of api_chunk_size",
                 DeprecationWarning,
             )
         else:
             warnings.warn(
-                "limit is deprecated as its name and purpose are confusing. use "
-                "api_chunk_size to set the number of items retrieved from the API at "
-                "once, and/or max_items to limit the total number of items that will be "
-                "yielded",
+                "limit is deprecated as its name and purpose are confusing. use api_chunk_size to set the number of items retrieved from the API at once, and/or max_items to limit the total number of items that will be yielded",
                 DeprecationWarning,
             )
             api_chunk_size = limit

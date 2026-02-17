@@ -15,7 +15,6 @@ class MaximumRetriesExceeded(MwClientError):
 
 
 class APIError(MwClientError):
-
     def __init__(self, code, info, kwargs):
         self.code = code
         self.info = info
@@ -35,7 +34,6 @@ class EditError(MwClientError):
 
 
 class ProtectedPageError(EditError, InsufficientPermission):
-
     def __init__(self, page, code=None, info=None):
         self.page = page
         self.code = code
@@ -62,9 +60,11 @@ class FileExists(EditError):
 
 
 class LoginError(MwClientError):
-
     def __init__(self, site, code, info):
-        super(LoginError, self).__init__(site, {"result": code, "reason": info})  # For backwards-compability
+        super(LoginError, self).__init__(
+            site,
+            {"result": code, "reason": info},  # For backwards-compability
+        )
         self.site = site
         self.code = code
         self.info = info
@@ -78,13 +78,10 @@ class OAuthAuthorizationError(LoginError):
 
 
 class AssertUserFailedError(MwClientError):
-
     def __init__(self):
         super(AssertUserFailedError, self).__init__(
             (
-                "By default, mwclient protects you from accidentally editing "
-                "without being logged in. If you actually want to edit without "
-                "logging in, you can set force_login on the Site object to False."
+                "By default, mwclient protects you from accidentally editing without being logged in. If you actually want to edit without logging in, you can set force_login on the Site object to False."
             )
         )
 
@@ -105,13 +102,10 @@ class NoWriteApi(MwClientError):
 
 
 class InvalidResponse(MwClientError):
-
     def __init__(self, response_text=None):
         super(InvalidResponse, self).__init__(
             (
-                "Did not get a valid JSON response from the server. Check that "
-                "you used the correct hostname. If you did, the server might "
-                "be wrongly configured or experiencing temporary problems."
+                "Did not get a valid JSON response from the server. Check that you used the correct hostname. If you did, the server might be wrongly configured or experiencing temporary problems."
             ),
             response_text,
         )

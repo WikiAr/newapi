@@ -14,8 +14,6 @@ from http.cookiejar import MozillaCookieJar
 
 import requests
 
-from ..api_utils import printe
-from ..api_utils.except_err import exception_err
 from ..api_utils.user_agent import default_user_agent
 from .cookies_bot import del_cookies_file, get_file_name
 from .mwclient.client import Site
@@ -47,7 +45,9 @@ class MwClientSite:
         # self._start_()
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
+        good_result = [200, "success"]
+        if result not in good_result:
+            logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def _start_(self, username, password):
         self.username = username
@@ -67,43 +67,48 @@ class MwClientSite:
         self.connection.headers["User-Agent"] = default_user_agent()
         # ---
         if os.path.exists(cookies_file) and self.family != "mdwiki":
-            # printe.output("<<yellow>>loading cookies")
+            # logger.info("<<yellow>>loading cookies")
             try:
                 # Load cookies from file, including session cookies
                 self.jar_cookie.load(ignore_discard=True, ignore_expires=True)
                 self.connection.cookies = self.jar_cookie  # Tell Requests session to use the cookiejar.
             except Exception as e:
-                printe.output("Could not load cookies: %s" % e)
+                logger.info("Could not load cookies: %s" % e)
 
     def __initialize_site(self):
         self.domain = f"{self.lang}.{self.family}.org"
 
         if "dopost" in sys.argv:
             self.site_mwclient = Site(
-                self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login
+                self.domain,
+                clients_useragent=self.user_agent,
+                pool=self.connection,
+                force_login=self.force_login,
             )
         else:
             try:
                 self.site_mwclient = Site(
-                    self.domain, clients_useragent=self.user_agent, pool=self.connection, force_login=self.force_login
+                    self.domain,
+                    clients_useragent=self.user_agent,
+                    pool=self.connection,
+                    force_login=self.force_login,
                 )
             except Exception as e:
-                printe.output(f"Could not connect to ({self.domain}): %s" % e)
+                logger.info(f"Could not connect to ({self.domain}): %s" % e)
                 return False
 
     def do_login(self):
-
         if not self.force_login:
-            printe.output("<<red>> do_login(): not self.force_login ")
+            logger.info("<<red>> (): not self.force_login ")
             return
 
         if not self.site_mwclient:
-            printe.output(f"no self.ssite_mwclient to ({self.domain})")
+            logger.info(f"no self.ssite_mwclient to ({self.domain})")
             return
 
         if not self.site_mwclient.logged_in:
             logins_count[1] += 1
-            printe.output(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
+            logger.info(f"<<yellow>>logging in to ({self.domain}) count:{logins_count[1]}, user: {self.username}")
             # ---
             try:
                 login_result = self.site_mwclient.login(username=self.username, password=self.password)
@@ -112,10 +117,10 @@ class MwClientSite:
                 self.login_done = True
 
             except Exception as e:
-                printe.output(f"Could not login to ({self.domain}): %s" % e)
+                logger.info(f"Could not login to ({self.domain}): %s" % e)
 
             if self.site_mwclient.logged_in:
-                printe.output(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
+                logger.info(f"<<purple>>logged in as {self.site_mwclient.username} to ({self.domain})")
 
             # Save cookies to file, including session cookies
             if self.jar_cookie:
@@ -133,7 +138,7 @@ class MwClientSite:
         del params["action"]
         # ---
         if not self.site_mwclient:
-            printe.output(f"no self.ssite_mwclient to ({self.domain})")
+            logger.info(f"no self.ssite_mwclient to ({self.domain})")
             self.__initialize_site()
             self.do_login()
         # ---
@@ -155,7 +160,7 @@ class MwClientSite:
             if "text" in params:
                 params["text"] = params["text"][:100]
             # ---
-            exception_err(e, text=params)
+            logger.exception(e, text=params)
         # ---
         return {}
 
@@ -209,7 +214,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
         try:
             csrftoken = self.site_mwclient.get_token("csrf")
         except Exception as e:
-            printe.output("Could not get token: %s" % e)
+            logger.info("Could not get token: %s" % e)
             return False
         # ---
         return csrftoken
@@ -221,7 +226,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
     def raw_request(self, params, files=None, timeout=30):
         # ---
         if not self.user_table_done:
-            printe.output("<<green>> user_table_done == False!")
+            logger.info("<<green>> user_table_done == False!")
             # do error
             if "raise" in sys.argv:
                 raise Exception("user_table_done == False!")
@@ -276,7 +281,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             result = req0.json()
 
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
         # ---
         return result
 

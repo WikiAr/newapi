@@ -4,11 +4,12 @@ from newapi import pymysql_bot
 """
 
 import copy
+import logging
 
 import pymysql
 import pymysql.cursors
 
-from ..api_utils.except_err import exception_err
+logger = logging.getLogger(__name__)
 
 
 def sql_connect_pymysql(
@@ -24,7 +25,7 @@ def sql_connect_pymysql(
     try:
         connection = pymysql.connect(**args, **credentials)
     except Exception as e:
-        exception_err(e)
+        logger.exception(e)
         return []
 
     with connection as conn, conn.cursor() as cursor:
@@ -36,13 +37,14 @@ def sql_connect_pymysql(
                 cursor.execute(query, params)
 
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
             return []
 
         try:
             results = cursor.fetchall()
         except Exception as e:
-            exception_err(e)
+            logger.exception(e)
+            logger.exception('Exception during fetchall', exc_info=True)
             return []
 
     return results

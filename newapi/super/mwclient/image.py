@@ -3,14 +3,18 @@ from .util import handle_limit
 
 
 class Image(page.Page):
-
     def __init__(self, site, name, info=None):
         super(Image, self).__init__(
             site,
             name,
             info,
             extra_properties={
-                "imageinfo": (("iiprop", "timestamp|user|comment|url|size|sha1|metadata|mime|archivename"),)
+                "imageinfo": (
+                    (
+                        "iiprop",
+                        "timestamp|user|comment|url|size|sha1|metadata|mime|archivename",
+                    ),
+                )
             },
         )
         self.imagerepository = self._info.get("imagerepository", "")
@@ -23,7 +27,10 @@ class Image(page.Page):
         API doc: https://www.mediawiki.org/wiki/API:Imageinfo
         """
         return listing.PageProperty(
-            self, "imageinfo", "ii", iiprop="timestamp|user|comment|url|size|sha1|metadata|mime|archivename"
+            self,
+            "imageinfo",
+            "ii",
+            iiprop="timestamp|user|comment|url|size|sha1|metadata|mime|archivename",
         )
 
     def imageusage(
@@ -68,7 +75,13 @@ class Image(page.Page):
         not only specify the API chunk size.
         """
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
-        return listing.PageProperty(self, "duplicatefiles", "df", max_items=max_items, api_chunk_size=api_chunk_size)
+        return listing.PageProperty(
+            self,
+            "duplicatefiles",
+            "df",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+        )
 
     def download(self, destination=None):
         """
@@ -93,4 +106,8 @@ class Image(page.Page):
             return self.site.connection.get(url).content
 
     def __repr__(self):
-        return "<%s object '%s' for %s>" % (self.__class__.__name__, self.name, self.site)
+        return "<%s object '%s' for %s>" % (
+            self.__class__.__name__,
+            self.name,
+            self.site,
+        )

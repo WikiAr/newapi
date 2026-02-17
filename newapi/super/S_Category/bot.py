@@ -5,10 +5,11 @@ from .bot import CategoryDepth
 """
 
 import copy
+import logging
 
 import tqdm
 
-from ...api_utils import printe
+logger = logging.getLogger(__name__)
 
 ns_list = {
     "0": "",
@@ -66,10 +67,25 @@ class CategoryDepth:
         # ---
         self.prase_params(**kwargs)
 
-    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+    def post_params(
+        self,
+        params,
+        Type="get",
+        addtoken=False,
+        GET_CSRF=True,
+        files=None,
+        do_error=False,
+        max_retry=0,
+    ):
         # ---
         return self.login_bot.post_params(
-            params, Type=Type, addtoken=addtoken, GET_CSRF=GET_CSRF, files=files, do_error=do_error, max_retry=max_retry
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry,
         )
 
     def get_revids(self):
@@ -277,7 +293,7 @@ class CategoryDepth:
             d += 1
             # ---
             if self.limit > 0 and len(results) >= self.limit:
-                printe.output(f"<<yellow>> limit:{self.limit} reached, len of results: {len(results)} break ..")
+                logger.info(f"<<yellow>> limit:{self.limit} reached, len of results: {len(results)} break ..")
                 break
             # ---
             if continue_params:
@@ -343,14 +359,12 @@ class CategoryDepth:
             new_tab2 = []
             # ---
             if self.limit > 0 and len(self.result_table) >= self.limit:
-                printe.output(
-                    f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break .."
-                )
+                logger.info(f"<<yellow>> limit:{self.limit} reached, len of results: {len(self.result_table)} break ..")
                 break
             # ---
             depth_done += 1
             # ---
-            # printe.output(f"<<yellow>> work in subcats: {len(new_list)}, depth:{depth_done}/{self.depth}:")
+            # logger.info(f"<<yellow>> work in subcats: {len(new_list)}, depth:{depth_done}/{self.depth}:")
             # ---
             for cat in tqdm.tqdm(new_list):
                 # ---
@@ -367,7 +381,11 @@ class CategoryDepth:
         # ---
         # sort self.result_table by timestamp
         if not self.no_gcmsort:
-            soro = sorted(self.result_table.items(), key=lambda item: self.timestamps.get(item[0], 0), reverse=True)
+            soro = sorted(
+                self.result_table.items(),
+                key=lambda item: self.timestamps.get(item[0], 0),
+                reverse=True,
+            )
             self.result_table = {k: v for k, v in soro}
         # ---
         return self.result_table

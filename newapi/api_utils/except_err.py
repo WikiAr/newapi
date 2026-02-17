@@ -1,20 +1,12 @@
 """
-
-python3 bots/new/newapi/except_err.py
-
-from .except_err import exception_err
-from .except_err import exception_err, warn_err
-
 """
 
 import inspect
+import logging
 import traceback
 from warnings import warn
 
-try:
-    from . import printe
-except Exception:
-    import printe
+logger = logging.getLogger(__name__)
 
 
 def warn_err(err):
@@ -36,17 +28,16 @@ def exception_err(e, text=""):
     if not isinstance(text, str):
         text = str(text)
     # ---
-    printe.output("<<yellow>> start exception_err:")
+    logger.info("<<yellow>> start :")
     # ---
-    printe.error("Traceback (most recent call last):")
+    logger.error("Traceback (most recent call last):")
     warn(warn_err(f"Exception:{str(e)}"), UserWarning, stacklevel=3)
-    printe.warn(text)
+    logger.warning(text)
     # ---
     if str(e) not in common_errors:
         # ---
         err = traceback.format_exc(limit=4)
         err = str(err).replace("Traceback (most recent call last):", "").strip()
-        printe.warn(err)
+        logger.warning(err)
     # ---
-    printe.warn("CRITICAL:")
-    # printe.info("====")
+    logger.critical("CRITICAL:")

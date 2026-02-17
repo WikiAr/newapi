@@ -3,21 +3,37 @@
 from ...api_utils.ask_bot import ASK_BOT
 
 """
-
 import sys
+import difflib
 
-from . import printe
+import logging
+logger = logging.getLogger(__name__)
 
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 
 Save_or_Ask = {}
 
 
+def showDiff(text, newtext):
+    diff = difflib.unified_diff(text.splitlines(), newtext.splitlines(), lineterm="")
+    for line in diff:
+        logger.info(line)
+
+
 class ASK_BOT:
     def __init__(self):
         pass
 
-    def ask_put(self, nodiff=False, newtext="", text="", message="", job="Genral", username="", summary=""):
+    def ask_put(
+        self,
+        nodiff=False,
+        newtext="",
+        text="",
+        message="",
+        job="Genral",
+        username="",
+        summary="",
+    ):
         """
         Prompts the user to confirm saving changes to a page, optionally displaying a diff.
 
@@ -36,29 +52,29 @@ class ASK_BOT:
             if text or newtext:
                 if "nodiff" not in sys.argv and not nodiff:
                     if len(newtext) < 70000 and len(text) < 70000 or "diff" in sys.argv:
-                        printe.showDiff(text, newtext)
+                        showDiff(text, newtext)
                     else:
-                        printe.output("showDiff error..")
+                        logger.info("showDiff error..")
                 # ---
-                printe.output(f"diference in bytes: {len(newtext) - len(text):,}")
-                printe.output(f"len of text: {len(text):,}, len of newtext: {len(newtext):,}")
+                logger.info(f"diference in bytes: {len(newtext) - len(text):,}")
+                logger.info(f"len of text: {len(text):,}, len of newtext: {len(newtext):,}")
             # ---
             if summary:
-                printe.output(f"-Edit summary: {summary}")
+                logger.info(f"-Edit summary: {summary}")
             # ---
-            printe.output(f"<<lightyellow>>ASK_BOT: {message}? (yes, no) {username=}")
+            logger.info(f"<<lightyellow>>ASK_BOT: {message}? (yes, no) {username=}")
             # ---
             sa = input("([y]es, [N]o, [a]ll)?")
             # ---
             if sa == "a":
                 Save_or_Ask[job] = True
                 # ---
-                printe.output("<<lightgreen>> ---------------------------------")
-                printe.output(f"<<lightgreen>> save all:{job} without asking.")
-                printe.output("<<lightgreen>> ---------------------------------")
+                logger.info("<<lightgreen>> ---------------------------------")
+                logger.info(f"<<lightgreen>> save all:{job} without asking.")
+                logger.info("<<lightgreen>> ---------------------------------")
             # ---
             if sa not in yes_answer:
-                printe.output("wrong answer")
+                logger.info("wrong answer")
                 return False
         # ---
         return True
