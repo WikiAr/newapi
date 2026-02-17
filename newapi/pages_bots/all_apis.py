@@ -9,15 +9,18 @@ cat_members = main_api.CatDepth('Category Title')
 new_api = main_api.NEW_API()
 """
 
-# ---
 import functools
+import logging
 from typing import Any
 
-from ..api_utils import printe
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
+
+# ---
 from ..super.super_login import Login
+
+logger = logging.getLogger(__name__)
 
 
 class ALL_APIS:
@@ -54,9 +57,7 @@ class ALL_APIS:
         # ---
         login_bot = Login(self.lang, family=self.family)
         # ---
-        printe.output(
-            f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})", p=True
-        )
+        logger.info(f"### <<purple>> LoginWrap make new bot for ({self.lang}.{self.family}.org|{self.username})")
         # ---
         user_tables = {
             self.family: {

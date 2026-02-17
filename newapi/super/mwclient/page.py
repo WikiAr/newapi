@@ -5,7 +5,6 @@ from .util import handle_limit, parse_timestamp
 
 
 class Page:
-
     def __init__(self, site, name, info=None, extra_properties=None):
         if type(name) is type(self):
             self.__dict__.update(name.__dict__)
@@ -78,7 +77,11 @@ class Page:
             return target_page
 
     def __repr__(self):
-        return "<%s object '%s' for %s>" % (self.__class__.__name__, self.name, self.site)
+        return "<%s object '%s' for %s>" % (
+            self.__class__.__name__,
+            self.name,
+            self.site,
+        )
 
     @staticmethod
     def strip_namespace(title):
@@ -273,7 +276,15 @@ class Page:
             return
         self.append("")
 
-    def move(self, new_title, reason="", move_talk=True, no_redirect=False, move_subpages=False, ignore_warnings=False):
+    def move(
+        self,
+        new_title,
+        reason="",
+        move_talk=True,
+        no_redirect=False,
+        move_subpages=False,
+        ignore_warnings=False,
+    ):
         """Move (rename) page to new_title.
 
         If user account is an administrator, specify no_redirect as True to not
@@ -391,7 +402,13 @@ class Page:
             return listing.PageProperty(self, "categories", "cl", return_values="title", **kwargs)
 
     def embeddedin(
-        self, namespace=None, filterredir="all", limit=None, generator=True, max_items=None, api_chunk_size=None
+        self,
+        namespace=None,
+        filterredir="all",
+        limit=None,
+        generator=True,
+        max_items=None,
+        api_chunk_size=None,
     ):
         """List pages that transclude the current page.
 

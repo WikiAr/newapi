@@ -135,7 +135,11 @@ class List:
             self._iter = iter(data["query"][self.result_member].values())
 
     def __repr__(self):
-        return "<%s object '%s' for %s>" % (self.__class__.__name__, self.list_name, self.site)
+        return "<%s object '%s' for %s>" % (
+            self.__class__.__name__,
+            self.list_name,
+            self.site,
+        )
 
     @staticmethod
     def generate_kwargs(_prefix, *args, **kwargs):
@@ -200,7 +204,6 @@ class GeneratorList(List):
 
 
 class Category(page.Page, GeneratorList):
-
     def __init__(self, site, name, info=None, namespace=None):
         page.Page.__init__(self, site, name, info)
         kwargs = {}
@@ -210,22 +213,39 @@ class Category(page.Page, GeneratorList):
         GeneratorList.__init__(self, site, "categorymembers", "cm", **kwargs)
 
     def __repr__(self):
-        return "<%s object '%s' for %s>" % (self.__class__.__name__, self.name, self.site)
+        return "<%s object '%s' for %s>" % (
+            self.__class__.__name__,
+            self.name,
+            self.site,
+        )
 
     def members(
-        self, prop="ids|title", namespace=None, sort="sortkey", dir="asc", start=None, end=None, generator=True
+        self,
+        prop="ids|title",
+        namespace=None,
+        sort="sortkey",
+        dir="asc",
+        start=None,
+        end=None,
+        generator=True,
     ):
         prefix = self.get_prefix("cm", generator)
         kwargs = dict(
             self.generate_kwargs(
-                prefix, prop=prop, namespace=namespace, sort=sort, dir=dir, start=start, end=end, title=self.name
+                prefix,
+                prop=prop,
+                namespace=namespace,
+                sort=sort,
+                dir=dir,
+                start=start,
+                end=end,
+                title=self.name,
             )
         )
         return self.get_list(generator)(self.site, "categorymembers", "cm", **kwargs)
 
 
 class PageList(GeneratorList):
-
     def __init__(self, site, prefix=None, start=None, namespace=0, redirects="all", end=None):
         self.namespace = namespace
 
@@ -301,7 +321,6 @@ class PageList(GeneratorList):
 
 
 class PageProperty(List):
-
     def __init__(self, page, prop, prefix, *args, **kwargs):
         super(PageProperty, self).__init__(page.site, prop, prefix, titles=page.name, *args, **kwargs)
         self.page = page
@@ -316,14 +335,12 @@ class PageProperty(List):
 
 
 class PagePropertyGenerator(GeneratorList):
-
     def __init__(self, page, prop, prefix, *args, **kwargs):
         super(PagePropertyGenerator, self).__init__(page.site, prop, prefix, titles=page.name, *args, **kwargs)
         self.page = page
 
 
 class RevisionsIterator(PageProperty):
-
     def load_chunk(self):
         if "rvstartid" in self.args and "rvstart" in self.args:
             del self.args["rvstart"]

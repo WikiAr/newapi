@@ -5,6 +5,7 @@ from .super.cookies_bot import get_cookies
 
 """
 
+import logging
 import os
 import stat
 import sys
@@ -12,7 +13,7 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 
-from ..api_utils import printe
+logger = logging.getLogger(__name__)
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
 tool = os.getenv("HOME")
@@ -26,9 +27,9 @@ ta_dir = tool / "cookies"
 # ---
 if not ta_dir.exists():
     ta_dir.mkdir()
-    printe.output("<<green>> mkdir:")
-    printe.output(f"ta_dir:{ta_dir}")
-    printe.output("<<green>> mkdir:")
+    logger.info("<<green>> mkdir:")
+    logger.info(f"ta_dir:{ta_dir}")
+    logger.info("<<green>> mkdir:")
     os.chmod(ta_dir, statgroup)
 
 
@@ -39,9 +40,9 @@ def del_cookies_file(file_path):
     if file.exists():
         try:
             file.unlink(missing_ok=True)
-            printe.output(f"<<green>> unlink: file:{file}")
+            logger.info(f"<<green>> unlink: file:{file}")
         except Exception as e:
-            printe.output(f"<<red>> unlink: Exception:{e}")
+            logger.error(f"<<red>> unlink: Exception:{e}")
 
 
 def get_file_name(lang, family, username) -> Path:
@@ -105,7 +106,7 @@ def get_cookies(lang, family, username):
     cookies = from_folder(lang, family, username)
     # ---
     if not cookies:
-        printe.output(f" <<red>> get_cookies: <<yellow>> [[{lang}:{family}]] user:{username} <<red>> not found")
+        logger.info(f" <<red>> get_cookies: <<yellow>> [[{lang}:{family}]] user:{username} <<red>> not found")
         return "make_new"
     # ---
     return cookies

@@ -41,7 +41,7 @@ def test_all_apis_init(mock_dependencies):
     mock_dependencies["Login"].assert_called_once_with(lang, family=family)
     mock_dependencies["LoginInstance"].add_users.assert_called_once()
 
-    # Verify printe.output was called
+    # Verify logger.info was called
     mock_dependencies["printe"].output.assert_called()
 
 

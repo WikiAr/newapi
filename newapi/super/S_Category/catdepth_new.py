@@ -1,11 +1,18 @@
-""" """
+"""
 
+from newapi.ncc_page import CatDepth
+# cat_members = CatDepth(title, sitecode='www', family="nccommons", depth=0, ns=10, nslist=[], onlyns=False, tempyes=[])
+
+"""
+
+import logging
 import sys
 import time
 from functools import lru_cache
 
-from ...api_utils import printe
 from .bot import CategoryDepth
+
+logger = logging.getLogger(__name__)
 
 SITECODE = "en"
 FAMILY = "wikipedia"
@@ -57,7 +64,7 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     args2 = args_group(title, kwargs)
     # ---
     if print_s:
-        printe.output(
+        logger.info(
             f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
         )
     # ---
@@ -73,12 +80,12 @@ def subcatquery(login_bot, title, sitecode=SITECODE, family=FAMILY, **kwargs):
     delta = int(time.time() - start)
     # ---
     if "printresult" in sys.argv:
-        printe.output(result)
+        logger.info(result)
     # ---
     if print_s:
         lenpages = bot.get_len_pages()
         # ---
-        printe.output(
+        logger.info(
             f"<<lightblue>>catdepth_new.py: find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} in {delta} seconds | {lenpages=}"
         )
     # ---

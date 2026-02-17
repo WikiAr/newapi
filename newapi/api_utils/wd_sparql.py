@@ -7,9 +7,12 @@ get_query_data = wd_sparql.get_query_data
 
 """
 
+import logging
 import sys
 
 from SPARQLWrapper import JSON, SPARQLWrapper
+
+logger = logging.getLogger(__name__)
 
 
 def get_query_data(query):
@@ -34,7 +37,10 @@ def get_query_data(query):
     # endpoint_url = "https://query-main.wikidata.org/sparql"
     endpoint_url = "https://query.wikidata.org/sparql"
     # ---
-    user_agent = "WDQS-example Python/%s.%s" % (sys.version_info[0], sys.version_info[1])
+    user_agent = "WDQS-example Python/%s.%s" % (
+        sys.version_info[0],
+        sys.version_info[1],
+    )
     # ---
     sparql = SPARQLWrapper(endpoint_url, agent=user_agent)
     # ---
@@ -46,9 +52,7 @@ def get_query_data(query):
     try:
         data = sparql.query().convert()
     except Exception as e:
-        # exception_err(e, text=f"API/tools.py quoteurl: Exception: {e}")
-        print("API/tools.py get_query_data: Exception: e:")
-        print(e)
+        logger.error(f"API/tools.py : Exception: {e}")
     # ---
     return data
 

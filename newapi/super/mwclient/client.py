@@ -6,6 +6,8 @@ from collections import OrderedDict
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from requests_oauthlib import OAuth1
+
+from ..Login_db.bot import log_one
 from . import errors, listing
 
 # from .sleep import Sleepers
@@ -13,7 +15,7 @@ from .util import handle_limit, parse_timestamp, read_in_chunks
 
 __version__ = "0.11.0"
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 USER_AGENT = "mwclient/{} ({})".format(__version__, "https://github.com/mwclient/mwclient")
 
@@ -124,7 +126,10 @@ class Site:
         if reqs and connection_options:
             print(ValueError("reqs is a deprecated alias of connection_options. Do not specify both."))
         if reqs:
-            warnings.warn("reqs is deprecated in mwclient 1.0.0. Use connection_options instead", DeprecationWarning)
+            warnings.warn(
+                "reqs is deprecated in mwclient 1.0.0. Use connection_options instead",
+                DeprecationWarning,
+            )
             connection_options = reqs
         self.requests = connection_options or {}
         self.scheme = scheme
@@ -219,7 +224,11 @@ class Site:
             return
 
         meta = self.get(
-            "query", meta="siteinfo|userinfo", siprop="general|namespaces", uiprop="groups|rights", retry_on_error=False
+            "query",
+            meta="siteinfo|userinfo",
+            siprop="general|namespaces",
+            uiprop="groups|rights",
+            retry_on_error=False,
         )
 
         # Extract site info
@@ -389,7 +398,13 @@ class Site:
         return info
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
+        log_one(
+            site=self.host,
+            user=self.username,
+            result=result,
+            action=action,
+            params=params,
+        )
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if
@@ -421,10 +436,13 @@ class Site:
         if "warnings" in info:
             for module, warning in info["warnings"].items():
                 if "*" in warning:
-                    logger.warning(warning["*"])
+                    log.warning(warning["*"])
 
         if "error" in info:
-            if info["error"].get("code") in {"internal_api_error_DBConnectionError", "internal_api_error_DBQueryError"}:
+            if info["error"].get("code") in {
+                "internal_api_error_DBConnectionError",
+                "internal_api_error_DBQueryError",
+            }:
                 # sleeper.sleep()
                 return False
 
@@ -432,7 +450,7 @@ class Site:
             if info["error"].get("code") == "mwoauth-invalid-authorization" and "Nonce already used" in info[
                 "error"
             ].get("info"):
-                logger.warning("Retrying due to nonce error, see" "https://phabricator.wikimedia.org/T106066")
+                log.warning("Retrying due to nonce error, seehttps://phabricator.wikimedia.org/T106066")
                 # sleeper.sleep()
                 return False
 
@@ -517,7 +535,7 @@ class Site:
             stream = self.connection.request(http_method, url, **args)
             if stream.headers.get("x-database-lag"):
                 wait_time = int(stream.headers.get("retry-after"))
-                logger.warning("Database lag exceeds max lag. " f"Waiting for {wait_time} seconds, maxlag:{maxlag}")
+                log.warning(f"Database lag exceeds max lag. Waiting for {wait_time} seconds, maxlag:{maxlag}")
                 # fall through to the sleep
             elif stream.status_code == 200:
                 return stream.text
@@ -526,22 +544,26 @@ class Site:
             else:
                 if not retry_on_error:
                     stream.raise_for_status()
-                logger.warning(
-                    "Received {status} response: {text}. "
-                    "Retrying in a moment.".format(status=stream.status_code, text=stream.text)
+                log.warning(
+                    "Received {status} response: {text}. Retrying in a moment.".format(
+                        status=stream.status_code, text=stream.text
+                    )
                 )
                 toraise = "stream"
                 # fall through to the sleep
             return stream.text
 
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as err:
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+        ) as err:
             # In the event of a network problem
             # (e.g. DNS failure, refused connection, etc),
             # Requests will raise a ConnectionError exception.
             if not retry_on_error:
                 print("raise")
             print(err)
-            logger.warning("Connection error. Retrying in a moment.")
+            log.warning("Connection error. Retrying in a moment.")
             toraise = err
             # proceed to the sleep
 
@@ -667,8 +689,7 @@ class Site:
             elif raise_error:
                 print(
                     errors.MediaWikiVersionError(
-                        "Requires version {required[0]}.{required[1]}, "
-                        "current version is {current[0]}.{current[1]}".format(
+                        "Requires version {required[0]}.{required[1]}, current version is {current[0]}.{current[1]}".format(
                             required=(major, minor), current=(self.version[:2])
                         )
                     )
@@ -705,7 +726,14 @@ class Site:
         token = self.get_token("email")
 
         try:
-            info = self.post("emailuser", target=user, subject=subject, text=text, ccme=cc, token=token)
+            info = self.post(
+                "emailuser",
+                target=user,
+                subject=subject,
+                text=text,
+                ccme=cc,
+                token=token,
+            )
         except errors.APIError as e:
             if e.args[0] == "noemail":
                 print(errors.NoSpecifiedEmail(user, e.args[1]))
@@ -769,7 +797,7 @@ class Site:
             try:
                 kwargs["lgtoken"] = self.get_token("login")
             except (errors.APIError, KeyError):
-                logger.debug("Failed to get login token, MediaWiki is older than 1.27.")
+                log.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
             # while True:
             login = self.post("login", **kwargs)
@@ -845,7 +873,7 @@ class Site:
                 try:
                     kwargs["logintoken"] = self.get_token("login")
                 except (errors.APIError, KeyError):
-                    logger.debug("Failed to get login token, MediaWiki is older than 1.27.")
+                    log.debug("Failed to get login token, MediaWiki is older than 1.27.")
 
             if "logincontinue" not in kwargs and "loginreturnurl" not in kwargs:
                 # should be great if API didn't require this...
@@ -887,7 +915,6 @@ class Site:
             self.tokens[type] = "0"
 
         if self.tokens.get(type, "0") == "0" or force:
-
             if self.version is None or self.version[:2] >= (1, 24):
                 # We use raw_api() rather than api() because api() is adding "userinfo"
                 # to the query and this raises a readapideniederror if the wiki is read
@@ -1010,7 +1037,6 @@ class Site:
         postdata = predata
         files = None
         if file is not None:
-
             # Workaround for https://github.com/mwclient/mwclient/issues/65
             # ----------------------------------------------------------------
             # Since the filename in Content-Disposition is not interpreted,
@@ -1088,7 +1114,7 @@ class Site:
 
             offset += chunk.tell()
             chunk.close()
-            logger.debug("%s: Uploaded %d of %d bytes", filename, offset, content_size)
+            log.debug("%s: Uploaded %d of %d bytes", filename, offset, content_size)
             params["filekey"] = response["filekey"]
             if response["result"] == "Continue":
                 params["offset"] = response["offset"]
@@ -1109,7 +1135,15 @@ class Site:
         params["text"] = text
         return self.post("upload", **params)
 
-    def parse(self, text=None, title=None, page=None, prop=None, redirects=False, mobileformat=False):
+    def parse(
+        self,
+        text=None,
+        title=None,
+        page=None,
+        prop=None,
+        redirects=False,
+        mobileformat=False,
+    ):
         """Parses the given content and returns parser output.
 
         Args:
@@ -1226,7 +1260,13 @@ class Site:
             )
         )
         return listing.List.get_list(generator)(
-            self, "allpages", "ap", max_items=max_items, api_chunk_size=api_chunk_size, return_values="title", **kwargs
+            self,
+            "allpages",
+            "ap",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            return_values="title",
+            **kwargs,
         )
 
     def allimages(
@@ -1290,13 +1330,24 @@ class Site:
         pfx = listing.List.get_prefix("al", generator)
         kwargs = dict(
             listing.List.generate_kwargs(
-                pfx, ("from", start), ("to", end), prefix=prefix, prop=prop, namespace=namespace
+                pfx,
+                ("from", start),
+                ("to", end),
+                prefix=prefix,
+                prop=prop,
+                namespace=namespace,
             )
         )
         if unique:
             kwargs[pfx + "unique"] = "1"
         return listing.List.get_list(generator)(
-            self, "alllinks", "al", max_items=max_items, api_chunk_size=api_chunk_size, return_values="title", **kwargs
+            self,
+            "alllinks",
+            "al",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            return_values="title",
+            **kwargs,
         )
 
     def allcategories(
@@ -1316,7 +1367,12 @@ class Site:
         pfx = listing.List.get_prefix("ac", generator)
         kwargs = dict(listing.List.generate_kwargs(pfx, ("from", start), ("to", end), prefix=prefix, dir=dir))
         return listing.List.get_list(generator)(
-            self, "allcategories", "ac", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+            self,
+            "allcategories",
+            "ac",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
         )
 
     def allusers(
@@ -1349,7 +1405,14 @@ class Site:
                 activeusers=activeusers,
             )
         )
-        return listing.List(self, "allusers", "au", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "allusers",
+            "au",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def blocks(
         self,
@@ -1392,7 +1455,14 @@ class Site:
         kwargs = dict(
             listing.List.generate_kwargs("bk", start=start, end=end, dir=dir, ids=ids, users=users, prop=prop)
         )
-        return listing.List(self, "blocks", "bk", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "blocks",
+            "bk",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def deletedrevisions(
         self,
@@ -1408,10 +1478,24 @@ class Site:
         # TODO: Fix
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(listing.List.generate_kwargs("dr", start=start, end=end, dir=dir, namespace=namespace, prop=prop))
-        return listing.List(self, "deletedrevs", "dr", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "deletedrevs",
+            "dr",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def exturlusage(
-        self, query, prop=None, protocol="http", namespace=None, limit=None, max_items=None, api_chunk_size=None
+        self,
+        query,
+        prop=None,
+        protocol="http",
+        namespace=None,
+        limit=None,
+        max_items=None,
+        api_chunk_size=None,
     ):
         r"""Retrieve the list of pages that link to a particular domain or URL,
          as a generator.
@@ -1438,7 +1522,14 @@ class Site:
         kwargs = dict(
             listing.List.generate_kwargs("eu", query=query, prop=prop, protocol=protocol, namespace=namespace)
         )
-        return listing.List(self, "exturlusage", "eu", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "exturlusage",
+            "eu",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def logevents(
         self,
@@ -1458,20 +1549,49 @@ class Site:
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(
             listing.List.generate_kwargs(
-                "le", prop=prop, type=type, start=start, end=end, dir=dir, user=user, title=title, action=action
+                "le",
+                prop=prop,
+                type=type,
+                start=start,
+                end=end,
+                dir=dir,
+                user=user,
+                title=title,
+                action=action,
             )
         )
-        return listing.List(self, "logevents", "le", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "logevents",
+            "le",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def checkuserlog(
-        self, user=None, target=None, limit=None, dir="older", start=None, end=None, max_items=None, api_chunk_size=10
+        self,
+        user=None,
+        target=None,
+        limit=None,
+        dir="older",
+        start=None,
+        end=None,
+        max_items=None,
+        api_chunk_size=10,
     ):
         """Retrieve checkuserlog items as a generator."""
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(listing.List.generate_kwargs("cul", target=target, start=start, end=end, dir=dir, user=user))
         return listing.NestedList(
-            "entries", self, "checkuserlog", "cul", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+            "entries",
+            self,
+            "checkuserlog",
+            "cul",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
         )
 
     # def protectedtitles requires 1.15
@@ -1488,7 +1608,14 @@ class Site:
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(listing.List.generate_kwargs("rn", namespace=namespace))
-        return listing.List(self, "random", "rn", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "random",
+            "rn",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def recentchanges(
         self,
@@ -1519,7 +1646,14 @@ class Site:
                 toponly="1" if toponly else None,
             )
         )
-        return listing.List(self, "recentchanges", "rc", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "recentchanges",
+            "rc",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def revisions(self, revids, prop="ids|timestamp|flags|comment|user"):
         """Get data about a list of revisions.
@@ -1540,7 +1674,11 @@ class Site:
         Returns:
             A list of revisions
         """
-        kwargs = {"prop": "revisions", "rvprop": prop, "revids": "|".join(map(str, revids))}
+        kwargs = {
+            "prop": "revisions",
+            "rvprop": prop,
+            "revids": "|".join(map(str, revids)),
+        }
 
         revisions = []
         pages = self.get("query", **kwargs).get("query", {}).get("pages", {}).values()
@@ -1553,7 +1691,14 @@ class Site:
         return revisions
 
     def search(
-        self, search, namespace="0", what=None, redirects=False, limit=None, max_items=None, api_chunk_size=None
+        self,
+        search,
+        namespace="0",
+        what=None,
+        redirects=False,
+        limit=None,
+        max_items=None,
+        api_chunk_size=None,
     ):
         """Perform a full text search.
 
@@ -1583,7 +1728,14 @@ class Site:
         kwargs = dict(listing.List.generate_kwargs("sr", search=search, namespace=namespace, what=what))
         if redirects:
             kwargs["srredirects"] = "1"
-        return listing.List(self, "search", "sr", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "search",
+            "sr",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def usercontributions(
         self,
@@ -1607,11 +1759,24 @@ class Site:
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(
             listing.List.generate_kwargs(
-                "uc", user=user, start=start, end=end, dir=dir, namespace=namespace, prop=prop, show=show
+                "uc",
+                user=user,
+                start=start,
+                end=end,
+                dir=dir,
+                namespace=namespace,
+                prop=prop,
+                show=show,
             )
         )
         return listing.List(
-            self, "usercontribs", "uc", max_items=max_items, api_chunk_size=api_chunk_size, uselang=uselang, **kwargs
+            self,
+            "usercontribs",
+            "uc",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            uselang=uselang,
+            **kwargs,
         )
 
     def users(self, users, prop="blockinfo|groups|editcount"):
@@ -1644,11 +1809,26 @@ class Site:
 
         (max_items, api_chunk_size) = handle_limit(limit, max_items, api_chunk_size)
         kwargs = dict(
-            listing.List.generate_kwargs("wl", start=start, end=end, namespace=namespace, dir=dir, prop=prop, show=show)
+            listing.List.generate_kwargs(
+                "wl",
+                start=start,
+                end=end,
+                namespace=namespace,
+                dir=dir,
+                prop=prop,
+                show=show,
+            )
         )
         if allrev:
             kwargs["wlallrev"] = "1"
-        return listing.List(self, "watchlist", "wl", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs)
+        return listing.List(
+            self,
+            "watchlist",
+            "wl",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
+        )
 
     def expandtemplates(self, text, title=None, generatexml=False):
         """
@@ -1705,7 +1885,10 @@ class Site:
         offset = 0
         while offset is not None:
             results = self.raw_api(
-                "ask", query="{query}|offset={offset}".format(query=query, offset=offset), http_method="GET", **kwargs
+                "ask",
+                query="{query}|offset={offset}".format(query=query, offset=offset),
+                http_method="GET",
+                **kwargs,
             )
             self.handle_api_result(results)  # raises APIError on error
             offset = results.get("query-continue-offset")
