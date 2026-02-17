@@ -44,7 +44,7 @@ purge       = page.purge()
 
 """
 
-import os
+import logging
 import sys
 from warnings import warn
 
@@ -58,6 +58,7 @@ from .ar_err import find_edit_error
 from .bot import PAGE_APIS
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
 
+logger = logging.getLogger(__name__)
 print_test = {1: "test" in sys.argv}
 
 

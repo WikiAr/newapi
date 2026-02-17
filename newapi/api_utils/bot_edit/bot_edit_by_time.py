@@ -1,9 +1,9 @@
 """ """
 
 import datetime
+import logging
 
-from .. import printe
-
+logger = logging.getLogger(__name__)
 Created_Cache = {}
 
 

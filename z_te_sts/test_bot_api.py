@@ -2,14 +2,15 @@
 Test runner usage: python3 core8/pwb.py newapi_bot/z_te_sts/test_runner
 """
 
+import logging
 import sys
 import time
 
 sys.argv.append("printurl")
 sys.argv.append("ask")
-
-from newapi import printe
 from newapi.page import NEW_API
+
+logger = logging.getLogger(__name__)
 
 
 class testmybot:
