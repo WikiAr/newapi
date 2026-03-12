@@ -6,6 +6,7 @@ import functools
 import logging
 import re
 import sys
+from pathlib import Path
 
 import colorlog
 
@@ -122,9 +123,23 @@ def wrap_color_messages(format_message):
     return wrapper
 
 
+def prepare_log_file(log_file, project_logger):
+    if "$HOME" in str(log_file):
+        import os
+        log_file = str(log_file).replace("$HOME", os.getenv("HOME", ""))
+    log_file = Path(log_file).expanduser()
+    try:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        project_logger.error(f"Failed to create log directory: {e}")
+        log_file = None
+    return log_file
+
+
 def setup_logging(
-    level: str = "WARNING",
     name: str = __name__,
+    level: str = "WARNING",
+    log_file: str | None = None,
 ) -> None:
     """
     Configure logging for the entire project namespace only.
@@ -134,12 +149,12 @@ def setup_logging(
     if project_logger.handlers:
         return
 
-    numeric_level = getattr(logging, level.upper(), logging.INFO)
+    numeric_level = getattr(logging, level.upper(), logging.INFO) if isinstance(level, str) else level
     project_logger.setLevel(numeric_level)
     project_logger.propagate = False
 
     formatter = colorlog.ColoredFormatter(
-        fmt="%(filename)s:%(lineno)s %(funcName)s() - %(log_color)s%(levelname)-s %(reset)s%(message)s",
+        fmt="%(name)s:%(lineno)s %(funcName)s() - %(log_color)s%(levelname)-s %(reset)s%(message)s",
         log_colors={
             "DEBUG": "cyan",
             "INFO": "green",
@@ -149,12 +164,34 @@ def setup_logging(
         },
     )
 
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
     # message colorizer
     formatter.formatMessage = wrap_color_messages(formatter.formatMessage)
 
-    handler.setLevel(numeric_level)
-    handler.propagate = False
+    console_handler.setLevel(numeric_level)
 
-    project_logger.addHandler(handler)
+    project_logger.addHandler(console_handler)
+
+    if log_file:
+        log_file = prepare_log_file(log_file, project_logger)
+
+        file_formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+        file_handler.setFormatter(file_formatter)
+        file_handler.setLevel(numeric_level)
+        project_logger.addHandler(file_handler)
+
+        # Separate error log file
+        log_file2 = log_file.with_suffix(".err")
+        file_formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler = logging.FileHandler(log_file2, mode="a", encoding="utf-8")
+        file_handler.setFormatter(file_formatter)
+        file_handler.setLevel(logging.WARNING)
+        project_logger.addHandler(file_handler)
