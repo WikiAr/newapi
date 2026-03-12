@@ -1000,3 +1000,9 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.revisions_data.revisions = revisions
         # ---
         return revisions
+
+    def __getitem__(self, key):
+        if key == "q":
+            return self.get_qid()
+        else:
+            raise
