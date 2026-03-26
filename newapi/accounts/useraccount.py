@@ -7,7 +7,10 @@ from newapi.accounts.useraccount import User_tables_bot, User_tables_ibrahem
 import os
 import sys
 from dotenv import load_dotenv
-load_dotenv()
+try:
+    load_dotenv()
+except Exception:
+    pass
 
 qs_token = os.getenv("QS_TOKEN", "")
 qs_tokenbot = os.getenv("QS_TOKEN_BOT", "")

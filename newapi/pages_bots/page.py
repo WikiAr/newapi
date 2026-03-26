@@ -11,7 +11,7 @@ from ..api_utils.user_agent import default_user_agent
 from ..super.S_API import bot_api
 from .all_apis import ALL_APIS
 
-home_dir = os.getenv("HOME", "")
+home_dir = os.getenv("HOME")
 # ---
 User_tables = User_tables_bot
 # ---
