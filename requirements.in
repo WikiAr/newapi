@@ -7,3 +7,4 @@ mwclient
 ratelimiter
 SPARQLWrapper
 colorlog
+python-dotenv
