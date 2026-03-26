@@ -10,7 +10,7 @@ from functools import lru_cache
 
 @lru_cache(maxsize=1)
 def default_user_agent():
-    tool = os.getenv("HOME")
+    tool = os.getenv("HOME", "")
     # "/data/project/mdwiki"
     tool = tool.split("/")[-1] if tool else "himo"
     # ---

@@ -16,7 +16,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 statgroup = stat.S_IRWXU | stat.S_IRWXG
-tool = os.getenv("HOME")
+tool = os.getenv("HOME", "")
 # ---
 if not tool:
     tool = Path(__file__).parent
