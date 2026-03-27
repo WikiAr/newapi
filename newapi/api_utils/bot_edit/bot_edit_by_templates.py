@@ -142,7 +142,7 @@ def is_bot_edit_allowed(text="", title_page="", botjob="all"):
             Bot_Cache[botjob][title_page] = False
             return False
         # ---
-        logger.debug("<<lightred>>botEdit.py title:(%s), params:(%s)." % (title, str(params)))
+        # logger.debug("<<lightred>>botEdit.py title:(%s), params:(%s)." % (title, str(params)))
         # ---
         if title.lower() == "nobots":
             return _handle_nobots_template(params, title_page, botjob, _template)
