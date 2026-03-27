@@ -664,7 +664,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             self.get_text()
         return self.user
 
-    def get_templates(self):
+    def get_templates(self) -> dict:
         if not self.text:
             self.text = self.get_text()
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)

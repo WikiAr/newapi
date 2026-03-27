@@ -395,7 +395,9 @@ class Site:
         return info
 
     def log_error(self, result, action, params=None) -> None:
-        logger.error(f"API call result: {result}, action: {action}, params: {params}")
+        good_result = [200, "success"]
+        if result not in good_result:
+            logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
         """Checks the given API response, raising an appropriate exception or sleeping if
