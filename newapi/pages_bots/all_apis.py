@@ -58,7 +58,7 @@ class ALL_APIS:  # noqa: N801
         return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
 
     def _login(self) -> Login:
-        bot = _login(self.lang, self.family, self.username, self.password)
+        bot = _login(self.lang, self.family, self.username)
         user_tables = {
             self.family: {
                 "username": self.username,
