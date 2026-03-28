@@ -9,6 +9,8 @@ get_query_data = wd_sparql.get_query_data
 
 import logging
 import sys
+import json
+from urllib.error import HTTPError, URLError
 
 from SPARQLWrapper import JSON, SPARQLWrapper
 
@@ -37,22 +39,20 @@ def get_query_data(query):
     # endpoint_url = "https://query-main.wikidata.org/sparql"
     endpoint_url = "https://query.wikidata.org/sparql"
     # ---
-    user_agent = "WDQS-example Python/%s.%s" % (
-        sys.version_info[0],
-        sys.version_info[1],
-    )
+    user_agent = f"WDQS-example Python/{sys.version_info[0]}.{sys.version_info[1]}"
     # ---
     sparql = SPARQLWrapper(endpoint_url, agent=user_agent)
     # ---
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
+    sparql.setTimeout(30)
     # ---
     data = {}
     # ---
     try:
         data = sparql.query().convert()
-    except Exception as e:
-        logger.error(f"API/tools.py : Exception: {e}")
+    except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError):
+        logger.exception("wd_helps.get_query_data failed")
     # ---
     return data
 
