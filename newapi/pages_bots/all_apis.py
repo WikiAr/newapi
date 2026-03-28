@@ -11,7 +11,6 @@ new_api = main_api.NEW_API()
 
 import functools
 import logging
-from typing import Any
 
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
@@ -21,7 +20,26 @@ from ..super.super_login import Login
 logger = logging.getLogger(__name__)
 
 
-class ALL_APIS:
+@functools.lru_cache(maxsize=1024)
+def _login(lang, family, username, password) -> Login:
+    # ---
+    login_bot = Login(lang, family=family)
+    # ---
+    logger.info(f"### <<purple>> _login make new bot for ({lang}.{family}.org|{username})")
+    # ---
+    user_tables = {
+        family: {
+            "username": username,
+            "password": password,
+        }
+    }
+    # ---
+    login_bot.add_users(user_tables, lang=lang)
+    # ---
+    return login_bot
+
+
+class ALL_APIS:  # noqa: N801
     """
     A class that provides access to various API functionalities.
     Usage:
@@ -50,23 +68,8 @@ class ALL_APIS:
         # ---
         return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
 
-    @functools.lru_cache(maxsize=1)
     def _login(self) -> Login:
-        # ---
-        login_bot = Login(self.lang, family=self.family)
-        # ---
-        logger.info(f"### <<purple>> _login make new bot for ({self.lang}.{self.family}.org|{self.username})")
-        # ---
-        user_tables = {
-            self.family: {
-                "username": self.username,
-                "password": self.password,
-            }
-        }
-        # ---
-        login_bot.add_users(user_tables, lang=self.lang)
-        # ---
-        return login_bot
+        return _login(self.lang, self.family, self.username, self.password)
 
 
 __all__ = [
