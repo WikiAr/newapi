@@ -1,6 +1,4 @@
 """
-from newapi.all_apis import ALL_APIS
-
 from newapi import ALL_APIS
 
 main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
@@ -21,20 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 @functools.lru_cache(maxsize=1024)
-def _login(lang, family, username, password) -> Login:
+def _login(lang, family, username) -> Login:
     # ---
     login_bot = Login(lang, family=family)
     # ---
     logger.info(f"### <<purple>> _login make new bot for ({lang}.{family}.org|{username})")
-    # ---
-    user_tables = {
-        family: {
-            "username": username,
-            "password": password,
-        }
-    }
-    # ---
-    login_bot.add_users(user_tables, lang=lang)
     # ---
     return login_bot
 
@@ -69,8 +58,17 @@ class ALL_APIS:  # noqa: N801
         return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
 
     def _login(self) -> Login:
-        return _login(self.lang, self.family, self.username, self.password)
-
+        bot = _login(self.lang, self.family, self.username, self.password)
+        user_tables = {
+            self.family: {
+                "username": self.username,
+                "password": self.password,
+            }
+        }
+        # ---
+        bot.add_users(user_tables, lang=self.lang)
+        # ---
+        return bot
 
 __all__ = [
     "ALL_APIS",
