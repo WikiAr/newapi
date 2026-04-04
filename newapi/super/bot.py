@@ -144,7 +144,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 logger.info(f"<<red>> {botname} {r11.status_code} Server Error: Server Hangup for url: {self.endpoint}")
             # ---
         except Exception as e:
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
             return ""
 
         jsson1 = {}
@@ -153,7 +153,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             jsson1 = r11.json()
         except Exception as e:
             logger.info(r11.text)
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
             return ""
 
         return jsson1.get("query", {}).get("tokens", {}).get("logintoken") or ""
@@ -176,7 +176,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             req = self.session.request("POST", self.endpoint, data=r2_params, headers=self.headers)
         except Exception as e:
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
             return False
         # ---
         r22 = {}
@@ -185,7 +185,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             try:
                 r22 = req.json()
             except Exception as e:
-                logger.exception(e)
+                logger.error(f"Failed to get login token: {str(e)}")
                 logger.info(req.text)
                 return False
         # ---
@@ -224,7 +224,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             req = self.session.request("POST", self.endpoint, data=params, headers=self.headers)
         except Exception as e:
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
             self.log_error("failed", "userinfo")
             return False
         # ---
@@ -233,7 +233,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             try:
                 json1 = req.json()
             except Exception as e:
-                logger.exception(e)
+                logger.error(f"Failed to get login token: {str(e)}")
                 logger.info(req.text)
                 return False
         # ---
@@ -269,8 +269,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 self.cookie_jar.load(ignore_discard=True, ignore_expires=True)
                 logger.info(f"We have {len(self.cookie_jar)} cookies")
                 # ---
-            except Exception:
-                logger.exception("Error when loading cookies from file")
+            except Exception as e:
+                logger.error(f"Failed to load cookies file: {str(e)}")
         # ---
         self.session.cookies = self.cookie_jar
         # ---
@@ -339,7 +339,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
         except Exception as e:
             self.log_error("Exception", u_action, params=params)
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
         # ---
         self._handle_server_error(req0, u_action, params=params)
         # ---
@@ -417,7 +417,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 )
             # ---
         except Exception as e:
-            logger.exception("Error in get_rest_result:", exc_info=e)
+            logger.error(f"Failed to request REST API: {str(e)}")
             return {}
         # ---
         result = {}
@@ -426,7 +426,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             result = req0.json()
         except Exception as e:
             logger.info(req0.text)
-            logger.exception(e)
+            logger.error(f"Failed to get login token: {str(e)}")
             return {}
         # ---
         return result
