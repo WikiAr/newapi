@@ -331,8 +331,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
         req0 = None
         # ---
         try:
+            logger.debug(f"POST {self.endpoint} timeout: {timeout:,}")
             req0 = self.session.request("POST", self.endpoint, **args)
-
+            req0.raise_for_status()
         except requests.exceptions.ReadTimeout:
             self.log_error("ReadTimeout", u_action, params=params)
             logger.error(f"<<red>> ReadTimeout: {self.endpoint=}, {timeout=}")
