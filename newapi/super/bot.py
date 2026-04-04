@@ -19,7 +19,6 @@ from .cookies_bot import del_cookies_file, get_file_name
 from .params_help import PARAMS_HELPS
 
 # cookies = get_cookies(lang, family, username)
-seasons_by_lang = {}
 users_by_lang = {}
 logins_count = {1: 0}
 logger = logging.getLogger(__name__)
@@ -28,9 +27,9 @@ botname = "newapi"
 
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
-        # print("class LOGIN_HELPS:")
+        # logger.info("class LOGIN_HELPS:")
         self.cookie_jar = False
-        self.session = requests.Session()
+        self.session = None
         # ---
         # check if self has username before writeself.username = ""
         self.username = getattr(self, "username", "")
@@ -69,7 +68,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             langx = lang
         # ---
         if table["username"].find("bot") == -1 and family == "wikipedia":
-            print(f"add_User_tables: {family=}, {table['username']=}")
+            logger.info(f"add_User_tables: {family=}, {table['username']=}")
         # ---
         if family != "" and table["username"] != "" and table["password"] != "":
             # ---
@@ -137,7 +136,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # WARNING: /data/project/himo/core/bots/{botname}/page.py:101: UserWarning: Exception:502 Server Error: Server Hangup for url: https://ar.wikipedia.org/w/api.php
 
         try:
-            r11 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r1_params, headers=self.headers)
+            r11 = self.session.request("POST", self.endpoint, data=r1_params, headers=self.headers)
             # ---
             self.log_error(r11.status_code, "logintoken")
             # ---
@@ -153,7 +152,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             jsson1 = r11.json()
         except Exception as e:
-            print(r11.text)
+            logger.info(r11.text)
             logger.exception(e)
             return ""
 
@@ -175,7 +174,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         req = ""
         # ---
         try:
-            req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=r2_params, headers=self.headers)
+            req = self.session.request("POST", self.endpoint, data=r2_params, headers=self.headers)
         except Exception as e:
             logger.exception(e)
             return False
@@ -187,7 +186,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 r22 = req.json()
             except Exception as e:
                 logger.exception(e)
-                print(req.text)
+                logger.info(req.text)
                 return False
         # ---
         login_result = r22.get("login", {}).get("result", "")
@@ -223,7 +222,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         req = ""
         try:
-            req = seasons_by_lang[self.sea_key].request("POST", self.endpoint, data=params, headers=self.headers)
+            req = self.session.request("POST", self.endpoint, data=params, headers=self.headers)
         except Exception as e:
             logger.exception(e)
             self.log_error("failed", "userinfo")
@@ -235,7 +234,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 json1 = req.json()
             except Exception as e:
                 logger.exception(e)
-                print(req.text)
+                logger.info(req.text)
                 return False
         # ---
         userinfo = json1.get("query", {}).get("userinfo", {})
@@ -244,7 +243,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         self.log_error(result_x, "userinfo")
         # ---
-        # print(json1)
+        # logger.info(json1)
         # ---
         if "anon" in userinfo or "temp" in userinfo:
             return False
@@ -258,22 +257,22 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         logger.info(f":({self.lang}, {self.family}, {self.username})")
         # ---
-        seasons_by_lang[self.sea_key] = requests.Session()
+        self.session = requests.Session()
         # ---
         self.cookies_file = get_file_name(self.lang, self.family, self.username)
         # ---
         self.cookie_jar = MozillaCookieJar(self.cookies_file)
         # ---
         if os.path.exists(self.cookies_file) and self.family != "mdwiki":
-            print("Load cookies from file, including session cookies")
+            logger.info("Load cookies from file, including session cookies")
             try:
                 self.cookie_jar.load(ignore_discard=True, ignore_expires=True)
-                print("We have %d cookies" % len(self.cookie_jar))
+                logger.info(f"We have {len(self.cookie_jar)} cookies")
                 # ---
-            except Exception as e:
-                print(e)
+            except Exception:
+                logger.exception("Error when loading cookies from file")
         # ---
-        seasons_by_lang[self.sea_key].cookies = self.cookie_jar
+        self.session.cookies = self.cookie_jar
         # ---
         loged_t = False
         # ---
@@ -323,7 +322,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             logger.info("<<green>> dopost:::")
             logger.info(params)
             logger.info("<<green>> :::dopost")
-            req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
+            req0 = self.session.request("POST", self.endpoint, **args)
             # ---
             self._handle_server_error(req0, u_action, params=params)
             # ---
@@ -332,7 +331,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         req0 = None
         # ---
         try:
-            req0 = seasons_by_lang[self.sea_key].request("POST", self.endpoint, **args)
+            req0 = self.session.request("POST", self.endpoint, **args)
 
         except requests.exceptions.ReadTimeout:
             self.log_error("ReadTimeout", u_action, params=params)
@@ -353,7 +352,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         if not self.username_in:
             self.username_in = users_by_lang.get(self.lang, "")
         # ---
-        if not seasons_by_lang.get(self.sea_key):
+        if not self.session:
             self.make_new_session()
         # ---
         if not self.username_in:
@@ -368,7 +367,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         # ---
         if req0.headers and req0.headers.get("x-database-lag"):
             logger.info("<<red>> x-database-lag.. ")
-            print(req0.headers)
+            logger.info(req0.headers)
             # raise
         # ---
         return req0
@@ -391,7 +390,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
             # ---
             if code == "assertnameduserfailed":
                 # ---
-                print("assertnameduserfailed" * 10)
+                logger.info("assertnameduserfailed" * 10)
                 # ---
                 del_cookies_file(self.cookies_file)
                 # ---
@@ -404,13 +403,13 @@ class LOGIN_HELPS(PARAMS_HELPS):
 
     def get_rest_result(self, url) -> dict:
         # ---
-        print("get_rest_result:")
+        logger.info("get_rest_result:")
         # ---
-        if not seasons_by_lang.get(self.sea_key):
+        if not self.session:
             self.make_new_session()
         # ---
         try:
-            req0 = seasons_by_lang[self.sea_key].request("GET", url, headers=self.headers)
+            req0 = self.session.request("GET", url, headers=self.headers)
             # ---
             if not str(req0.status_code).startswith("2"):
                 logger.info(
@@ -418,7 +417,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 )
             # ---
         except Exception as e:
-            logger.exception(e)
+            logger.exception("Error in get_rest_result:", exc_info=e)
             return {}
         # ---
         result = {}
@@ -426,7 +425,7 @@ class LOGIN_HELPS(PARAMS_HELPS):
         try:
             result = req0.json()
         except Exception as e:
-            print(req0.text)
+            logger.info(req0.text)
             logger.exception(e)
             return {}
         # ---
