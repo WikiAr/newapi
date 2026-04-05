@@ -55,8 +55,8 @@ class LOGIN_HELPS(PARAMS_HELPS):
         super().__init__()
 
     def log_error(self, result, action, params=None) -> None:
-        good_result = [200, "success"]
-        if result not in good_result:
+        good_result = ["200", "success"]
+        if str(result).lower() not in good_result:
             logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def add_User_tables(self, family, table, lang="") -> None:

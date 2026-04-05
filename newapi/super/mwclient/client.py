@@ -395,8 +395,8 @@ class Site:
         return info
 
     def log_error(self, result, action, params=None) -> None:
-        good_result = [200, "success"]
-        if result not in good_result:
+        good_result = ["200", "success"]
+        if str(result).lower() not in good_result:
             logger.error(f"Error occurred: {result}, Action: {action}, Params: {params}")
 
     def handle_api_result(self, info, kwargs=None, sleeper=None):
