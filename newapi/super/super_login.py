@@ -182,7 +182,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         # ---
         action = params["action"]
         # ---
-        to_add_action = action in wb_actions or action.startswith("wbcreate") or action.startswith("wbset")
+        to_add_action = action in wb_actions or action.startswith(("wbcreate", "wbset"))
         # ---
         if self.family == "wikidata" and to_add_action:
             params["maxlag"] = ar_lag[1]

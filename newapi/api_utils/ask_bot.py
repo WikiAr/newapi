@@ -17,7 +17,7 @@ Save_or_Ask = {}
 def showDiff(text, newtext):
     diff = difflib.unified_diff(text.splitlines(), newtext.splitlines(), lineterm="")
     for line in diff:
-        logger.info(line)
+        logger.debug(line)
 
 
 class ASK_BOT:
