@@ -28,7 +28,7 @@ botname = "newapi"
 @functools.lru_cache(maxsize=1024)
 def get_session(lang, family) -> requests.Session:
     session = requests.session()
-    session.headers.update({"User-Agent": random.choice(user_agents)})
+    session.headers.update({"User-Agent": default_user_agent()})
     return session
     
 class LOGIN_HELPS(PARAMS_HELPS):
