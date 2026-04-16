@@ -31,7 +31,7 @@ class LiteDB:
 
     def query(self, sql):
         # return self.db.query(sql)
-        return [r for r in self.db.execute(sql).fetchall()]
+        return list(self.db.execute(sql).fetchall())
 
     def update(self, sql):
         self.db.executescript(sql)
