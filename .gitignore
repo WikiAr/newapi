@@ -17,3 +17,4 @@ pformat.txt
 /old
 .coverage
 coverage.xml
+profile_slow.prof
