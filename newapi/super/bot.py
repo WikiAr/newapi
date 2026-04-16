@@ -25,12 +25,17 @@ logins_count = {1: 0}
 logger = logging.getLogger(__name__)
 botname = "newapi"
 
+
 @functools.lru_cache(maxsize=1024)
 def get_session(lang, family) -> requests.Session:
+    """
+    function args used to load cached sessions
+    """
     session = requests.session()
     session.headers.update({"User-Agent": default_user_agent()})
     return session
-    
+
+
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
         # logger.info("class LOGIN_HELPS:")

@@ -7,6 +7,7 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 """
 
 import copy
+import functools
 import logging
 import os
 import sys
@@ -24,6 +25,16 @@ logger = logging.getLogger(__name__)
 
 # cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
+
+
+@functools.lru_cache(maxsize=1024)
+def get_session(lang, family) -> requests.Session:
+    """
+    function args used to load cached sessions
+    """
+    session = requests.session()
+    session.headers.update({"User-Agent": default_user_agent()})
+    return session
 
 
 class MwClientSite:
@@ -62,9 +73,9 @@ class MwClientSite:
 
         self.jar_cookie = MozillaCookieJar(cookies_file)
 
-        self.connection = requests.Session()
-
-        self.connection.headers["User-Agent"] = default_user_agent()
+        # self.connection = requests.Session()
+        # self.connection.headers["User-Agent"] = default_user_agent()
+        self.connection = get_session(self.lang, self.family)  # Get a cached session for the given lang and family.
         # ---
         if os.path.exists(cookies_file) and self.family != "mdwiki":
             # logger.info("<<yellow>>loading cookies")
