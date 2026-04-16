@@ -407,6 +407,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 del_cookies_file(self.cookies_file)
                 # ---
                 self.username_in = ""
+                # ---
+                get_session.cache_clear()
+                # ---
                 self.make_new_session()
                 # ---
                 return self.post_it_parse_data(params, files, timeout, relogin=True)

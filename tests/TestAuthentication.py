@@ -20,7 +20,7 @@ class TestAuthentication:
         assert response is not None
         assert len(response) > 0
 
-    def test_invalid_credentials(self, mock_super_bot_requests):
+    def test_invalid_credentials(self):
         """Test authentication with invalid credentials"""
         invalid_creds = {"username": useraccount.username, "password": f"{useraccount.password}213"}
         bot = super_login.Login("en", family="wikipedia")

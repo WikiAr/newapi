@@ -272,6 +272,8 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             # ---
             if code == "assertnameduserfailed":
                 # ---
+                get_session.cache_clear()
+                # ---
                 del_cookies_file(self.cookies_file)
                 # ---
                 self.username_in = ""
