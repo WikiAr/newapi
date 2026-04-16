@@ -15,3 +15,5 @@ scan.py
 /newapi/super/cookies
 pformat.txt
 /old
+.coverage
+coverage.xml
