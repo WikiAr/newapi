@@ -11,7 +11,7 @@ def mock_dependencies():
         patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
         patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
         patch("newapi.pages_bots.all_apis.bot_api.NEW_API") as mock_new_api,
-        patch("newapi.pages_bots.all_apis.printe") as mock_printe,
+        patch("newapi.api_utils.printe") as mock_printe,
     ):
 
         # Setup mock login instance
