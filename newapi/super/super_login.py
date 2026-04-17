@@ -192,7 +192,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             self.r3_token = self.make_new_r3_token()
 
         if not self.r3_token:
-            logger.error('<<red>> self.r3_token == "" ')
+            logger.warning('<<red>> self.r3_token == "" ')
 
         params["token"] = self.r3_token
 
