@@ -32,13 +32,6 @@ def mock_get_session(mocker):
     return mock_session
 
 
-@pytest.fixture(scope="session")
-def api_credentials():
-    from newapi import useraccount
-
-    return {"username": useraccount.username, "password": useraccount.password}
-
-
 @pytest.fixture
 def temp_test_page():
     return "User:TestBot/pytest_sandbox"

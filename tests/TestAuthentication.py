@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-from newapi import useraccount
 from newapi.super import super_login
 
 
@@ -23,7 +22,6 @@ class TestAuthentication:
 
     def test_invalid_credentials(self):
         """Test authentication with invalid credentials"""
-        invalid_creds = {"username": useraccount.username, "password": f"{useraccount.password}213"}
         bot = super_login.Login("en", family="wikipedia")
         # Test should handle authentication failure gracefully
         login_result = bot.Log_to_wiki()
