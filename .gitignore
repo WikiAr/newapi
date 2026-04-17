@@ -7,3 +7,4 @@ coverage.xml
 .claude/settings.local.json
 pformat.txt
 profile_slow.prof
+.pytest_cache/
