@@ -1,6 +1,7 @@
 """ """
 
 import functools
+from warnings import deprecated
 import os
 import sys
 
@@ -56,7 +57,7 @@ def load_main_api(lang, family="wikipedia") -> ALL_APIS:
     )
 
 
-@DeprecationWarning(MainPage_DEPRECATION_WARNING)
+@deprecated(MainPage_DEPRECATION_WARNING)
 def MainPage(title, lang, family="wikipedia"):
     # ---
     main_bot = load_main_api(lang, family)
@@ -66,7 +67,7 @@ def MainPage(title, lang, family="wikipedia"):
     return page
 
 
-@DeprecationWarning(CatDepth_DEPRECATION_WARNING)
+@deprecated(CatDepth_DEPRECATION_WARNING)
 def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     # ---
     main_bot = load_main_api(sitecode, family)
@@ -76,7 +77,7 @@ def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
     return result
 
 
-@DeprecationWarning(NEW_API_DEPRECATION_WARNING)
+@deprecated(NEW_API_DEPRECATION_WARNING)
 def NEW_API(lang="", family="wikipedia") -> bot_api.NEW_API:
     main_bot = load_main_api(lang, family)
     return main_bot.NEW_API()
