@@ -2,8 +2,8 @@ from pathlib import Path
 
 from directory_tree import DisplayTree
 
-work_path = Path(__file__).parent / "newapi"
-tree_save_path = Path(__file__).parent / "tree.md"
+work_path = Path(__file__).parent.parent / "newapi"
+tree_save_path = Path(__file__).parent.parent / "tree.md"
 
 tree: str = DisplayTree(
     dirPath=str(work_path),
