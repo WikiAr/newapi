@@ -46,6 +46,7 @@ purge       = page.purge()
 
 import logging
 import sys
+
 import wikitextparser as wtp
 
 from ...api_utils import botEdit, txtlib

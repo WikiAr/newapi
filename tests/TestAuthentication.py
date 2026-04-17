@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 import pytest
 from newapi import useraccount
 from newapi.super import super_login

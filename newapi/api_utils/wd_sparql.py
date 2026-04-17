@@ -7,9 +7,9 @@ get_query_data = wd_sparql.get_query_data
 
 """
 
+import json
 import logging
 import sys
-import json
 from urllib.error import HTTPError, URLError
 
 from SPARQLWrapper import JSON, SPARQLWrapper

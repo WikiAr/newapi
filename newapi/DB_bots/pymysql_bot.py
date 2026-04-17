@@ -44,7 +44,7 @@ def sql_connect_pymysql(
             results = cursor.fetchall()
         except Exception as e:
             logger.exception(e)
-            logger.exception('Exception during fetchall', exc_info=True)
+            logger.exception("Exception during fetchall", exc_info=True)
             return []
 
     return results

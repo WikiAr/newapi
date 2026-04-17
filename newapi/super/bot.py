@@ -7,8 +7,8 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 
 """
 
-import logging
 import functools
+import logging
 import os
 import sys
 from http.cookiejar import MozillaCookieJar
