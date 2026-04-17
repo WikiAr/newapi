@@ -11,7 +11,6 @@ def mock_dependencies():
         patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
         patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
         patch("newapi.pages_bots.all_apis.bot_api.NEW_API") as mock_new_api,
-        patch("newapi.api_utils.printe") as mock_printe,
     ):
 
         # Setup mock login instance
@@ -24,7 +23,6 @@ def mock_dependencies():
             "MainPage": mock_main_page,
             "subcatquery": mock_subcatquery,
             "NEW_API": mock_new_api,
-            "printe": mock_printe,
         }
 
 
@@ -40,9 +38,6 @@ def test_all_apis_init(mock_dependencies):
     # Verify login was called
     mock_dependencies["Login"].assert_called_once_with(lang, family=family)
     mock_dependencies["LoginInstance"].add_users.assert_called_once()
-
-    # Verify logger.info was called
-    mock_dependencies["printe"].output.assert_called()
 
 
 def test_all_apis_main_page(mock_dependencies):

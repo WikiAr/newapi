@@ -8,3 +8,4 @@ coverage.xml
 pformat.txt
 profile_slow.prof
 .pytest_cache/
+*.zip
