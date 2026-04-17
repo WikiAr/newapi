@@ -45,7 +45,11 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
     Represents a login session for a wiki.
     """
 
-    def __init__(self, lang, family="wikipedia"):
+    def __init__(
+        self,
+        lang: str,
+        family: str = "wikipedia",
+    ):
         # print(f"class Login:{lang=}")
         # ---
         self.user_login = ""
@@ -73,7 +77,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         """
         return True
 
-    def p_url(self, params):
+    def p_url(self, params) -> None:
         """
         Print the URL for debugging purposes.
         """
@@ -126,7 +130,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         # ---
         return data
 
-    def filter_params(self, params):
+    def filter_params(self, params) -> dict:
         """
         Filter out unnecessary parameters.
         """

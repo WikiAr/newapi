@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ """
 from . import super_login
 from .S_API import bot_api

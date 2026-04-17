@@ -23,7 +23,6 @@ from .params_help import PARAMS_HELPS
 logger = logging.getLogger(__name__)
 
 
-# cookies = get_cookies(lang, family, username)
 logins_count = {1: 0}
 
 
@@ -294,7 +293,7 @@ class LOGIN_HELPS(MwClientSite, PARAMS_HELPS):
             result = req0.json()
 
         except Exception as e:
-            logger.exception(e)
+            logger.exception("Exception:", exc_info=True)
         # ---
         return result
 

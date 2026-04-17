@@ -35,7 +35,6 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             return False
         # ---
         logger.debug(f"** .. [[{title}]] ")
-
         # ---
         user = self.username or getattr(self, "user_login", "")
         # ---

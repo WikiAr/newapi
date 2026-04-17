@@ -5,22 +5,35 @@ from .super.handel_errors import HANDEL_ERRORS
 
 import logging
 import sys
+from typing import Any, Dict, Optional, Union
 
 logger = logging.getLogger(__name__)
 
 
 class HANDEL_ERRORS:
+    """
+    Error handler for MediaWiki API errors.
+
+    Handles API error responses and converts them to appropriate
+    exceptions or return values.
+    """
+
     def __init__(self):
-        # logger.info("class HANDEL_ERRORS:")
+        """
+        Initialize the error handler.
+
+        Args:
+            config: Optional BotConfig for behavior settings.
+        """
         pass
 
     def handel_err(
         self,
-        error: dict,
+        error: Dict[str, Any],
         function: str = "",
-        params: dict = None,
+        params: Optional[Dict[str, Any]] = None,
         do_error: bool = True,
-    ):
+    ) -> Union[str, bool, ApiError]:
         """Handle errors based on the provided error dictionary.
 
         This function processes an error dictionary and performs actions based
@@ -48,18 +61,17 @@ class HANDEL_ERRORS:
                 exception with the error details.
         """
 
-        # ---
         # {'error': {'code': 'articleexists', 'info': 'The article you tried to create has been created already.', '*': 'See https://ar.wikipedia.org/w/api.php for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes.'}, 'servedby': 'mw1425'}
-        # ---
+
         err_code = error.get("code", "")
         err_info = error.get("info", "")
-        # ---
+
         _tt = f"<<lightred>>{function} ERROR: <<defaut>>code:{err_code}."
-        # ---["protectedpage", 'تأخير البوتات 3 ساعات', False]
+        ["protectedpage", "تأخير البوتات 3 ساعات", False]
         if err_code == "abusefilter-disallowed":
-            # ---
+
             # oioioi = {'error': {'code': 'abusefilter-disallowed', 'info': 'This', 'abusefilter': {'id': '169', 'description': 'تأخير البوتات 3 ساعات', 'actions': ['disallow']}, '*': 'See https'}, 'servedby': 'mw1374'}
-            # ---
+
             abusefilter = error.get("abusefilter", "")
             description = abusefilter.get("description", "")
             logger.info(f"<<lightred>> ** abusefilter-disallowed: {description} ")
@@ -71,28 +83,28 @@ class HANDEL_ERRORS:
             ]:
                 return False
             return description
-        # ---
+
         if err_code == "no-such-entity":
             logger.info("<<lightred>> ** no-such-entity. ")
             return False
-        # ---
+
         if err_code == "protectedpage":
             logger.info("<<lightred>> ** protectedpage. ")
             # return "protectedpage"
             return False
-        # ---
+
         if err_code == "articleexists":
             logger.info("<<lightred>> ** article already created. ")
             return "articleexists"
-        # ---
+
         if err_code == "maxlag":
             logger.info("<<lightred>> ** maxlag. ")
             return False
-        # ---
+
         if do_error:
             params["data"] = {}
             params["text"] = {}
             logger.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
-        # ---
+
         if "raise" in sys.argv:
             raise Exception(error)

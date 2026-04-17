@@ -6,11 +6,13 @@ import time
 from collections.abc import KeysView
 from datetime import timedelta
 
-# ---
 import tqdm
 
 from ...api_utils.lang_codes import change_codes
 from .bot import BOTS_APIS
+
+logger = logging.getLogger(__name__)
+
 
 logger = logging.getLogger(__name__)
 
@@ -608,7 +610,7 @@ class NEW_API(BOTS_APIS):
         for title_chunk in self.chunk_titles(titles, chunk_size=numbes):
             params["titles"] = "|".join(title_chunk)
             # ---
-            # logger.debug(f'bot_api.Get_langlinks_for_list work for {len(group)} pages')
+            # logger.debug(f'work for {len(group)} pages')
             # ---
             json1 = self.post_params(params)
             # ---
