@@ -1,11 +1,18 @@
 import pytest
+from unittest.mock import MagicMock
 from newapi.super.S_API.bot_api import NEW_API
 
 
 class TestNewAPI:
     @pytest.fixture
-    def api_client(self) -> NEW_API:
-        return NEW_API("en", family="wikipedia")
+    def mock_login_bot(self):
+        bot = MagicMock()
+        bot.user_login = "TestUser"
+        return bot
+
+    @pytest.fixture
+    def api_client(self, mock_login_bot) -> NEW_API:
+        return NEW_API(mock_login_bot, "en", family="wikipedia")
 
     def test_find_pages_exists(self, api_client):
         """Test Find_pages_exists_or_not method"""

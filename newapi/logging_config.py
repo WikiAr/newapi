@@ -124,15 +124,21 @@ def wrap_color_messages(format_message):
     return wrapper
 
 
-def prepare_log_file(log_file, project_logger):
-    log_file = os.path.expandvars(str(log_file))
-    log_file = Path(log_file).expanduser()
+def prepare_log_file(log_file: str | None, project_logger: logging.Logger) -> Path | None:
+    """
+    Prepare the log file path and create parent directories if needed.
+    """
+    if not log_file:
+        return None
+    log_file_path = os.path.expandvars(str(log_file))
+    log_file_path = Path(log_file_path).expanduser()
+
     try:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         project_logger.error(f"Failed to create log directory: {e}")
-        log_file = None
-    return log_file
+        log_file_path = None
+    return log_file_path
 
 
 def setup_logging(
@@ -175,22 +181,19 @@ def setup_logging(
     if log_file:
         log_file = prepare_log_file(log_file, project_logger)
 
-        file_formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-        file_handler.setFormatter(file_formatter)
-        file_handler.setLevel(numeric_level)
-        project_logger.addHandler(file_handler)
+        file_logger(log_file, project_logger, numeric_level)
 
         # Separate error log file
-        log_file2 = log_file.with_suffix(".err")
-        file_formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        file_handler = logging.FileHandler(log_file2, mode="a", encoding="utf-8")
-        file_handler.setFormatter(file_formatter)
-        file_handler.setLevel(logging.WARNING)
-        project_logger.addHandler(file_handler)
+        log_file_2 = log_file.with_suffix(".err")
+        file_logger(log_file_2, project_logger, logging.WARNING)
+
+
+def file_logger(log_file, project_logger, numeric_level):
+    file_formatter = logging.Formatter(
+        fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(numeric_level)
+    project_logger.addHandler(file_handler)
