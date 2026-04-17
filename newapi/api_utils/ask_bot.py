@@ -9,16 +9,16 @@ import logging
 import sys
 
 logger = logging.getLogger(__name__)
-
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 
 Save_or_Ask = {}
 
 
 def showDiff(text, newtext):
+    logger.info("Showing diff between current and new text...")
     diff = difflib.unified_diff(text.splitlines(), newtext.splitlines(), lineterm="")
     for line in diff:
-        logger.debug(line)
+        logger.info(line)
 
 
 class ASK_BOT:

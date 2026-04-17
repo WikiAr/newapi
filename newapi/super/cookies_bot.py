@@ -1,36 +1,40 @@
 """
 
-from .super.cookies_bot import get_cookies
 # cookies = get_cookies(lang, family, username)
 
 """
 
+import functools
 import logging
 import os
 import stat
 import sys
 from datetime import datetime, timedelta
-from functools import lru_cache
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-
 statgroup = stat.S_IRWXU | stat.S_IRWXG
-tool = os.getenv("HOME")
-# ---
-if not tool:
-    tool = Path(__file__).parent
-else:
-    tool = Path(tool)
-# ---
-ta_dir = tool / "cookies"
-# ---
-if not ta_dir.exists():
-    ta_dir.mkdir()
-    logger.info("<<green>> mkdir:")
-    logger.info(f"ta_dir:{ta_dir}")
-    logger.info("<<green>> mkdir:")
-    os.chmod(ta_dir, statgroup)
+
+
+@functools.lru_cache(maxsize=1)
+def get_ta_dir() -> Path:
+    tool = os.getenv("HOME")
+
+    if not tool:
+        tool = Path(__file__).parent
+    else:
+        tool = Path(tool)
+
+    ta_dir = tool / "cookies"
+
+    if not ta_dir.exists():
+        ta_dir.mkdir()
+        logger.info("<<green>> mkdir:")
+        logger.info(f"ta_dir:{ta_dir}")
+        logger.info("<<green>> mkdir:")
+        os.chmod(ta_dir, statgroup)
+
+    return ta_dir
 
 
 def del_cookies_file(file_path):
@@ -46,7 +50,9 @@ def del_cookies_file(file_path):
 
 
 def get_file_name(lang, family, username) -> Path:
-    # ---
+
+    ta_dir = get_ta_dir()
+
     if "nocookies" in sys.argv:
         randome = os.urandom(8).hex()
         return ta_dir / f"{randome}.txt"
@@ -68,7 +74,7 @@ def get_file_name(lang, family, username) -> Path:
             del_cookies_file(file)
         elif datetime.now() - file_time > timedelta(days=3):
             del_cookies_file(file)
-        # ---
+    # ---
     return file
 
 
@@ -100,7 +106,7 @@ def from_folder(lang, family, username):
     return cookies
 
 
-@lru_cache(maxsize=128)
+@functools.lru_cache(maxsize=128)
 def get_cookies(lang, family, username):
     # ---
     cookies = from_folder(lang, family, username)
