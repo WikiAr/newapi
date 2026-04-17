@@ -1,10 +1,6 @@
 """
-from newapi.api_utils import botEdit
-bot_edit!
 """
 
-#
-#
 import logging
 import sys
 
@@ -92,7 +88,11 @@ def _handle_bots_template(params, title_page, botjob, title):
     return True
 
 
-def is_bot_edit_allowed(text="", title_page="", botjob="all"):
+def is_bot_edit_allowed(
+    text: str = "",
+    title_page: str = "",
+    botjob: str = "all",
+) -> bool:
     # ---
     """
     Determines if a bot is permitted to edit a page based on templates in the page text.

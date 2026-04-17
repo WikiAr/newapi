@@ -16,6 +16,6 @@ def default_user_agent():
     # ---
     li = f"{tool} bot/1.0 (https://{tool}.toolforge.org/; tools.{tool}@toolforge.org)"
     # ---
-    # logger.info(f"default_user_agent: {li}")
+    # logger.info(f": {li}")
     # ---
     return li

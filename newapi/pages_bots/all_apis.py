@@ -1,5 +1,4 @@
 """
-from newapi import ALL_APIS
 
 main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
 page = main_api.MainPage('Main Page Title')

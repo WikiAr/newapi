@@ -28,7 +28,7 @@ logins_count = {1: 0}
 
 
 @functools.lru_cache(maxsize=1024)
-def get_session(lang, family) -> requests.Session:
+def get_session(lang, family) -> requests.session:
     """
     function args used to load cached sessions
     """
@@ -73,7 +73,7 @@ class MwClientSite:
 
         self.jar_cookie = MozillaCookieJar(cookies_file)
 
-        # self.connection = requests.Session()
+        # self.connection = requests.session()
         # self.connection.headers["User-Agent"] = default_user_agent()
         self.connection = get_session(self.lang, self.family)  # Get a cached session for the given lang and family.
         # ---

@@ -27,7 +27,7 @@ botname = "newapi"
 
 
 @functools.lru_cache(maxsize=1024)
-def get_session(lang, family) -> requests.Session:
+def get_session(lang, family) -> requests.session:
     """
     function args used to load cached sessions
     """

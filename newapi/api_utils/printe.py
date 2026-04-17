@@ -1,8 +1,6 @@
 """ """
 
 import difflib
-
-# ---
 import functools
 import logging
 import re
@@ -242,14 +240,12 @@ color_table = get_color_table()
 
 def make_str(textm):
     """
-    Prints the given text with color formatting.
+    Converts the given text with color formatting to a printable string.
 
     The text can contain color tags like '<<color>>' where 'color' is the name of the color.
     The color will be applied to the text that follows the tag, until the end of the string or until a '<<default>>' tag is found.
 
-    If 'noprint' is in sys.argv, the function will return without printing anything.
-
-    :param textm: The text to print. Can contain color tags.
+    :param textm: The text to convert. Can contain color tags.
     """
     # Define a pattern for color tags
     _color_pat = r"((:?\w+|previous);?(:?\w+|previous)?)"

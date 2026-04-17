@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
-if not os.getenv("BOTNAME", ""):
+if not os.getenv("BOTNAME"):
     botname = "newapi"
     os.environ["BOTNAME"] = botname
 
-    # os.getenv("BOTNAME", "")
+    # os.getenv("BOTNAME")

@@ -3,8 +3,9 @@
 import datetime
 import logging
 
-logger = logging.getLogger(__name__)
 Created_Cache = {}
+
+logger = logging.getLogger(__name__)
 
 
 def check_create_time(page, title_page):
