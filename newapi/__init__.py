@@ -1,5 +1,5 @@
-"""
-"""
+""" """
+
 from newapi.api_utils.lang_codes import change_codes
 
 from . import page

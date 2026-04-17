@@ -1,10 +1,10 @@
 import pytest
-from newapi.page import NEW_API
+from newapi.super.S_API.bot_api import NEW_API
 
 
 class TestNewAPI:
     @pytest.fixture
-    def api_client(self):
+    def api_client(self) -> NEW_API:
         return NEW_API("en", family="wikipedia")
 
     def test_find_pages_exists(self, api_client):

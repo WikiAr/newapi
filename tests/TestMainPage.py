@@ -1,5 +1,5 @@
 import pytest
-from newapi.page import MainPage
+from newapi.super.S_Page.super_page import MainPage
 
 
 class TestMainPage:
