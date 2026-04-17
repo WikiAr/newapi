@@ -7,13 +7,11 @@ from newapi import ALL_APIS
 @pytest.fixture
 def mock_dependencies():
     with (
-        patch("newapi.pages_bots.all_apis.Login") as mock_login,
+        patch("newapi.pages_bots.all_apis._login") as mock_login,
         patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
         patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
         patch("newapi.pages_bots.all_apis.bot_api.NEW_API") as mock_new_api,
     ):
-
-        # Setup mock login instance
         mock_login_instance = MagicMock()
         mock_login.return_value = mock_login_instance
 
@@ -35,8 +33,7 @@ def test_all_apis_init(mock_dependencies):
     assert api.username == username
     assert api.password == password
 
-    # Verify login was called
-    mock_dependencies["Login"].assert_called_once_with(lang, family=family)
+    mock_dependencies["Login"].assert_called_once_with(lang, family, username)
     mock_dependencies["LoginInstance"].add_users.assert_called_once()
 
 
@@ -75,10 +72,7 @@ def test_all_apis_new_api(mock_dependencies):
 def test_login_lru_cache(mock_dependencies):
     api = ALL_APIS("en", "wikipedia", "user", "pass")
 
-    # Call _login multiple times
-    api._login()
-    api._login()
+    result1 = api._login()
+    result2 = api._login()
 
-    # Login should only be instantiated once due to lru_cache
-    # Note: __init__ calls _login once, so total calls should be 1
-    assert mock_dependencies["Login"].call_count == 1
+    assert result1 is result2
