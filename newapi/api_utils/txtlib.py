@@ -1,19 +1,12 @@
 #!/usr/bin/python3
-"""
+""" """
 
-from . import txtlib
-# txtlib.get_one_temp_params( text, templates=[], lowers=False )
-# alltemp = txtlib.get_all_temps_params( text, templates=[], lowers=False )
-# for tab in alltemp: for namestrip, params in tab.keys():
-# ---
-from . import txtlib
-# temps = txtlib.extract_templates_and_params(text)
-# for temp in temps: name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
-
-"""
+import logging
 from functools import lru_cache
 
 import wikitextparser as wtp
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=512)

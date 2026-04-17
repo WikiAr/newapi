@@ -1,45 +1,4 @@
-"""
-from newapi.page import NEW_API
-# api_new  = NEW_API('ar', family='wikipedia')
-# login    = api_new.Login_to_wiki()
-# cxtoken  = api_new.get_cxtoken()
-# move_it  = api_new.move(old_title, to, reason="", noredirect=False, movesubpages=False)
-# upload   = api_new.upload_by_file(file_name, text, file_path, comment="")
-# pages    = api_new.Find_pages_exists_or_not(liste, get_redirect=False)
-# json1    = api_new.post_params(params, addtoken=False)
-# pages    = api_new.Get_All_pages(start='', namespace="0", limit="max", apfilterredir='', limit_all=0)
-# pages    = api_new.PrefixSearch(pssearch="", ns="0", pslimit="max", limit_all=100000)
-# all_pages= api_new.Get_All_pages_generator(start="", namespace="0", limit="max", filterredir="", ppprop="", limit_all=100000)
-# search   = api_new.Search(value='', ns="", offset='', srlimit="max", RETURN_dict=False, addparams={})
-# newpages = api_new.Get_Newpages(limit="max", namespace="0", rcstart="", user='')
-# usercont = api_new.UserContribs(user, limit=5000, namespace="*", ucshow="")
-# l_links  = api_new.Get_langlinks_for_list(titles, targtsitecode="", numbes=50)
-# text_w   = api_new.expandtemplates(text)
-# subst    = api_new.Parse_Text('{{subst:page_name}}', title)
-# extlinks = api_new.get_extlinks(title)
-# revisions= api_new.get_revisions(title)
-# logs     = api_new.get_logs(title)
-# wantedcategories  = api_new.querypage_list(qppage='Wantedcategories|Wantedfiles', qplimit="max", Max=5000)
-# pages  = api_new.Get_template_pages(title, namespace="*", Max=10000)
-# pages_props  = api_new.pageswithprop(pwppropname="unlinkedwikibase_id", Max=None)
-# img_url  = api_new.Get_image_url(title)
-# img_info = api_new.Get_imageinfo(title)
-# added    = api_new.Add_To_Bottom(text, summary, title, poss="Head|Bottom")
-# titles   = api_new.get_titles_redirects(titles)
-# titles   = api_new.get_pageassessments(titles)
-# users    = api_new.users_infos(ususers=["Mr. Ibrahem"])
-Usage:
-from newapi.page import NEW_API
-# ---
-login_done_lang = {1:''}
-# ---
-# في بعض البوتات التي يتم ادخال اللغة من خلال وظائف معينة
-# ---
-if login_done_lang[1] != code:
-    login_done_lang[1] = code
-    api_new = NEW_API(code, family='wikipedia')
-    api_new.Login_to_wiki()
-"""
+""" """
 
 import datetime
 import logging
@@ -47,11 +6,13 @@ import time
 from collections.abc import KeysView
 from datetime import timedelta
 
-# ---
 import tqdm
 
 from ...api_utils.lang_codes import change_codes
 from .bot import BOTS_APIS
+
+logger = logging.getLogger(__name__)
+
 
 logger = logging.getLogger(__name__)
 
@@ -649,7 +610,7 @@ class NEW_API(BOTS_APIS):
         for title_chunk in self.chunk_titles(titles, chunk_size=numbes):
             params["titles"] = "|".join(title_chunk)
             # ---
-            # logger.debug(f'bot_api.Get_langlinks_for_list work for {len(group)} pages')
+            # logger.debug(f'work for {len(group)} pages')
             # ---
             json1 = self.post_params(params)
             # ---

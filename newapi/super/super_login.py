@@ -19,6 +19,7 @@ import logging
 import sys
 import time
 import urllib.parse
+from typing import Optional
 
 from ..api_utils.user_agent import default_user_agent
 from .handel_errors import HANDEL_ERRORS
@@ -43,9 +44,17 @@ urls_prints = {"all": 0}
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """
     Represents a login session for a wiki.
+
+    Attributes:
+        lang: Language code for the wiki.
+        family: Wiki family (e.g., 'wikipedia', 'wikidata').
     """
 
-    def __init__(self, lang, family="wikipedia"):
+    def __init__(
+        self,
+        lang: str,
+        family: str = "wikipedia",
+    ) -> None:
         # print(f"class Login:{lang=}")
         # ---
         self.user_login = ""
@@ -73,7 +82,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         """
         return True
 
-    def p_url(self, params):
+    def p_url(self, params) -> None:
         """
         Print the URL for debugging purposes.
         """
@@ -126,7 +135,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
         # ---
         return data
 
-    def filter_params(self, params):
+    def filter_params(self, params) -> dict:
         """
         Filter out unnecessary parameters.
         """
@@ -192,7 +201,7 @@ class Login(LOGIN_HELPS, HANDEL_ERRORS):
             self.r3_token = self.make_new_r3_token()
 
         if not self.r3_token:
-            logger.error('<<red>> self.r3_token == "" ')
+            logger.warning('<<red>> self.r3_token == "" ')
 
         params["token"] = self.r3_token
 

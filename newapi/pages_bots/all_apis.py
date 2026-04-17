@@ -1,5 +1,4 @@
 """
-from newapi import ALL_APIS
 
 main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
 page = main_api.MainPage('Main Page Title')
@@ -69,6 +68,7 @@ class ALL_APIS:  # noqa: N801
         bot.add_users(user_tables, lang=self.lang)
         # ---
         return bot
+
 
 __all__ = [
     "ALL_APIS",

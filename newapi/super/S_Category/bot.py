@@ -6,62 +6,52 @@ from .bot import CategoryDepth
 
 import copy
 import logging
+from typing import Any, Dict, List, Optional, Union
 
 import tqdm
 
 logger = logging.getLogger(__name__)
 
-ns_list = {
-    "0": "",
-    "1": "نقاش",
-    "2": "مستخدم",
-    "3": "نقاش المستخدم",
-    "4": "ويكيبيديا",
-    "5": "نقاش ويكيبيديا",
-    "6": "ملف",
-    "7": "نقاش الملف",
-    "10": "قالب",
-    "11": "نقاش القالب",
-    "12": "مساعدة",
-    "13": "نقاش المساعدة",
-    "14": "تصنيف",
-    "15": "نقاش التصنيف",
-    "100": "بوابة",
-    "101": "نقاش البوابة",
-    "828": "وحدة",
-    "829": "نقاش الوحدة",
-    "2600": "موضوع",
-    "1728": "فعالية",
-    "1729": "نقاش الفعالية",
-}
-
 
 class CategoryDepth:
-    def __init__(self, login_bot, title, **kwargs):
+    """
+    Class for traversing category hierarchies.
+
+    Provides methods for recursively querying category members.
+    """
+
+    def __init__(
+        self,
+        login_bot: Any,
+        title: str,
+        **kwargs: Any,
+    ) -> None:
         # ---
         self.login_bot = login_bot
         # ---
-        self.user_login = login_bot.user_login
+        self.user_login: str = login_bot.user_login
         # ---
-        self.title = title
+        self.title: str = title
         # ---
-        self.len_pages = 0
-        self.revids, self.timestamps, self.result_table = {}, {}, {}
+        self.len_pages: int = 0
+        self.revids: Dict[str, int] = {}
+        self.timestamps: Dict[str, str] = {}
+        self.result_table: Dict[str, Any] = {}
         # ---
-        self.props = []
+        self.props: List[str] = []
         # ---
-        self.gcmlimit = 1000
-        self.no_props = False
-        self.limit = 0
-        self.no_gcmsort = False
-        self.only_titles = False
-        self.onlyns = False
-        self.tempyes = []
-        self.without_lang = ""
-        self.with_lang = ""
-        self.depth = 0
-        self.ns = "all"
-        self.nslist = []
+        self.gcmlimit: int = 1000
+        self.no_props: bool = False
+        self.limit: int = 0
+        self.no_gcmsort: bool = False
+        self.only_titles: bool = False
+        self.onlyns: Union[bool, int] = False
+        self.tempyes: List[str] = []
+        self.without_lang: str = ""
+        self.with_lang: str = ""
+        self.depth: int = 0
+        self.ns: Union[str, int] = "all"
+        self.nslist: List[int] = []
         # ---
         kwargs["title"] = title
         # ---
@@ -69,14 +59,14 @@ class CategoryDepth:
 
     def post_params(
         self,
-        params,
-        Type="get",
-        addtoken=False,
-        GET_CSRF=True,
-        files=None,
-        do_error=False,
-        max_retry=0,
-    ):
+        params: Dict[str, Any],
+        Type: str = "get",
+        addtoken: bool = False,
+        GET_CSRF: bool = True,
+        files: Optional[Dict[str, Any]] = None,
+        do_error: bool = False,
+        max_retry: int = 0,
+    ) -> Dict[str, Any]:
         # ---
         return self.login_bot.post_params(
             params,
@@ -88,13 +78,13 @@ class CategoryDepth:
             max_retry=max_retry,
         )
 
-    def get_revids(self):
+    def get_revids(self) -> Dict[str, int]:
         return self.revids
 
-    def get_len_pages(self):
+    def get_len_pages(self) -> int:
         return self.len_pages
 
-    def prase_params(self, **kwargs):
+    def prase_params(self, **kwargs: Any) -> None:
         # ---
         if not kwargs:
             return
@@ -386,6 +376,6 @@ class CategoryDepth:
                 key=lambda item: self.timestamps.get(item[0], 0),
                 reverse=True,
             )
-            self.result_table = {k: v for k, v in soro}
+            self.result_table = dict(soro)
         # ---
         return self.result_table

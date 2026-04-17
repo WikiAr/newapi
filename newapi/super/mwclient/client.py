@@ -32,7 +32,7 @@ class Site:
             are located). Must contain a trailing slash (`/`). Defaults to `/w/`.
         ext (str): The file extension used by the MediaWiki API scripts. Defaults to
             `.php`.
-        pool (requests.Session): A preexisting :class:`~requests.Session` to be used when
+        pool (requests.session): A preexisting :class:`~requests.session` to be used when
             executing API requests.
         retry_timeout (int): The number of seconds to sleep for each past retry of a
             failing API request. Defaults to `30`.
@@ -62,7 +62,7 @@ class Site:
             handle UTF-8, please provide the username and password already encoded with
             the appropriate encoding.
         connection_options (Dict[str, Any]): Additional arguments to be passed to the
-            :py:meth:`requests.Session.request` method when performing API calls. If the
+            :py:meth:`requests.session.request` method when performing API calls. If the
             `timeout` key is empty, a default timeout of 30 seconds is added.
         consumer_token (str): OAuth1 consumer key for owner-only consumers.
         consumer_secret (str): OAuth1 consumer secret for owner-only consumers.
@@ -161,7 +161,7 @@ class Site:
 
         # Setup connection
         if pool is None:
-            self.connection = requests.Session()
+            self.connection = requests.session()
             self.connection.auth = auth
             if client_certificate:
                 self.connection.cert = client_certificate

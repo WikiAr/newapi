@@ -7,8 +7,8 @@ Exception:{'login': {'result': 'Failed', 'reason': 'You have made too many recen
 
 """
 
-import logging
 import functools
+import logging
 import os
 import sys
 from http.cookiejar import MozillaCookieJar
@@ -25,12 +25,17 @@ logins_count = {1: 0}
 logger = logging.getLogger(__name__)
 botname = "newapi"
 
+
 @functools.lru_cache(maxsize=1024)
-def get_session(lang, family) -> requests.Session:
+def get_session(lang, family) -> requests.session:
+    """
+    function args used to load cached sessions
+    """
     session = requests.session()
     session.headers.update({"User-Agent": default_user_agent()})
     return session
-    
+
+
 class LOGIN_HELPS(PARAMS_HELPS):
     def __init__(self) -> None:
         # logger.info("class LOGIN_HELPS:")
@@ -402,6 +407,9 @@ class LOGIN_HELPS(PARAMS_HELPS):
                 del_cookies_file(self.cookies_file)
                 # ---
                 self.username_in = ""
+                # ---
+                get_session.cache_clear()
+                # ---
                 self.make_new_session()
                 # ---
                 return self.post_it_parse_data(params, files, timeout, relogin=True)

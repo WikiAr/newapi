@@ -1,51 +1,9 @@
-"""
-Usage:
-# ---
-from newapi.page import MainPage
-page      = MainPage(title, 'ar', family='wikipedia')
-# ---
-'''
-if not page.exists(): return
-# ---
-page_edit = page.can_edit(script='fixref|cat|stub|tempcat|portal')
-if not page_edit: return
-# ---
-if page.isDisambiguation() :  return
-# ---
-if page.isRedirect() :  return
-# target = page.get_redirect_target()
-# ---
-text        = page.get_text()
-ns          = page.namespace()
-links       = page.page_links()
-categories  = page.get_categories(with_hidden=False)
-langlinks   = page.get_langlinks()
-wiki_links  = page.get_wiki_links_from_text()
-refs        = page.Get_tags(tag='ref')# for x in ref: name, contents = x.name, x.contents
-words       = page.get_words()
-templates   = page.get_templates()
-temps_API   = page.get_templates_API()
-save_page   = page.save(newtext='', summary='', nocreate=1, minor='')
-create      = page.Create(text='', summary='')
-# ---
-create_data = page.get_create_data() # { "timestamp" : "", "user" : "", "anon" : "" }
-# ---
-extlinks    = page.get_extlinks()
-back_links  = page.page_backlinks()
-text_html   = page.get_text_html()
-hidden_categories= page.get_hidden_categories()
-flagged     = page.is_flagged()
-timestamp   = page.get_timestamp()
-user        = page.get_user()
-userinfo    = page.get_userinfo() # "id", "name", "groups"
-revisions   = page.get_revisions(rvprops=['content'])
-purge       = page.purge()
-'''
-
-"""
+""" """
 
 import logging
 import sys
+from typing import Any, Dict, Optional, Union
+
 import wikitextparser as wtp
 
 from ...api_utils import botEdit, txtlib
@@ -60,7 +18,19 @@ print_test = {1: "test" in sys.argv}
 
 
 class MainPage(PAGE_APIS, ASK_BOT):
-    def __init__(self, login_bot, title, lang="", family="wikipedia"):
+    """
+    Main page class for interacting with MediaWiki pages.
+
+    Provides methods for reading, editing, and managing wiki pages.
+    """
+
+    def __init__(
+        self,
+        login_bot: Any,
+        title: str,
+        lang: str = "",
+        family: str = "wikipedia",
+    ) -> None:
         # print(f"class MainPage: {lang=}")
         # ---
         """
@@ -71,17 +41,17 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         self.login_bot = login_bot
         # ---
-        self.user_login = login_bot.user_login
+        self.user_login: str = login_bot.user_login
         # ---
-        self.title = title
-        self.lang = change_codes.get(lang) or lang
-        self.family = family
-        self.endpoint = f"https://{self.lang}.{self.family}.org/w/api.php"
+        self.title: str = title
+        self.lang: str = change_codes.get(lang) or lang
+        self.family: str = family
+        self.endpoint: str = f"https://{self.lang}.{self.family}.org/w/api.php"
         # ---
-        self.text = ""
-        self.newtext = ""
-        self.ns = False
-        self.langlinks = {}
+        self.text: str = ""
+        self.newtext: str = ""
+        self.ns: Union[bool, int] = False
+        self.langlinks: Dict[str, str] = {}
         # ---
         self.meta = Meta()
         self.content = Content()
@@ -90,17 +60,32 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.categories_data = CategoriesData()
         self.template_data = TemplateData()
         # ---
-        self.user = ""
+        self.user: str = ""
         # ---
         super().__init__(login_bot)
 
-    def post_params(self, params, Type="get", addtoken=False, GET_CSRF=True, files=None, do_error=False, max_retry=0):
+    def post_params(
+        self,
+        params: Dict[str, Any],
+        Type: str = "get",
+        addtoken: bool = False,
+        GET_CSRF: bool = True,
+        files: Optional[Dict[str, Any]] = None,
+        do_error: bool = False,
+        max_retry: int = 0,
+    ) -> Dict[str, Any]:
         # ---
         return self.login_bot.post_params(
-            params, Type=Type, addtoken=addtoken, GET_CSRF=GET_CSRF, files=files, do_error=do_error, max_retry=max_retry
+            params,
+            Type=Type,
+            addtoken=addtoken,
+            GET_CSRF=GET_CSRF,
+            files=files,
+            do_error=do_error,
+            max_retry=max_retry,
         )
 
-    def false_edit(self):
+    def false_edit(self) -> bool:
         # self.newtext
         # self.text
         # ---
@@ -122,7 +107,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if len(self.newtext) < 0.1 * len(self.text):
             text_err = f"Edit will remove 90% of the text. {len(self.newtext)} < 0.1 * {len(self.text)}"
             text_err += f"title: {self.title}, summary: {self.content.summary}"
-            logger.exception("", text=text_err)
+            logger.exception(text_err)
             return True
         # ---
         if self.lang == "ar" and self.ns == 0:
@@ -229,7 +214,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         for k, v in pages.items():
             # ---
             if print_test[1] or "printdata" in sys.argv:
-                logger.warning(f"v:{str(v)}")
+                logger.warning(f"<<lightblue>> data: {str(v)}")
             # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !
@@ -670,7 +655,16 @@ class MainPage(PAGE_APIS, ASK_BOT):
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)
         return self.template_data.templates
 
-    def save(self, newtext="", summary="", nocreate=1, minor="0", tags="", nodiff=False, ASK=False):
+    def save(
+        self,
+        newtext="",
+        summary="",
+        nocreate=1,
+        minor="0",
+        tags="",
+        nodiff=False,
+        ASK=False,
+    ) -> bool | str:
         """
         Saves new text to the page, updating its content and metadata.
 
@@ -801,11 +795,17 @@ class MainPage(PAGE_APIS, ASK_BOT):
             if title2 == ti and "purged" in t:
                 return True
             if "missing" in t:
-                logger.info(f"page \"{t['title']}\" missing")
+                logger.info(f'page "{ti}" missing')
                 return "missing"
         return False
 
-    def Create(self, text="", summary="", nodiff="", noask=False):
+    def create(
+        self,
+        text="",
+        summary="",
+        nodiff="",
+        noask=False,
+    ) -> bool:
         # ---
         """
         Creates a new page with the specified text and summary.
@@ -830,7 +830,14 @@ class MainPage(PAGE_APIS, ASK_BOT):
             user = self.meta.username or getattr(self, "user_login", "")
             # ---
             if (
-                self.ask_put(nodiff=nodiff, newtext=text, message=message, job="create", username=user, summary=summary)
+                self.ask_put(
+                    nodiff=nodiff,
+                    newtext=text,
+                    message=message,
+                    job="create",
+                    username=user,
+                    summary=summary,
+                )
                 is False
             ):
                 return False
@@ -882,8 +889,14 @@ class MainPage(PAGE_APIS, ASK_BOT):
             # ---
         return False
 
-    def create(self, text="", summary="", nodiff="", noask=False):
-        return self.Create(text=text, summary=summary, nodiff=nodiff, noask=noask)
+    def Create(
+        self,
+        text="",
+        summary="",
+        nodiff="",
+        noask=False,
+    ) -> bool:
+        return self.create(text=text, summary=summary, nodiff=nodiff, noask=noask)
 
     def page_backlinks(self, ns=0):
         params = {

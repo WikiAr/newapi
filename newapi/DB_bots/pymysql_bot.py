@@ -1,5 +1,4 @@
 """
-from newapi import pymysql_bot
 # result = pymysql_bot.sql_connect_pymysql(query, return_dict=False, values=None, main_args={}, credentials={}, conversions=None)
 """
 
@@ -44,7 +43,7 @@ def sql_connect_pymysql(
             results = cursor.fetchall()
         except Exception as e:
             logger.exception(e)
-            logger.exception('Exception during fetchall', exc_info=True)
+            logger.exception("Exception during fetchall", exc_info=True)
             return []
 
     return results

@@ -4,15 +4,18 @@ bot_edit!
 """
 
 from .bot_edit.bot_edit_by_templates import is_bot_edit_allowed
-
-#
-#
 from .bot_edit.bot_edit_by_time import check_create_time, check_last_edit_time
 
 Created_Cache = {}
 
 
-def bot_May_Edit(text="", title_page="", botjob="all", page=False, delay=0):
+def bot_May_Edit(
+    text: str = "",
+    title_page: str = "",
+    botjob: str = "all",
+    page=False,
+    delay: int = 0,
+) -> bool:
     # ---
     """
     Determines whether a bot is permitted to edit a page based on templates, last edit time, and creation time.
