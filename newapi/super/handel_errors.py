@@ -7,6 +7,16 @@ import logging
 import sys
 from typing import Any, Dict, Optional, Union
 
+from ..core.exceptions import (
+    AbuseFilterError,
+    ApiError,
+    ArticleExistsError,
+    MaxLagError,
+    NoSuchEntityError,
+    ProtectedPageError,
+    parse_api_error,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +28,7 @@ class HANDEL_ERRORS:
     exceptions or return values.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize the error handler.
 

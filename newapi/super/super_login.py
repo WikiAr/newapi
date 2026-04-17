@@ -19,6 +19,7 @@ import logging
 import sys
 import time
 import urllib.parse
+from typing import Optional
 
 from ..api_utils.user_agent import default_user_agent
 from .handel_errors import HANDEL_ERRORS
@@ -43,13 +44,17 @@ urls_prints = {"all": 0}
 class Login(LOGIN_HELPS, HANDEL_ERRORS):
     """
     Represents a login session for a wiki.
+
+    Attributes:
+        lang: Language code for the wiki.
+        family: Wiki family (e.g., 'wikipedia', 'wikidata').
     """
 
     def __init__(
         self,
         lang: str,
         family: str = "wikipedia",
-    ):
+    ) -> None:
         # print(f"class Login:{lang=}")
         # ---
         self.user_login = ""
