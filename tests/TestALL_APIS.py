@@ -55,7 +55,11 @@ def test_all_apis_cat_depth(mock_dependencies):
     api.CatDepth(title, depth=2)
 
     mock_dependencies["subcatquery"].assert_called_once_with(
-        mock_dependencies["LoginInstance"], title, sitecode="en", family="wikipedia", depth=2
+        mock_dependencies["LoginInstance"],
+        title,
+        sitecode="en",
+        family="wikipedia",
+        depth=2,
     )
 
 

@@ -371,7 +371,8 @@ class TestStopEditTemplates:
         assert result is True
 
     @pytest.mark.parametrize(
-        "botjob,template_list", [(job, templates) for job, templates in stop_edit_temps.items() if job != "all"]
+        "botjob,template_list",
+        [(job, templates) for job, templates in stop_edit_temps.items() if job != "all"],
     )
     def test_all_stop_templates_for_each_botjob(self, botjob, template_list, setup_parser):
         """Test all stop templates for each specific bot job."""
@@ -392,7 +393,12 @@ class TestMultipleTemplates:
 
     def test_multiple_templates_first_restricting_denies(self, setup_parser):
         """Test that first restricting template denies editing."""
-        setup_parser([{"name": "nobots", "arguments": None}, {"name": "some_other_template", "arguments": None}])
+        setup_parser(
+            [
+                {"name": "nobots", "arguments": None},
+                {"name": "some_other_template", "arguments": None},
+            ]
+        )
 
         text = "{{nobots}} {{some_other_template}}"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
@@ -400,7 +406,12 @@ class TestMultipleTemplates:
 
     def test_multiple_non_restricting_templates_allows(self, setup_parser):
         """Test that multiple non-restricting templates allow editing."""
-        setup_parser([{"name": "infobox", "arguments": None}, {"name": "citation", "arguments": None}])
+        setup_parser(
+            [
+                {"name": "infobox", "arguments": None},
+                {"name": "citation", "arguments": None},
+            ]
+        )
 
         text = "{{infobox}} {{citation}}"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
@@ -424,7 +435,14 @@ class TestEdgeCases:
 
     def test_template_with_multiple_parameters(self, setup_parser):
         """Test template with multiple parameters."""
-        setup_parser([{"name": "bots", "arguments": {"allow": "all", "other_param": "some_value"}}])
+        setup_parser(
+            [
+                {
+                    "name": "bots",
+                    "arguments": {"allow": "all", "other_param": "some_value"},
+                }
+            ]
+        )
 
         text = "{{bots|allow=all|other_param=some_value}}"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
