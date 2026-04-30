@@ -104,7 +104,11 @@ class List:
 
         Else, set `self.last` to True.
         """
-        data = self.site.get("query", (self.generator, self.list_name), *[(str(k), v) for k, v in self.args.items()])
+        data = self.site.get(
+            "query",
+            (self.generator, self.list_name),
+            *[(str(k), v) for k, v in self.args.items()],
+        )
         if not data:
             # Non existent page
             print(StopIteration)
@@ -258,7 +262,12 @@ class PageList(GeneratorList):
             kwargs["gapto"] = end
 
         super(PageList, self).__init__(
-            site, "allpages", "ap", gapnamespace=str(namespace), gapfilterredir=redirects, **kwargs
+            site,
+            "allpages",
+            "ap",
+            gapnamespace=str(namespace),
+            gapfilterredir=redirects,
+            **kwargs,
         )
 
     def __getitem__(self, name):

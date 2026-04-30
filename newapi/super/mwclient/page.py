@@ -212,7 +212,13 @@ class Page:
             data["assert"] = "user"
 
         def do_edit():
-            result = self.site.post("edit", title=self.name, summary=summary, token=self.get_token("edit"), **data)
+            result = self.site.post(
+                "edit",
+                title=self.name,
+                summary=summary,
+                token=self.get_token("edit"),
+                **data,
+            )
             if result["edit"].get("result").lower() == "failure":
                 print(errors.EditError(self, result["edit"]))
             return result
@@ -307,7 +313,12 @@ class Page:
         if ignore_warnings:
             data["ignorewarnings"] = "1"
         result = self.site.post(
-            "move", ("from", self.name), to=new_title, token=self.get_token("move"), reason=reason, **data
+            "move",
+            ("from", self.name),
+            to=new_title,
+            token=self.get_token("move"),
+            reason=reason,
+            **data,
         )
         return result["move"]
 
@@ -328,7 +339,13 @@ class Page:
             data["unwatch"] = "1"
         if oldimage:
             data["oldimage"] = oldimage
-        result = self.site.post("delete", title=self.name, token=self.get_token("delete"), reason=reason, **data)
+        result = self.site.post(
+            "delete",
+            title=self.name,
+            token=self.get_token("delete"),
+            reason=reason,
+            **data,
+        )
         return result["delete"]
 
     def purge(self):
@@ -568,7 +585,12 @@ class Page:
             kwargs["rvsection"] = section
 
         return listing.RevisionsIterator(
-            self, "revisions", "rv", max_items=max_items, api_chunk_size=api_chunk_size, **kwargs
+            self,
+            "revisions",
+            "rv",
+            max_items=max_items,
+            api_chunk_size=api_chunk_size,
+            **kwargs,
         )
 
     def templates(self, namespace=None, generator=True):
