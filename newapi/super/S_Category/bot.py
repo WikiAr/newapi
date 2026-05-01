@@ -250,7 +250,7 @@ class CategoryDepth:
             if continue_params:
                 params.update(continue_params)
 
-            api_data = self.post_params(params)
+            api_data = self.client_request(params)
 
             if not api_data:
                 print(f"api is False for {cac}")

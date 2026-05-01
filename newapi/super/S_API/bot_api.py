@@ -36,7 +36,7 @@ class NEW_API(BOTS_APIS):
         # ---
         super().__init__()
 
-    def post_params(
+    def client_request(
         self,
         params,
         Type="get",
@@ -47,14 +47,10 @@ class NEW_API(BOTS_APIS):
         max_retry=0,
     ):
         # ---
-        return self.login_bot.post_params(
+        return self.login_bot.client_request(
             params,
-            Type=Type,
-            addtoken=addtoken,
-            GET_CSRF=GET_CSRF,
+            method=Type,
             files=files,
-            do_error=do_error,
-            max_retry=max_retry,
         )
 
     def post_continue(
@@ -107,7 +103,7 @@ class NEW_API(BOTS_APIS):
             # ---
             # if get_redirect: params["redirects"] = 1
             # ---
-            json1 = self.post_params(params)
+            json1 = self.client_request(params)
             # ---
             if not json1:
                 if not noprint:
@@ -189,7 +185,7 @@ class NEW_API(BOTS_APIS):
             if get_redirect:
                 params["redirects"] = 1
             # ---
-            json1 = self.post_params(params)
+            json1 = self.client_request(params)
             # ---
             if not json1:
                 if not noprint:
@@ -612,7 +608,7 @@ class NEW_API(BOTS_APIS):
             # ---
             # logger.debug(f'work for {len(group)} pages')
             # ---
-            json1 = self.post_params(params)
+            json1 = self.client_request(params)
             # ---
             if not json1:
                 logger.info("bot_api. json1 is empty")
@@ -660,7 +656,7 @@ class NEW_API(BOTS_APIS):
             "formatversion": 2,
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         if not data:
             return []
@@ -840,7 +836,7 @@ class NEW_API(BOTS_APIS):
             "formatversion": "2",
         }
         # ---
-        results = self.post_params(params)
+        results = self.client_request(params)
         # ---
         if not results:
             return ""
@@ -872,7 +868,7 @@ class NEW_API(BOTS_APIS):
             "formatversion": "2",
         }
         # ---
-        results = self.post_params(params)
+        results = self.client_request(params)
         # ---
         if not results:
             return ""
@@ -945,7 +941,7 @@ class NEW_API(BOTS_APIS):
         # ---
         params = {"action": "cxtoken", "format": "json"}
         # ---
-        data = self.post_params(params, addtoken=True)
+        data = self.client_request(params, addtoken=True)
         # ---
         if not data:
             return ""

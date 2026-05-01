@@ -64,7 +64,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         else:
             params["appendtext"] = f"\n{text.strip()}"
         # ---
-        results = self.post_params(params)
+        results = self.client_request(params)
         # ---
         if not results:
             return ""
@@ -126,7 +126,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         if not self.ask_put(message=message, job="move", username=user):
             return {}
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # { "move": { "from": "d", "to": "d2", "reason": "wrong", "redirectcreated": true, "moveoverredirect": false } }
         # ---
         if not data:
@@ -228,7 +228,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
             "formatversion": 2,
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         if not data:
             return text
@@ -252,7 +252,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         # ---
         # {"parse": {"title": "كريس فروم", "pageid": 2639244, "wikitext": "{{subst:user:Mr._Ibrahem/line2|Q76|P31}}", "psttext": "\"Q76\":{\n\"P31\":\"إنسان\"\n\n\n\n\n},"}}
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         if not data:
             return ""
@@ -287,7 +287,7 @@ class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
         if ignorewarnings:
             params["ignorewarnings"] = 1
         # ---
-        data = self.post_params(params, files={"file": open(file_path, "rb")})
+        data = self.client_request(params, files={"file": open(file_path, "rb")})
         # ---
         upload_result = data.get("upload", {})
         # ---

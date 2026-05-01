@@ -9,7 +9,7 @@ class TestMainPage:
     def mock_login_bot(self):
         bot = MagicMock()
         bot.user_login = "TestUser"
-        bot.post_params.return_value = {
+        bot.client_request.return_value = {
             "query": {
                 "pages": {
                     "123": {
@@ -31,7 +31,7 @@ class TestMainPage:
     def arabic_page(self, mock_login_bot):
         mock_bot = MagicMock()
         mock_bot.user_login = "TestUser"
-        mock_bot.post_params.return_value = {
+        mock_bot.client_request.return_value = {
             "query": {
                 "pages": {
                     "456": {
@@ -62,7 +62,7 @@ class TestMainPage:
 
     def test_nonexistent_page(self, mock_login_bot):
         """Test behavior with non-existent page"""
-        mock_login_bot.post_params.return_value = {
+        mock_login_bot.client_request.return_value = {
             "query": {"pages": {"-1": {"title": "NonExistentPage12345", "missing": ""}}}
         }
         page = MainPage(mock_login_bot, "NonExistentPage12345", "en")
@@ -75,7 +75,7 @@ class TestMainPage:
 
     def test_page_without_edit_permission(self, mock_login_bot):
         """Test page where user cannot edit"""
-        mock_login_bot.post_params.return_value = {
+        mock_login_bot.client_request.return_value = {
             "query": {
                 "pages": {
                     "789": {
