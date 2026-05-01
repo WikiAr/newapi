@@ -64,7 +64,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         super().__init__(login_bot)
 
-    def post_params(
+    def client_request(
         self,
         params: Dict[str, Any],
         Type: str = "get",
@@ -75,14 +75,10 @@ class MainPage(PAGE_APIS, ASK_BOT):
         max_retry: int = 0,
     ) -> Dict[str, Any]:
         # ---
-        return self.login_bot.post_params(
+        return self.login_bot.client_request(
             params,
-            Type=Type,
-            addtoken=addtoken,
-            GET_CSRF=GET_CSRF,
+            method=Type,
             files=files,
-            do_error=do_error,
-            max_retry=max_retry,
         )
 
     def false_edit(self) -> bool:
@@ -135,7 +131,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "assignknownusers": 1,
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         done = data.get("import", [{}])[0].get("revisions", 0)
         # ---
@@ -163,7 +159,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "rvdir": "newer",
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         pages = data.get("query", {}).get("pages", {})
         # ---
@@ -205,7 +201,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         if redirects:
             params["redirects"] = 1
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         # _dat_ = { "batchcomplete": "", "query": { "normalized": [{ "from": "وب:ملعب", "to": "ويكيبيديا:ملعب" }], "pages": { "361534": { "pageid": 361534, "ns": 4, "title": "ويكيبيديا:ملعب", "revisions": [{ "revid": 61421668, "parentid": 61421528, "user": "Al-shazali Sabeel", "timestamp": "2023-03-07T13:50:29Z", "slots": { "main": { "contentmodel": "wikitext", "contentformat": "text/x-wiki", "*": "{{عنوان الملعب}}" } } }], "pageprops": { "wikibase_item": "Q3938" } } } }, }
         # ---
@@ -293,7 +289,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         # _data_ = { "continue": {}, "query": { "pages": { "9124097": { "pageid": 9124097, "ns": 0, "title": "طواف العالم للدراجات 2023", "categories": [], "langlinks": [], "templates": [{ "ns": 10, "title": "قالب:-" }], "linkshere": [{ "pageid": 189150, "ns": 0, "title": "طواف فرنسا" }], "iwlinks": [{ "prefix": "commons", "*": "Category:2023_UCI_World_Tour" }], "contentmodel": "wikitext", "pagelanguage": "ar", "pagelanguagehtmlcode": "ar", "pagelanguagedir": "rtl", "touched": "2023-03-07T11:53:53Z", "lastrevid": 61366100, "length": 985, } } }, }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         # xs = { 'batchcomplete': True, 'query': { 'pages': [{ 'pageid': 151314, 'ns': 10, 'title': 'قالب:أوب', 'categories': [{ 'ns': 14, 'title': 'تصنيف:قوالب تستخدم أنماط القوالب', 'sortkey': '', 'sortkeyprefix': '', 'hidden': False }, { 'ns': 14, 'title': 'تصنيف:cc', 'sortkey': 'v', 'sortkeyprefix': 'أوب', 'hidden': True }], 'langlinks': [{ 'lang': 'bh', 'title': 'टेम्पलेट:AWB' }], 'templates': [{ 'ns': 10, 'title': 'قالب:No redirect' }], 'linkshere': [{ 'pageid': 308641, 'ns': 10, 'title': 'قالب:AWB', 'redirect': True }], 'iwlinks': [{ 'prefix': 'd', 'title': 'Q4063270' }], 'contentmodel': 'wikitext', 'pagelanguage': 'ar', 'pagelanguagehtmlcode': 'ar', 'pagelanguagedir': 'rtl', 'touched': '2023-03-05T22:10:23Z', 'lastrevid': 61388266, 'length': 3477, }] }, }
         # ---
@@ -356,7 +352,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "prop": "text",
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         # _data_ = { 'warnings': { 'main': { 'warnings': 'Unrecognized parameter: bot.' } }, 'parse': { 'title': 'ويكيبيديا:ملعب', 'pageid': 361534, 'text': '' } }
         # ---
@@ -373,7 +369,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "redirects": 1,
         }
         # ---
-        data = self.post_params(params)
+        data = self.client_request(params)
         # ---
         # _pages_ = { 'batchcomplete': '', 'query': { 'redirects': [{ 'from': 'Yemen', 'to': 'اليمن' }], 'pages': {}, 'normalized': [{ 'from': 'yemen', 'to': 'Yemen' }] } }
         # ---
@@ -396,7 +392,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "srsearch": self.title,
             "srlimit": srlimit,
         }
-        data = self.post_params(params, addtoken=True)
+        data = self.client_request(params, addtoken=True)
         # ---
         if not data:
             return 0
@@ -437,7 +433,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
                 # params = {**params, **continue_params}
                 params.update(continue_params)
             # ---
-            json1 = self.post_params(params)
+            json1 = self.client_request(params)
             # ---
             continue_params = json1.get("continue", {})
             # ---
@@ -464,7 +460,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
                 "ususers": self.user,
             }
             # ---
-            data = self.post_params(params)
+            data = self.client_request(params)
             # ---
             # _userinfo_ = { "id": 229481, "name": "Mr. Ibrahem", "groups": ["editor", "reviewer", "rollbacker", "*", "user", "autoconfirmed"] }
             # ---
@@ -728,7 +724,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         # params['basetimestamp'] = self.revisions_data.timestamp
         # ---
-        pop = self.post_params(params, addtoken=True)
+        pop = self.client_request(params, addtoken=True)
         # ---
         if not pop:
             return False
@@ -773,7 +769,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "titles": self.title,
         }
         # ---
-        data = self.post_params(params, addtoken=True)
+        data = self.client_request(params, addtoken=True)
         # ---
         if not data:
             logger.info("<<lightred>> ** purge error. ")
@@ -851,7 +847,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "createonly": 1,
         }
         # ---
-        pop = self.post_params(params, addtoken=True)
+        pop = self.client_request(params, addtoken=True)
         # ---
         if not pop:
             return False
@@ -915,7 +911,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         # x = { 'batchcomplete': True, 'limits': { 'backlinks': 2500 }, 'query': { 'redirects': [{ 'from': 'فريدريش زيمرمان', 'to': 'فريدريش تسيمرمان' }], 'pages': [{ 'pageid': 2941285, 'ns': 0, 'title': 'فولفغانغ شويبله' }, { 'pageid': 4783977, 'ns': 0, 'title': 'وزارة الشؤون الرقمية والنقل' }, { 'pageid': 5218323, 'ns': 0, 'title': 'فريدريش تسيمرمان' }, { 'pageid': 6662649, 'ns': 0, 'title': 'غونتر كراوزه' }] } }
         # ---
-        # data = self.post_params(params)
+        # data = self.client_request(params)
         # pages = data.get("query", {}).get("pages", [])
         # ---
         pages = self.post_continue(params, "query", _p_="pages", p_empty=[])
@@ -943,7 +939,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "formatversion": "2",
             "page": self.title,
         }
-        # data = self.post_params(params)
+        # data = self.client_request(params)
         # data = data.get('parse', {}).get('links', [])
         # ---
         data: list = self.post_continue(params, "parse", _p_="links", p_empty=[])
@@ -964,7 +960,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "pllimit": "max",
             "converttitles": 1,
         }
-        # data = self.post_params(params)
+        # data = self.client_request(params)
         # data = data.get('query', {}).get('links', [])
         # ---
         data = self.post_continue(params, "query", _p_="links", p_empty=[])

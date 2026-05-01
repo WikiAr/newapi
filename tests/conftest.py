@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from newapi import Login
+from newapi import WikiLoginClient
 
 
 @pytest.fixture(autouse=True)
@@ -43,7 +43,6 @@ def user_credentials():
 
 
 @pytest.fixture
-def mock_login_client(user_credentials) -> Login:
-    bot = Login("ar", family="wikipedia")
-    bot.add_User_tables("wikipedia", user_credentials)
+def mock_login_client(user_credentials) -> WikiLoginClient:
+    bot = MagicMock(spec=WikiLoginClient)
     return bot

@@ -9,22 +9,12 @@ new_api = main_api.NEW_API()
 import functools
 import logging
 
+from ..api_client.client import WikiLoginClient
 from ..super.S_API import bot_api
 from ..super.S_Category import catdepth_new
 from ..super.S_Page import super_page
-from ..super.super_login import Login
 
 logger = logging.getLogger(__name__)
-
-
-@functools.lru_cache(maxsize=1024)
-def _login(lang, family, username) -> Login:
-    # ---
-    login_bot = Login(lang, family=family)
-    # ---
-    logger.info(f"### <<purple>> _login make new bot for ({lang}.{family}.org|{username})")
-    # ---
-    return login_bot
 
 
 class ALL_APIS:  # noqa: N801
@@ -38,7 +28,7 @@ class ALL_APIS:  # noqa: N801
         new_api = main_api.NEW_API()
     """
 
-    def __init__(self, lang, family, username, password) -> None:
+    def __init__(self, lang: str, family: str, username: str, password: str) -> None:
         self.lang = lang
         self.family = family
         self.username = username
@@ -56,18 +46,13 @@ class ALL_APIS:  # noqa: N801
         # ---
         return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
 
-    def _login(self) -> Login:
-        bot = _login(self.lang, self.family, self.username)
-        user_tables = {
-            self.family: {
-                "username": self.username,
-                "password": self.password,
-            }
-        }
-        # ---
-        bot.add_users(user_tables, lang=self.lang)
-        # ---
-        return bot
+    def _login(self) -> WikiLoginClient:
+        return WikiLoginClient(
+            lang=self.lang,
+            family=self.family,
+            username=self.username,
+            password=self.password,
+        )
 
 
 __all__ = [

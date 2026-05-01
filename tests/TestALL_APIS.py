@@ -7,7 +7,7 @@ from newapi import ALL_APIS
 @pytest.fixture
 def mock_dependencies():
     with (
-        patch("newapi.pages_bots.all_apis._login") as mock_login,
+        patch("newapi.pages_bots.all_apis.WikiLoginClient") as mock_login,
         patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
         patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
         patch("newapi.pages_bots.all_apis.bot_api.NEW_API") as mock_new_api,
@@ -33,8 +33,9 @@ def test_all_apis_init(mock_dependencies):
     assert api.username == username
     assert api.password == password
 
-    mock_dependencies["Login"].assert_called_once_with(lang, family, username)
-    mock_dependencies["LoginInstance"].add_users.assert_called_once()
+    mock_dependencies["Login"].assert_called_once_with(
+        lang=lang, family=family, username=username, password=password
+    )
 
 
 def test_all_apis_main_page(mock_dependencies):
@@ -73,10 +74,3 @@ def test_all_apis_new_api(mock_dependencies):
     )
 
 
-def test_login_lru_cache(mock_dependencies):
-    api = ALL_APIS("en", "wikipedia", "user", "pass")
-
-    result1 = api._login()
-    result2 = api._login()
-
-    assert result1 is result2
