@@ -19,23 +19,12 @@ import logging
 import sys
 import time
 import urllib.parse
-from typing import Optional
 
 from ..api_utils.user_agent import default_user_agent
+from .bot import LOGIN_HELPS
 from .handel_errors import HANDEL_ERRORS
 
 logger = logging.getLogger(__name__)
-
-# if "nomwclient" in sys.argv:
-#     from .bot import LOGIN_HELPS
-# else:
-#     from .bot_new import LOGIN_HELPS
-
-if "mwclient" in sys.argv:
-    from .bot_new import LOGIN_HELPS
-else:
-    from .bot import LOGIN_HELPS
-
 print_test = {1: "test" in sys.argv}
 ar_lag = {1: 3}
 urls_prints = {"all": 0}

@@ -7,7 +7,6 @@ import os
 import stat
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ _COOKIE_MAX_AGE_DAYS = 3
 
 
 def get_cookie_path(
-    cookies_dir: Optional[str],
+    cookies_dir: str,
     family: str,
     lang: str,
     username: str,
@@ -37,12 +36,7 @@ def get_cookie_path(
     spaces replaced with underscores; bot-password suffix (@...) stripped.
     """
     # ── Resolve base directory ─────────────────────────────────────────────
-    if cookies_dir:
-        base = Path(cookies_dir)
-    elif os.environ.get("HOME"):
-        base = Path(os.environ["HOME"]) / "cookies"
-    else:
-        base = Path(__file__).parent / "cookies"
+    base = Path(cookies_dir)
 
     base.mkdir(parents=True, exist_ok=True)
 

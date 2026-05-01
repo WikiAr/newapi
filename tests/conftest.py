@@ -27,7 +27,6 @@ def mock_get_session(mocker):
     # 4. Patch the get_session function in the target module
     # Note: Replace 'newapi.super.bot' with the actual import path
     mocker.patch("newapi.super.bot.get_session", return_value=mock_session)
-    mocker.patch("newapi.super.bot_new.get_session", return_value=mock_session)
 
     return mock_session
 

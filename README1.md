@@ -38,7 +38,7 @@ The project follows a modular and layered architecture:
 
 ### Login Module
 - `super/super_login.py`
-- `super/S_Login/` (including `bot.py`, `bot_new.py`, `cookies_bot.py`)
+- `super/S_Login/` (including `bot.py`, `cookies_bot.py`)
 
 ### Page Management Module
 - `wiki_page.py`, `page.py`, `mdwiki_page.py`, `ncc_page.py`
