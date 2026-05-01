@@ -207,18 +207,14 @@ class RequestsHandler:
             if error_code == "maxlag":
                 attempt += 1
                 if attempt >= config.MAX_RETRIES:
-                    raise MaxlagError(
-                        f"Server maxlag not resolved after {config.MAX_RETRIES} attempts."
-                    )
+                    raise MaxlagError(f"Server maxlag not resolved after {config.MAX_RETRIES} attempts.")
                 self._handle_maxlag(response, attempt)
                 continue
 
             # ── assertnameduserfailed ─────────────────────────────────────
             if error_code == "assertnameduserfailed":
                 if named_user_attempts >= assertnameduser_retries:
-                    raise WikiClientError(
-                        "assertnameduserfailed persists after re-login"
-                    )
+                    raise WikiClientError("assertnameduserfailed persists after re-login")
                 named_user_attempts += 1
                 logger.warning(
                     "assertnameduserfailed — attempting recovery (try %d/%d)",
@@ -233,9 +229,7 @@ class RequestsHandler:
             # ── any other error — let the caller decide ───────────────────
             raise WikiClientError(f"API error {error_code}: {error_info}")
 
-        raise MaxlagError(
-            f"Exceeded {config.MAX_RETRIES} retries without a successful response."
-        )
+        raise MaxlagError(f"Exceeded {config.MAX_RETRIES} retries without a successful response.")
 
     # ------------------------------------------------------------------
     # Protected CSRF helpers
@@ -274,9 +268,7 @@ class RequestsHandler:
         return data, params
 
     @staticmethod
-    def _inject_token(
-        token: str, data: dict, params: dict
-    ) -> tuple[dict, dict]:
+    def _inject_token(token: str, data: dict, params: dict) -> tuple[dict, dict]:
         """
         Return (data, params) copies with ``token`` updated to *token*.
         Only one dict should ever carry the key; we update the first match.
@@ -306,7 +298,7 @@ class RequestsHandler:
             delay = None
 
         if delay is None:
-            delay = config.BACKOFF_BASE * (2 ** attempt)
+            delay = config.BACKOFF_BASE * (2**attempt)
 
         logger.debug(
             "maxlag — sleeping %.1f s (attempt %d/%d)",
@@ -707,11 +699,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             return params
 
         # Inject bot marker and identity assertion for all write actions
-        is_write = (
-            action in self._WRITE_ACTIONS
-            or action.startswith("wb")
-            or self.family == "wikidata"
-        )
+        is_write = action in self._WRITE_ACTIONS or action.startswith("wb") or self.family == "wikidata"
         if is_write and self.username:
             params.setdefault("bot", 1)
             params.setdefault("assertuser", self.username)

@@ -156,7 +156,7 @@ def wrap_session(session: requests.Session, site) -> None:
                     attempt,
                     config.MAX_RETRIES,
                 )
-                delay = config.BACKOFF_BASE * (2 ** attempt)
+                delay = config.BACKOFF_BASE * (2**attempt)
                 time.sleep(delay)
                 # TODO: del cookies file, create new session, site login
 

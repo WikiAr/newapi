@@ -33,9 +33,7 @@ def test_all_apis_init(mock_dependencies):
     assert api.username == username
     assert api.password == password
 
-    mock_dependencies["Login"].assert_called_once_with(
-        lang=lang, family=family, username=username, password=password
-    )
+    mock_dependencies["Login"].assert_called_once_with(lang=lang, family=family, username=username, password=password)
 
 
 def test_all_apis_main_page(mock_dependencies):
@@ -72,5 +70,3 @@ def test_all_apis_new_api(mock_dependencies):
     mock_dependencies["NEW_API"].assert_called_once_with(
         mock_dependencies["LoginInstance"], lang="en", family="wikipedia"
     )
-
-
