@@ -16,7 +16,7 @@ def mock_dependencies():
         mock_login.return_value = mock_login_instance
 
         yield {
-            "Login": mock_login,
+            "WikiLoginClient": mock_login,
             "LoginInstance": mock_login_instance,
             "MainPage": mock_main_page,
             "subcatquery": mock_subcatquery,
@@ -33,7 +33,9 @@ def test_all_apis_init(mock_dependencies):
     assert api.username == username
     assert api.password == password
 
-    mock_dependencies["Login"].assert_called_once_with(lang=lang, family=family, username=username, password=password)
+    mock_dependencies["WikiLoginClient"].assert_called_once_with(
+        lang=lang, family=family, username=username, password=password
+    )
 
 
 def test_all_apis_main_page(mock_dependencies):
