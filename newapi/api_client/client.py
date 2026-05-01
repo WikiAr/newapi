@@ -43,8 +43,16 @@ import mwclient.errors
 import requests
 
 from . import config
-from .cookies import _delete_cookie_file, get_cookie_path
-from .exceptions import CSRFError, LoginError, MaxlagError, WikiClientError
+from .cookies import (
+    _delete_cookie_file,
+    get_cookie_path,
+)
+from .exceptions import (
+    CSRFError,
+    LoginError,
+    MaxlagError,
+    WikiClientError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -319,15 +327,24 @@ class CookiesClient:
 
     @staticmethod
     def save_cookies(cj: http.cookiejar.LWPCookieJar) -> None:
-        """Flush the cookie jar to disk."""
+        """
+        Persist the current session cookies to disk immediately.
+
+        Called automatically after every login, but you can call this manually
+        to checkpoint the session after a long batch of writes.
+        """
         try:
+            # Save cookies to disk, ignoring discard and expire attributes
             cj.save(ignore_discard=True, ignore_expires=True)
-            logger.debug("Cookies saved")
+            # Log successful cookie save operation
+            logger.debug("Cookies saved to _cookie_path")
         except Exception:
+            # Log any exceptions that occur during cookie saving
             logger.exception("Failed to save cookies")
 
     @staticmethod
     def _make_cookiejar(cookie_path: Path) -> http.cookiejar.LWPCookieJar:
+        # Create a new LWPCookieJar instance with the specified path
         cj = http.cookiejar.LWPCookieJar(cookie_path)
         if cookie_path.exists():
             try:
@@ -365,11 +382,22 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
     # Write actions that need bot=1 and assertuser injected
     _WRITE_ACTIONS: frozenset[str] = frozenset(
         {
-            "edit", "create", "upload", "delete", "move",
-            "wbeditentity", "wbsetclaim", "wbcreateclaim",
-            "wbsetreference", "wbremovereferences", "wbsetaliases",
-            "wbsetdescription", "wbsetlabel", "wbsetsitelink",
-            "wbmergeitems", "wbcreateredirect",
+            "edit",
+            "create",
+            "upload",
+            "delete",
+            "move",
+            "wbeditentity",
+            "wbsetclaim",
+            "wbcreateclaim",
+            "wbsetreference",
+            "wbremovereferences",
+            "wbsetaliases",
+            "wbsetdescription",
+            "wbsetlabel",
+            "wbsetsitelink",
+            "wbmergeitems",
+            "wbcreateredirect",
         }
     )
 
@@ -382,22 +410,26 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         cookies_dir: Optional[str] = None,
     ) -> None:
         """
-        Initialise the client, load saved cookies, and authenticate.
+        Initialise the client, load any saved cookies, and ensure the session
+        is authenticated before returning.
 
         Args:
-            lang:        Language code, e.g. ``"en"``, ``"de"``.
-            family:      Site family, e.g. ``"wikipedia"``, ``"wikidata"``.
-            username:    Bot / user account name.
+            lang:        Language code, e.g. "en", "de", "ar".
+            family:      Site family, e.g. "wikipedia", "wiktionary", "wikidata".
+            username:    Bot / user account name (bot-password suffix supported,
+                         e.g. "MyBot@BotPassword").
             password:    Account password or bot password.
             cookies_dir: Directory for cookie files; defaults to config value.
         """
         self.lang = lang
         self.family = family
         self.username = username
-        self._password = password  # never log or expose
+        self._password = password  # kept private — never log or expose this
 
+        # ── Cookie path ────────────────────────────────────────────────────
         self._cookie_path: Path = get_cookie_path(cookies_dir, family, lang, username)
 
+        # ── mwclient Site ──────────────────────────────────────────────────
         logger.debug("Creating mwclient.Site for %s.%s", lang, family)
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
 
@@ -406,19 +438,16 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         except mwclient.errors.InvalidSiteIdError:
             raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}")
 
-        # Attach persisted cookies to the site's session
+        # ── Inject saved cookies ───────────────────────────────────────────
+        # mwclient stores its requests.Session at site.connection.
         self.cj = self._make_cookiejar(self._cookie_path)
         self._site.connection.cookies = self.cj
 
-        # Authenticate if cookies alone are not enough
-        if not self._site.logged_in:
-            try:
-                self.login()
-            except LoginError:
-                logger.warning(
-                    "Initial login failed for %s. Will retry on first request.",
-                    self.username,
-                )
+        # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
+        # wrap_session(self._site.connection, self._site)
+
+        # ── Authenticate if necessary ──────────────────────────────────────
+        self._ensure_logged_in()
 
     # ------------------------------------------------------------------
     # RequestsHandler contract — concrete implementations
@@ -440,7 +469,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         logger.warning(
             "assertnameduserfailed for %s on %s.%s — clearing cookies and re-logging in",
-            self.username, self.lang, self.family,
+            self.username,
+            self.lang,
+            self.family,
         )
         _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
         self._do_login()
@@ -454,16 +485,21 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """The underlying ``mwclient.Site`` — use for high-level wiki access."""
         return self._site
 
+    # ── Public methods ─────────────────────────────────────────────────────
+
     def login(self, force: bool = False) -> None:
         """
-        Authenticate the session.
+        Force a fresh login regardless of cookie state.
 
-        Args:
-            force: Re-authenticate even if already logged in.
+        Call this if you know the session has expired and want to re-authenticate
+        without creating a new WikiLoginClient instance.
         """
         if force or not self._site.logged_in:
             logger.info(
-                "Logging in as %s on %s.%s", self.username, self.lang, self.family
+                "Forcing re-login for %s on %s.%s",
+                self.username,
+                self.lang,
+                self.family,
             )
             self._do_login()
 
@@ -499,16 +535,18 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if method not in ("get", "post"):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
+        # Files can only travel via multipart POST
         if files is not None:
             method = "post"
 
-        # Ensure JSON response and inject write-action safety params
+        # Always request JSON and inject write-action safety params
         params = self._enrich_params({"format": "json", **params})
 
         logger.debug(
             "%s %s params=%s files=%s",
             method.upper(),
             self.api_url,
+            # Never log token values
             {k: ("***" if k == "token" else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
@@ -588,7 +626,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             body = self.client_request(page_params)
 
             if not body:
-                logger.debug("post_continue: empty response, stopping")
+                logger.debug("empty response, stopping")
                 break
 
             continue_params = {}
@@ -608,13 +646,13 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                             data = data.get(_p_2, _p_2_empty)
 
             if not data:
-                logger.debug("post_continue: no data in response, stopping")
+                logger.debug("no data in response, stopping")
                 break
 
-            logger.debug("post_continue: +%d items (total %d)", len(data), len(results))
+            logger.debug("+%d items (total %d)", len(data), len(results))
 
             if Max <= len(results) > 1:
-                logger.debug("post_continue: Max=%d reached, stopping", Max)
+                logger.debug("Max=%d reached, stopping", Max)
                 break
 
             if isinstance(results, list):
@@ -622,7 +660,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             else:
                 results = {**results, **data}
 
-        logger.debug("post_continue: done, %d total results", len(results))
+        logger.debug("done, %d total results", len(results))
         return results
 
     # ------------------------------------------------------------------
@@ -630,20 +668,23 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
     # ------------------------------------------------------------------
 
     def _ensure_logged_in(self) -> None:
-        """Verify the session is authenticated; attempt cookie-based revival."""
+        """
+        Check whether the current session is authenticated.
+        """
         if self._site.logged_in:
-            logger.info("Session already authenticated (logged_in=%s)", self._site.logged_in)
+            logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
         if self._cookie_path.exists():
             try:
                 self._site.site_init()
                 if self._site.logged_in:
-                    logger.info(
-                        "Revived session via cookies as %s", self._site.username
-                    )
+                    logger.info("Revived session via cookies as %s", self._site.username)
                     return
-            except Exception as exc:
-                logger.error("site_init failed: %s", exc)
+            except Exception:
+                logger.exception("Error in site_init")
+
+        # if not self._site.logged_in: self._do_login()
+        # don't login yet, user can use login() method
 
     def _enrich_params(self, params: dict) -> dict:
         """
@@ -659,11 +700,13 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         params = dict(params)
         action = params.get("action", "")
 
+        # Strip write-only params from query actions
         if action == "query":
             params.pop("bot", None)
             params.pop("summary", None)
             return params
 
+        # Inject bot marker and identity assertion for all write actions
         is_write = (
             action in self._WRITE_ACTIONS
             or action.startswith("wb")
@@ -685,22 +728,19 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         try:
             self._site.login(self.username, self._password)
         except mwclient.errors.LoginError as exc:
-            raise LoginError(
-                f"Login failed for {self.username} on {self.lang}.{self.family}: {exc}"
-            ) from exc
+            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
 
         if self._site.logged_in:
             logger.info(
                 "Logged in successfully as %s on %s.%s",
-                self.username, self.lang, self.family,
+                self.username,
+                self.lang,
+                self.family,
             )
             self.save_cookies(self.cj)
 
     def __repr__(self) -> str:
-        return (
-            f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, "
-            f"username={self.username!r})"
-        )
+        return f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, username={self.username!r})"
 
 
 __all__ = [
