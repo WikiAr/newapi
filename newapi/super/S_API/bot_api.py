@@ -78,11 +78,6 @@ class NEW_API(BOTS_APIS):
     def get_username(self):
         return self.username
 
-    def Login_to_wiki(self):
-        # ---
-        # self.log_to_wiki_1()
-        return
-
     def Find_pages_exists_or_not(self, liste, get_redirect=False, noprint=False):
         # ---
         done = 0
