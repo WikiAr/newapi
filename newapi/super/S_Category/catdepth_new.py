@@ -1,8 +1,8 @@
 """ """
 
+import functools
 import logging
 import sys
-import functools
 import time
 
 from .bot import CategoryDepth
