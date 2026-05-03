@@ -3,7 +3,7 @@
 main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
 page = main_api.MainPage('Main Page Title')
 cat_members = main_api.CatDepth('Category Title')
-new_api = main_api.NEW_API()
+new_api = main_api.NewApi()
 """
 
 import functools
@@ -25,7 +25,7 @@ class ALL_APIS:  # noqa: N801
         main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
         page = main_api.MainPage('Main Page Title')
         cat_members = main_api.CatDepth('Category Title')
-        new_api = main_api.NEW_API()
+        new_api = main_api.NewApi()
     """
 
     def __init__(self, lang: str, family: str, username: str, password: str) -> None:
@@ -42,9 +42,9 @@ class ALL_APIS:  # noqa: N801
         # cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
         return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
 
-    def NEW_API(self, *args, **kwargs) -> bot_api.NEW_API:
+    def NewApi(self, *args, **kwargs) -> bot_api.NewApi:
         # ---
-        return bot_api.NEW_API(self.login_bot, lang=self.lang, family=self.family)
+        return bot_api.NewApi(self.login_bot, lang=self.lang, family=self.family)
 
     def _login(self) -> WikiLoginClient:
         return WikiLoginClient(

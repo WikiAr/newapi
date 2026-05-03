@@ -1,23 +1,23 @@
 """ """
 
 import logging
-import sys
 from typing import Any, Dict, Optional, Union
 
 import wikitextparser as wtp
 
+from ...config import settings
+
 from ...api_utils import botEdit, txtlib
-from ...api_utils.ask_bot import ASK_BOT
+from ...api_utils.ask_bot import AskBot
 from ...api_utils.lang_codes import change_codes
 from .ar_err import find_edit_error
-from .bot import PAGE_APIS
+from .bot import PageAPIS
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
 
 logger = logging.getLogger(__name__)
-print_test = {1: "test" in sys.argv}
 
 
-class MainPage(PAGE_APIS, ASK_BOT):
+class MainPage(PageAPIS, AskBot):
     """
     Main page class for interacting with MediaWiki pages.
 
@@ -67,17 +67,13 @@ class MainPage(PAGE_APIS, ASK_BOT):
     def client_request(
         self,
         params: Dict[str, Any],
-        Type: str = "get",
-        addtoken: bool = False,
-        GET_CSRF: bool = True,
+        request_type: str = "get",
         files: Optional[Dict[str, Any]] = None,
-        do_error: bool = False,
-        max_retry: int = 0,
     ) -> Dict[str, Any]:
         # ---
         return self.login_bot.client_request(
             params,
-            method=Type,
+            method=request_type,
             files=files,
         )
 
@@ -93,7 +89,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         if self.ns is False or self.ns != 0:
             return False
         # ---
-        if "nofa" in sys.argv:
+        if settings.bot.no_fa:
             return False
         # ---
         if not self.text:
@@ -208,9 +204,6 @@ class MainPage(PAGE_APIS, ASK_BOT):
         pages = data.get("query", {}).get("pages", {})
         # ---
         for k, v in pages.items():
-            # ---
-            if print_test[1] or "printdata" in sys.argv:
-                logger.warning(f"<<lightblue>> data: {str(v)}")
             # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !
@@ -392,7 +385,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "srsearch": self.title,
             "srlimit": srlimit,
         }
-        data = self.client_request(params, addtoken=True)
+        data = self.client_request(params)
         # ---
         if not data:
             return 0
@@ -659,7 +652,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         minor="0",
         tags="",
         nodiff=False,
-        ASK=False,
+        ask=False,
     ) -> bool | str:
         """
         Saves new text to the page, updating its content and metadata.
@@ -673,7 +666,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
                 minor: Indicates if the edit should be marked as minor.
                 tags: Optional tags to associate with the edit.
                 nodiff: If True, skips showing a diff before saving.
-                ASK: If True, prompts the user for confirmation before saving.
+                ask: If True, prompts the user for confirmation before saving.
 
         Returns:
                 True if the edit was successful, False otherwise.
@@ -724,7 +717,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
         # ---
         # params['basetimestamp'] = self.revisions_data.timestamp
         # ---
-        pop = self.client_request(params, addtoken=True)
+        pop = self.client_request(params)
         # ---
         if not pop:
             return False
@@ -740,9 +733,6 @@ class MainPage(PAGE_APIS, ASK_BOT):
             self.user = ""
             logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
             # logger.info('Done True...')
-            # ---
-            if "printpop" in sys.argv:
-                print(pop)
             # ---
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
             self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
@@ -769,7 +759,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "titles": self.title,
         }
         # ---
-        data = self.client_request(params, addtoken=True)
+        data = self.client_request(params)
         # ---
         if not data:
             logger.info("<<lightred>> ** purge error. ")
@@ -847,7 +837,7 @@ class MainPage(PAGE_APIS, ASK_BOT):
             "createonly": 1,
         }
         # ---
-        pop = self.client_request(params, addtoken=True)
+        pop = self.client_request(params)
         # ---
         if not pop:
             return False
@@ -855,10 +845,6 @@ class MainPage(PAGE_APIS, ASK_BOT):
         error = pop.get("error", {})
         edit = pop.get("edit", {})
         result = edit.get("result", "")
-        # ---
-        if print_test[1]:
-            print("pop:")
-            print(pop)
         # ---
         if result.lower() == "success":
             # ---

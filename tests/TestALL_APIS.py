@@ -10,7 +10,7 @@ def mock_dependencies():
         patch("newapi.pages_bots.all_apis.WikiLoginClient") as mock_login,
         patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
         patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
-        patch("newapi.pages_bots.all_apis.bot_api.NEW_API") as mock_new_api,
+        patch("newapi.pages_bots.all_apis.bot_api.NewApi") as mock_new_api,
     ):
         mock_login_instance = MagicMock()
         mock_login.return_value = mock_login_instance
@@ -20,7 +20,7 @@ def mock_dependencies():
             "LoginInstance": mock_login_instance,
             "MainPage": mock_main_page,
             "subcatquery": mock_subcatquery,
-            "NEW_API": mock_new_api,
+            "NewApi": mock_new_api,
         }
 
 
@@ -67,8 +67,8 @@ def test_all_apis_cat_depth(mock_dependencies):
 def test_all_apis_new_api(mock_dependencies):
     api = ALL_APIS("en", "wikipedia", "user", "pass")
 
-    api.NEW_API()
+    api.NewApi()
 
-    mock_dependencies["NEW_API"].assert_called_once_with(
+    mock_dependencies["NewApi"].assert_called_once_with(
         mock_dependencies["LoginInstance"], lang="en", family="wikipedia"
     )

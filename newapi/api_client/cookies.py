@@ -46,6 +46,8 @@ def get_cookie_path(
     except OSError as exc:
         logger.debug("Could not chmod cookies dir %s: %s", base, exc)
 
+    logger.info("cookie path: %s", base)
+
     # ── Normalise filename components ──────────────────────────────────────
     family = family.lower()
     lang = lang.lower()
@@ -53,6 +55,7 @@ def get_cookie_path(
     username = username.lower().replace(" ", "_").split("@")[0]
 
     file_path = base / f"{family}_{lang}_{username}.mozilla"
+    logger.debug("resolved cookie file: %s", file_path)
 
     # ── Stale / empty file guard (from your check_if_file_is_old) ─────────
     _delete_if_stale(file_path)

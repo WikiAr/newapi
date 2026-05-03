@@ -1,5 +1,5 @@
 """
-from .super.handel_errors import HANDEL_ERRORS
+from .super.handel_errors import HandelErrors
 
 """
 
@@ -20,7 +20,7 @@ from ..core.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class HANDEL_ERRORS:
+class HandelErrors:
     """
     Error handler for MediaWiki API errors.
 
@@ -35,7 +35,6 @@ class HANDEL_ERRORS:
         Args:
             config: Optional BotConfig for behavior settings.
         """
-        pass
 
     def handel_err(
         self,
@@ -115,6 +114,3 @@ class HANDEL_ERRORS:
             params["data"] = {}
             params["text"] = {}
             logger.error(f"<<lightred>>{function} ERROR: <<default>>info: {err_info}, {params=}")
-
-        if "raise" in sys.argv:
-            raise Exception(error)

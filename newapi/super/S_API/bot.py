@@ -1,14 +1,14 @@
 """
 
-from .super.S_API.bot import BOTS_APIS
+from .super.S_API.bot import BotsAPIS
 
 """
 
 import logging
 import sys
 
-from ...api_utils.ask_bot import ASK_BOT
-from ..handel_errors import HANDEL_ERRORS
+from ...api_utils.ask_bot import AskBot
+from ..handel_errors import HandelErrors
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,9 @@ yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
 
 
-class BOTS_APIS(HANDEL_ERRORS, ASK_BOT):
+class BotsAPIS(HandelErrors, AskBot):
     def __init__(self):
-        # print("class BOTS_APIS:")
+        # print("class BotsAPIS:")
         # ---
         self.username = getattr(self, "username", "")
         # ---

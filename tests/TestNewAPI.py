@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from newapi.super.S_API.bot_api import NEW_API
+from newapi.super.S_API.bot_api import NewApi
 
 
 class TestNewAPI:
@@ -12,8 +12,8 @@ class TestNewAPI:
         return bot
 
     @pytest.fixture
-    def api_client(self, mock_login_bot) -> NEW_API:
-        return NEW_API(mock_login_bot, "en", family="wikipedia")
+    def api_client(self, mock_login_bot) -> NewApi:
+        return NewApi(mock_login_bot, "en", family="wikipedia")
 
     def test_find_pages_exists(self, api_client):
         """Test Find_pages_exists_or_not method"""

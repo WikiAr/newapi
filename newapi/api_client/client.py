@@ -42,7 +42,7 @@ import mwclient
 import mwclient.errors
 import requests
 
-from . import config
+from ..config import settings
 from .cookies import (
     _delete_cookie_file,
     get_cookie_path,
@@ -140,7 +140,7 @@ class RequestsHandler:
         """
         Execute a request and automatically retry on transient API errors.
 
-        Retry conditions (each counted against ``config.MAX_RETRIES``):
+        Retry conditions (each counted against ``settings.api_client.max_retries``):
           - CSRF / bad token  → ``_handle_csrf``  → inject new token, retry
           - maxlag            → ``_handle_maxlag`` → sleep, retry
           - assertnameduserfailed → ``_on_assertnameduserfailed`` → retry once
@@ -163,7 +163,7 @@ class RequestsHandler:
         attempt = 0
         named_user_attempts = 0
 
-        while attempt < config.MAX_RETRIES:
+        while attempt < settings.api_client.max_retries:
             response = self._execute_request(
                 method,
                 url,
@@ -193,9 +193,9 @@ class RequestsHandler:
             # ── CSRF ──────────────────────────────────────────────────────
             if self._is_csrf_error(error_code, error_info):
                 attempt += 1
-                if attempt >= config.MAX_RETRIES:
+                if attempt >= settings.api_client.max_retries:
                     raise CSRFError(
-                        f"CSRF token remained invalid after {config.MAX_RETRIES} "
+                        f"CSRF token remained invalid after {settings.api_client.max_retries} "
                         f"attempts. Last error: {error_info or error_code}"
                     )
                 working_data, working_params = self._handle_csrf(
@@ -206,8 +206,8 @@ class RequestsHandler:
             # ── maxlag ────────────────────────────────────────────────────
             if error_code == "maxlag":
                 attempt += 1
-                if attempt >= config.MAX_RETRIES:
-                    raise MaxlagError(f"Server maxlag not resolved after {config.MAX_RETRIES} attempts.")
+                if attempt >= settings.api_client.max_retries:
+                    raise MaxlagError(f"Server maxlag not resolved after {settings.api_client.max_retries} attempts.")
                 self._handle_maxlag(response, attempt)
                 continue
 
@@ -226,10 +226,16 @@ class RequestsHandler:
                 attempt = 0
                 continue
 
+            # ── ratelimited ───────────────────────────────────────────────
+            if error_code == "ratelimited":
+                sleep_time = 3
+                time.sleep(sleep_time)
+                logger.warning("ratelimited — sleeping for %d seconds before retrying", sleep_time)
+                continue
             # ── any other error — let the caller decide ───────────────────
             raise WikiClientError(f"API error {error_code}: {error_info}")
 
-        raise MaxlagError(f"Exceeded {config.MAX_RETRIES} retries without a successful response.")
+        raise MaxlagError(f"Exceeded {settings.api_client.max_retries} retries without a successful response.")
 
     # ------------------------------------------------------------------
     # Protected CSRF helpers
@@ -252,11 +258,12 @@ class RequestsHandler:
 
         Returns updated (data, params) copies — never mutates in place.
         """
+
         logger.debug(
             "CSRF error (%s) — refreshing token (attempt %d/%d)",
             error_code or error_info,
             attempt,
-            config.MAX_RETRIES,
+            settings.api_client.max_retries,
         )
         try:
             new_token = self._refresh_csrf_token()
@@ -291,20 +298,20 @@ class RequestsHandler:
         """
         Sleep for the server-requested delay (or exponential back-off).
         """
-        retry_after = response.headers.get(config.MAXLAG_HEADER)
+        retry_after = response.headers.get(settings.api_client.maxlag_header)
         try:
             delay = float(retry_after) if retry_after is not None else None
         except ValueError:
             delay = None
 
         if delay is None:
-            delay = config.BACKOFF_BASE * (2**attempt)
+            delay = settings.api_client.backoff_base * (2**attempt)
 
         logger.debug(
             "maxlag — sleeping %.1f s (attempt %d/%d)",
             delay,
             attempt,
-            config.MAX_RETRIES,
+            settings.api_client.max_retries,
         )
         time.sleep(delay)
 
@@ -399,7 +406,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         family: str,
         username: str,
         password: str,
-        cookies_dir: Optional[str] = None,
+        cookies_dir: str = settings.paths.cookies_dir,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -411,7 +418,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             username:    Bot / user account name (bot-password suffix supported,
                          e.g. "MyBot@BotPassword").
             password:    Account password or bot password.
-            cookies_dir: Directory for cookie files; defaults to config value.
+            cookies_dir: Directory where cookie files are stored.
         """
         self.lang = lang
         self.family = family
@@ -426,9 +433,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
 
         try:
-            self._site = mwclient.Site(f"{self.lang}.{self.family}.org")
-        except mwclient.errors.InvalidSiteIdError:
-            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}")
+            self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
+        except Exception as exc:
+            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}") from exc
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
@@ -496,6 +503,66 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             self._do_login()
 
     def client_request(
+        self,
+        params: dict,
+        method: str = "post",
+        files: Optional[Any] = None,
+    ) -> dict:
+        """
+        Send a GET or POST request to the wiki API and return parsed JSON.
+
+        CSRF tokens, maxlag backoff, and ``assertnameduserfailed`` recovery are
+        all handled transparently by the ``RequestsHandler`` base class.
+
+        Args:
+            params: MediaWiki API parameters. ``format`` defaults to ``"json"``.
+            method: ``"get"`` or ``"post"`` (case-insensitive).
+                    Files automatically force POST.
+            files:  ``{field_name: file-like}`` for multipart uploads.
+
+        Returns:
+            Parsed JSON response dict.
+
+        Raises:
+            ValueError:         On invalid *method*.
+            CSRFError:          CSRF token invalid after all retries.
+            MaxlagError:        Server maxlag unresolved after all retries.
+            WikiClientError:    On other API-level errors.
+            requests.HTTPError: On non-2xx HTTP responses.
+        """
+        method = method.lower()
+        if method not in ("get", "post"):
+            raise ValueError(f"method must be 'get' or 'post', got {method!r}")
+
+        # Files can only travel via multipart POST
+        if files is not None:
+            method = "post"
+
+        # Always request JSON and inject write-action safety params
+        params = self._enrich_params({"format": "json", **params})
+
+        logger.debug(
+            "%s %s params=%s files=%s",
+            method.upper(),
+            self.api_url,
+            # Never log token values
+            {k: ("***" if k == "token" else v) for k, v in params.items()},
+            list(files.keys()) if files else None,
+        )
+        action = params.pop("action")
+        if method == "get":
+            # return self._request_with_retry("GET", self.api_url, params=params)
+            return self._site.get(action, **params)
+        else:
+            # Fetch a CSRF token now if the caller didn't supply one.
+            # The retry loop will refresh it automatically on CSRF errors.
+            if "token" not in params:
+                params["token"] = self._site.get_token("csrf")
+
+            # return self._request_with_retry("POST", self.api_url, data=params, files=files)
+            return self._site.post(action, **params, files=files)
+
+    def client_request_o(
         self,
         params: dict,
         method: str = "post",
@@ -643,7 +710,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
             logger.debug("+%d items (total %d)", len(data), len(results))
 
-            if max <= len(results) > 1:
+            if len(results) >= max:
                 logger.debug("max=%d reached, stopping", max)
                 break
 
@@ -663,7 +730,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         Check whether the current session is authenticated.
         """
-        if self._site.logged_in:
+        # if self._site.logged_in:
+        if getattr(self._site, "logged_in", None):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
         if self._cookie_path.exists():

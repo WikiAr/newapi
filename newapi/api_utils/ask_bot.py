@@ -1,12 +1,13 @@
 """
 
-from ...api_utils.ask_bot import ASK_BOT
+from ...api_utils.ask_bot import AskBot
 
 """
 
 import difflib
 import logging
-import sys
+
+from ..config import settings
 
 logger = logging.getLogger(__name__)
 yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
@@ -21,7 +22,7 @@ def showDiff(text, newtext):
         logger.info(line)
 
 
-class ASK_BOT:
+class AskBot:
     def __init__(self):
         pass
 
@@ -48,11 +49,11 @@ class ASK_BOT:
         """
         message = message or "Do you want to accept these changes?"
         # ---
-        if "ask" in sys.argv and not Save_or_Ask.get(job):
+        if settings.bot.ask and not Save_or_Ask.get(job):
             # ---
             if text or newtext:
-                if "nodiff" not in sys.argv and not nodiff:
-                    if len(newtext) < 70000 and len(text) < 70000 or "diff" in sys.argv:
+                if not settings.bot.no_diff and not nodiff:
+                    if len(newtext) < 70000 and len(text) < 70000 or settings.bot.show_diff:
                         showDiff(text, newtext)
                     else:
                         logger.info("showDiff error..")
@@ -63,7 +64,7 @@ class ASK_BOT:
             if summary:
                 logger.info(f"-Edit summary: {summary}")
             # ---
-            logger.info(f"<<lightyellow>>ASK_BOT: {message}? (yes, no) {username=}")
+            logger.info(f"<<lightyellow>>AskBot: {message}? (yes, no) {username=}")
             # ---
             sa = input("([y]es, [N]o, [a]ll)?")
             # ---

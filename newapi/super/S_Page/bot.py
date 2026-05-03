@@ -1,15 +1,15 @@
 """
 
-from .super.S_Page.bot import PAGE_APIS
+from .super.S_Page.bot import PageAPIS
 
 """
 
-from ..handel_errors import HANDEL_ERRORS
+from ..handel_errors import HandelErrors
 
 
-class PAGE_APIS(HANDEL_ERRORS):
+class PageAPIS(HandelErrors):
     def __init__(self, login_bot):
-        # print("class PAGE_APIS:")
+        # print("class PageAPIS:")
         self.login_bot = login_bot
         # ---
         self.user_login = login_bot.user_login
@@ -24,7 +24,7 @@ class PAGE_APIS(HANDEL_ERRORS):
         action,
         _p_="pages",
         p_empty=None,
-        Max=500000,
+        max=500000,
         first=False,
         _p_2="",
         _p_2_empty=None,
@@ -34,7 +34,7 @@ class PAGE_APIS(HANDEL_ERRORS):
             action,
             _p_=_p_,
             p_empty=p_empty,
-            Max=Max,
+            max=max,
             first=first,
             _p_2=_p_2,
             _p_2_empty=_p_2_empty,
