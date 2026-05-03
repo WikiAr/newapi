@@ -3,7 +3,7 @@
 import functools
 import os
 
-from .all_apis import ALL_APIS
+from .all_apis import AllAPIS
 from .config import settings
 from .super.S_API import bot_api
 
@@ -45,12 +45,12 @@ def _load_credentials() -> tuple[str, str]:
 
 
 @functools.lru_cache(maxsize=1)
-def load_main_api(lang, family="wikipedia") -> ALL_APIS:
+def load_main_api(lang, family="wikipedia") -> AllAPIS:
     """
-    Loads and returns an instance of ALL_APIS for the specified language and family, using cached credentials.
+    Loads and returns an instance of AllAPIS for the specified language and family, using cached credentials.
     """
     username, password = _load_credentials()
-    return ALL_APIS(
+    return AllAPIS(
         lang=lang,
         family=family,
         username=username,

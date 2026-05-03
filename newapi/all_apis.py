@@ -1,9 +1,9 @@
 """ """
 
 from .pages_bots.all_apis import (
-    ALL_APIS,
+    AllAPIS,
 )
 
 __all__ = [
-    "ALL_APIS",
+    "AllAPIS",
 ]

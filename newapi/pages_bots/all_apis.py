@@ -1,6 +1,6 @@
 """
 
-main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
+main_api = AllAPIS(lang='en', family='wikipedia', username='your_username', password='your_password')
 page = main_api.MainPage('Main Page Title')
 cat_members = main_api.CatDepth('Category Title')
 new_api = main_api.NewApi()
@@ -17,12 +17,12 @@ from ..super.S_Page import super_page
 logger = logging.getLogger(__name__)
 
 
-class ALL_APIS:  # noqa: N801
+class AllAPIS:  # noqa: N801
     """
     A class that provides access to various API functionalities.
     Usage:
-        from newapi import ALL_APIS
-        main_api = ALL_APIS(lang='en', family='wikipedia', username='your_username', password='your_password')
+        from newapi import AllAPIS
+        main_api = AllAPIS(lang='en', family='wikipedia', username='your_username', password='your_password')
         page = main_api.MainPage('Main Page Title')
         cat_members = main_api.CatDepth('Category Title')
         new_api = main_api.NewApi()
@@ -56,5 +56,5 @@ class ALL_APIS:  # noqa: N801
 
 
 __all__ = [
-    "ALL_APIS",
+    "AllAPIS",
 ]

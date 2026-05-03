@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from newapi import ALL_APIS
+from newapi import AllAPIS
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def mock_dependencies():
 
 def test_all_apis_init(mock_dependencies):
     lang, family, username, password = "en", "wikipedia", "user", "pass"
-    api = ALL_APIS(lang, family, username, password)
+    api = AllAPIS(lang, family, username, password)
 
     assert api.lang == lang
     assert api.family == family
@@ -39,7 +39,7 @@ def test_all_apis_init(mock_dependencies):
 
 
 def test_all_apis_main_page(mock_dependencies):
-    api = ALL_APIS("en", "wikipedia", "user", "pass")
+    api = AllAPIS("en", "wikipedia", "user", "pass")
     title = "Test Page"
 
     api.MainPage(title)
@@ -50,7 +50,7 @@ def test_all_apis_main_page(mock_dependencies):
 
 
 def test_all_apis_cat_depth(mock_dependencies):
-    api = ALL_APIS("en", "wikipedia", "user", "pass")
+    api = AllAPIS("en", "wikipedia", "user", "pass")
     title = "Category:Test"
 
     api.CatDepth(title, depth=2)
@@ -65,7 +65,7 @@ def test_all_apis_cat_depth(mock_dependencies):
 
 
 def test_all_apis_new_api(mock_dependencies):
-    api = ALL_APIS("en", "wikipedia", "user", "pass")
+    api = AllAPIS("en", "wikipedia", "user", "pass")
 
     api.NewApi()
 
