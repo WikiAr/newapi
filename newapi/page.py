@@ -4,8 +4,8 @@ import functools
 import os
 
 from .all_apis import ALL_APIS
-from .super.S_API import bot_api
 from .config import settings
+from .super.S_API import bot_api
 
 MainPage_DEPRECATION_WARNING = """
     NewApi is deprecated. Please use:

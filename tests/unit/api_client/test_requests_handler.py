@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-
 from newapi.api_client.client import WikiLoginClient
 from newapi.api_client.exceptions import CSRFError, MaxlagError, WikiClientError
 

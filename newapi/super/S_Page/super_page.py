@@ -5,11 +5,10 @@ from typing import Any, Dict, Optional, Union
 
 import wikitextparser as wtp
 
-from ...config import settings
-
 from ...api_utils import botEdit, txtlib
 from ...api_utils.ask_bot import AskBot
 from ...api_utils.lang_codes import change_codes
+from ...config import settings
 from .ar_err import find_edit_error
 from .bot import PageAPIS
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
