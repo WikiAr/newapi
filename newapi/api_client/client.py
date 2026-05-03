@@ -568,7 +568,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         action: str,
         _p_: str = "pages",
         p_empty: Optional[Union[list, dict]] = None,
-        Max: int = 500_000,
+        max: int = 500_000,
         first: bool = False,
         _p_2: str = "",
         _p_2_empty: Optional[Union[list, dict]] = None,
@@ -576,7 +576,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         Drive a MediaWiki API continuation query to completion.
 
-        Iterates the ``continue`` token until all pages are fetched or *Max*
+        Iterates the ``continue`` token until all pages are fetched or *max*
         results have been collected.
 
         Args:
@@ -585,7 +585,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                         (e.g. ``"query"``, ``"wbsearchentities"``).
             _p_:        Sub-key inside *action* (default ``"pages"``).
             p_empty:    Seed value for the accumulator (list or dict).
-            Max:        Stop accumulating after this many results.
+            max:        Stop accumulating after this many results.
             first:      Return only the first element of the result list.
             _p_2:       Secondary sub-key when *first* is True.
             _p_2_empty: Seed for secondary accumulator.
@@ -595,10 +595,10 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         logger.debug("post_continue start. action=%s _p_=%s", action, _p_)
 
-        if isinstance(Max, str) and Max.isdigit():
-            Max = int(Max)
-        if Max == 0:
-            Max = 500_000
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+        if max == 0:
+            max = 500_000
 
         p_empty = p_empty if p_empty is not None else []
         _p_2_empty = _p_2_empty if _p_2_empty is not None else []
@@ -643,8 +643,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
             logger.debug("+%d items (total %d)", len(data), len(results))
 
-            if Max <= len(results) > 1:
-                logger.debug("Max=%d reached, stopping", Max)
+            if max <= len(results) > 1:
+                logger.debug("max=%d reached, stopping", max)
                 break
 
             if isinstance(results, list):
