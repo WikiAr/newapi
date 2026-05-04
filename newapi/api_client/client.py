@@ -554,16 +554,16 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if action in self._WRITE_ACTIONS:
             method = "post"
         if method == "get":
-            # return self._request_with_retry("GET", self.api_url, params=params)
-            return self._site.get(action, **params)
+            return self._request_with_retry("GET", self.api_url, params=params)
+            #return self._site.get(action, **params)
         else:
             # Fetch a CSRF token now if the caller didn't supply one.
             # The retry loop will refresh it automatically on CSRF errors.
             if "token" not in params:
                 params["token"] = self._site.get_token("csrf")
 
-            # return self._request_with_retry("POST", self.api_url, data=params, files=files)
-            return self._site.post(action, **params, files=files)
+            return self._request_with_retry("POST", self.api_url, data=params, files=files)
+            #return self._site.post(action, **params, files=files)
 
     def client_request(
         self,
