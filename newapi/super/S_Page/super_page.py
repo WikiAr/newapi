@@ -5,9 +5,9 @@ from typing import Any, Dict, Optional, Union
 
 import wikitextparser as wtp
 
-from ...api_utils import botEdit, txtlib
-from ...api_utils.ask_bot import AskBot
-from ...api_utils.lang_codes import change_codes
+from ...client_wiki.api_utils import botEdit, txtlib
+from ...client_wiki.api_utils.ask_bot import AskBot
+from ...client_wiki.api_utils.lang_codes import change_codes
 from ...config import settings
 from .ar_err import find_edit_error
 from .bot import PageAPIS
@@ -955,7 +955,7 @@ class MainPage(PageAPIS, AskBot):
         # ---
         return self.links_data.links
 
-    def get_revisions(self, rvprops=[]):
+    def get_revisions(self, rvprops=None) -> list:
         # ---
         rvprop = [
             "comment",
@@ -965,9 +965,10 @@ class MainPage(PageAPIS, AskBot):
             "ids",
         ]
         # ---
-        for x in rvprops:
-            if x not in rvprop:
-                rvprop.append(x)
+        if rvprops:
+            for x in rvprops:
+                if x not in rvprop:
+                    rvprop.append(x)
         # ---
         params = {
             "action": "query",
@@ -998,4 +999,4 @@ class MainPage(PageAPIS, AskBot):
         if key == "q":
             return self.get_qid()
         else:
-            raise
+            raise  # noqa: PLE0704

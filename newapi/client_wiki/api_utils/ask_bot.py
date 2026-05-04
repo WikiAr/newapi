@@ -5,9 +5,10 @@ import sys
 
 import pywikibot
 
-from ..config import settings
+from ...config import settings
 
 logger = logging.getLogger(__name__)
+
 _save_or_ask: dict[str, bool] = {}
 
 

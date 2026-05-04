@@ -12,7 +12,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-from newapi.api_utils.bot_edit.bot_edit_by_templates import (
+from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
     Bot_Cache,
     is_bot_edit_allowed,
     stop_edit_temps,
@@ -39,7 +39,7 @@ def reset_environment():
 @pytest.fixture
 def mock_wtp():
     """Provide a mocked wikitextparser."""
-    with patch("newapi.api_utils.bot_edit.bot_edit_by_templates.wtp") as mock:
+    with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.wtp") as mock:
         yield mock
 
 

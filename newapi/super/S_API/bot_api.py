@@ -9,8 +9,7 @@ from datetime import timedelta
 import tqdm
 
 from ...api_client import WikiLoginClient
-
-from ...api_utils.lang_codes import change_codes
+from ...client_wiki.api_utils.lang_codes import change_codes
 from .bot import BotsAPIS
 
 logger = logging.getLogger(__name__)
@@ -908,7 +907,10 @@ class NewApi(BotsAPIS):
         # ---
         return jwt
 
-    def users_infos(self, ususers=[]):
+    def users_infos(self, ususers=None) -> list[dict]:
+        # ---
+        if not isinstance(ususers, list):
+            ususers = []
         # ---
         params = {
             "action": "query",

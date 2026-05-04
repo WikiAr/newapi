@@ -7,7 +7,7 @@ from .super.S_API.bot import BotsAPIS
 import logging
 import sys
 
-from ...api_utils.ask_bot import AskBot
+from ...client_wiki.api_utils.ask_bot import AskBot
 from ..handel_errors import HandelErrors
 
 logger = logging.getLogger(__name__)

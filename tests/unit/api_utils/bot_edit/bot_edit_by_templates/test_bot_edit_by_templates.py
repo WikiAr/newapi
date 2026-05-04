@@ -8,7 +8,7 @@ caching behavior, and special template handling (nobots, bots).
 import sys
 
 import pytest
-from newapi.api_utils.bot_edit.bot_edit_by_templates import (
+from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
     Bot_Cache,
     edit_username,
     is_bot_edit_allowed,
