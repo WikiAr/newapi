@@ -551,6 +551,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             list(files.keys()) if files else None,
         )
         action = params.pop("action")
+        if action in self._WRITE_ACTIONS:
+            method = "post"
         if method == "get":
             # return self._request_with_retry("GET", self.api_url, params=params)
             return self._site.get(action, **params)
