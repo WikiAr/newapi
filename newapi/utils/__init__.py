@@ -1,4 +1,3 @@
-
 from .functions_timer import function_timer
 
 __all__ = [

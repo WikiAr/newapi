@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from newapi.super.S_Page.super_page import MainPage
+from newapi.client_wiki.pages.super_page import MainPage
 
 
 class TestMainPage:
@@ -69,7 +69,6 @@ class TestMainPage:
 
     def test_empty_page_content(self):
         """Test page with empty content"""
-        pass
 
     def test_page_without_edit_permission(self, mock_login_bot):
         """Test page where user cannot edit"""
@@ -86,9 +85,8 @@ class TestMainPage:
             }
         }
         page = MainPage(mock_login_bot, "الصفحة الرئيسة", "ar")
-        with patch("newapi.super.S_Page.super_page.botEdit.bot_May_Edit", return_value=False):
+        with patch("newapi.client_wiki.pages.super_page.botEdit.bot_May_Edit", return_value=False):
             assert page.can_edit() is False
 
     def test_page_title_validation(self):
         """Test various page title formats"""
-        pass
