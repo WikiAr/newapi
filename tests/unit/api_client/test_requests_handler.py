@@ -38,7 +38,7 @@ class TestNonJsonResponse:
         response.json = MagicMock(side_effect=ValueError("not json"))
         site.connection.request.return_value = response
 
-        result = client.client_request({"action": "query"}, method="get")
+        result = client.client_request_retry({"action": "query"}, method="get")
         assert result == {}
 
 
@@ -53,7 +53,7 @@ class TestJsonParsingError:
         response.json = MagicMock(side_effect=ValueError("invalid json"))
         site.connection.request.return_value = response
 
-        result = client.client_request({"action": "query"}, method="get")
+        result = client.client_request_retry({"action": "query"}, method="get")
         assert result == {}
 
 
@@ -75,7 +75,7 @@ class TestMaxlagHandling:
         site.connection.request.side_effect = [maxlag_response, success_response]
 
         with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            result = client.client_request({"action": "query"}, method="get")
+            result = client.client_request_retry({"action": "query"}, method="get")
             assert "query" in result
 
     def test_maxlag_exhausted_retries_raises_maxlag_error(self):
@@ -88,7 +88,7 @@ class TestMaxlagHandling:
 
         with patch("newapi.api_client.client.time.sleep"):
             with pytest.raises(MaxlagError):
-                client.client_request({"action": "query"}, method="get")
+                client.client_request_retry({"action": "query"}, method="get")
 
 
 class TestCSRFErrorHandling:
@@ -110,7 +110,7 @@ class TestCSRFErrorHandling:
         site.connection.request.side_effect = [csrf_error_response, success_response]
         site_instance = site  # store reference
 
-        result = client.client_request({"action": "query", "token": "bad"}, method="get")
+        result = client.client_request_retry({"action": "query", "token": "bad"}, method="get")
         assert "query" in result
 
 
@@ -135,7 +135,7 @@ class TestAssertNamedUserFailed:
         site.connection.request.side_effect = [assert_failed_response, success_response]
         site.login = MagicMock()
 
-        result = client.client_request({"action": "query"}, method="get")
+        result = client.client_request_retry({"action": "query"}, method="get")
         assert "query" in result
 
 
