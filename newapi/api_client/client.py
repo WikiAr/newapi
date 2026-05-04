@@ -502,7 +502,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             )
             self._do_login()
 
-    def client_request(
+    def _client_request(
         self,
         params: dict,
         method: str = "post",
@@ -561,6 +561,36 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
             # return self._request_with_retry("POST", self.api_url, data=params, files=files)
             return self._site.post(action, **params, files=files)
+
+    def client_request(
+        self,
+        params: dict,
+        method: str = "post",
+        files: Optional[Any] = None,
+    ) -> dict:
+        """ """
+        return self._client_request(
+            params=params,
+            method=method,
+            files=files,
+        )
+
+    def client_request_safe(
+        self,
+        params: dict,
+        method: str = "post",
+        files: Optional[Any] = None,
+    ) -> dict:
+        """ """
+        try:
+            return self._client_request(
+                params=params,
+                method=method,
+                files=files,
+            )
+        except Exception as exc:
+            logger.warning("client_request_safe: %s", exc)
+            return {}
 
     def client_request_retry(
         self,
