@@ -8,7 +8,6 @@ class TestMainPage:
     @pytest.fixture
     def mock_login_bot(self):
         bot = MagicMock()
-        bot.user_login = "TestUser"
         bot.client_request.return_value = {
             "query": {
                 "pages": {
@@ -30,7 +29,6 @@ class TestMainPage:
     @pytest.fixture
     def arabic_page(self, mock_login_bot):
         mock_bot = MagicMock()
-        mock_bot.user_login = "TestUser"
         mock_bot.client_request.return_value = {
             "query": {
                 "pages": {

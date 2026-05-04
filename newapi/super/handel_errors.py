@@ -1,5 +1,5 @@
 """
-from .super.handel_errors import HANDEL_ERRORS
+from .super.handel_errors import HandelErrors
 
 """
 
@@ -20,7 +20,7 @@ from ..core.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class HANDEL_ERRORS:
+class HandelErrors:
     """
     Error handler for MediaWiki API errors.
 
@@ -35,7 +35,6 @@ class HANDEL_ERRORS:
         Args:
             config: Optional BotConfig for behavior settings.
         """
-        pass
 
     def handel_err(
         self,
@@ -76,7 +75,7 @@ class HANDEL_ERRORS:
         err_code = error.get("code", "")
         err_info = error.get("info", "")
 
-        _tt = f"<<lightred>>{function} ERROR: <<defaut>>code:{err_code}."
+        _tt = f"<<lightred>>{function} ERROR: <<default>>code:{err_code}."
         ["protectedpage", "تأخير البوتات 3 ساعات", False]
         if err_code == "abusefilter-disallowed":
 
@@ -114,7 +113,4 @@ class HANDEL_ERRORS:
         if do_error:
             params["data"] = {}
             params["text"] = {}
-            logger.error(f"<<lightred>>{function} ERROR: <<defaut>>info: {err_info}, {params=}")
-
-        if "raise" in sys.argv:
-            raise Exception(error)
+            logger.error(f"<<lightred>>{function} ERROR: <<default>>info: {err_info}, {params=}")

@@ -1,5 +1,5 @@
 """
-from newapi.api_utils import botEdit
+from newapi import botEdit
 bot_edit!
 """
 

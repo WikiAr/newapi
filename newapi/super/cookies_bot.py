@@ -8,9 +8,10 @@ import functools
 import logging
 import os
 import stat
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+
+from ..config import settings
 
 logger = logging.getLogger(__name__)
 statgroup = stat.S_IRWXU | stat.S_IRWXG
@@ -53,7 +54,7 @@ def get_file_name(lang, family, username) -> Path:
 
     ta_dir = get_ta_dir()
 
-    if "nocookies" in sys.argv:
+    if settings.bot.no_cookies:
         randome = os.urandom(8).hex()
         return ta_dir / f"{randome}.txt"
     # ---

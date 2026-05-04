@@ -20,12 +20,3 @@ class TestAuthentication:
         response = mock_login_client.client_request(params, method="post")
         assert response is not None
         assert len(response) > 0
-
-    def test_invalid_credentials(self, mocker):
-        """Test authentication with invalid credentials"""
-        # mock mwclient.Site
-        mocker.patch("mwclient.Site")
-        bot = WikiLoginClient("en", family="wikipedia", username="user", password="password")
-        # Test should handle authentication failure gracefully
-        login_result = bot.login()
-        # Add appropriate assertions based on expected behavior

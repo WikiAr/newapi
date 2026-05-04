@@ -1,15 +1,15 @@
 """ """
 
-from newapi.api_utils.lang_codes import change_codes
+from .api_utils.lang_codes import change_codes
 
 from . import page
-from .all_apis import ALL_APIS
+from .all_apis import AllAPIS
+from .api_client.client import WikiLoginClient
 from .api_utils import botEdit, txtlib, wd_sparql
 from .DB_bots import db_bot, pymysql_bot
-from .api_client.client import WikiLoginClient
 
 __all__ = [
-    "ALL_APIS",
+    "AllAPIS",
     "wd_sparql",
     "txtlib",
     "pymysql_bot",

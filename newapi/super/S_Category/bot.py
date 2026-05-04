@@ -18,7 +18,6 @@ class CategoryDepth:
     def __init__(self, login_bot, title: str = "", **kwargs) -> None:
         self.login_bot = login_bot
 
-        self.user_login: str = login_bot.user_login
         self.title: str = title
 
         self.len_pages: int = 0

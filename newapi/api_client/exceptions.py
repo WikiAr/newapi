@@ -11,11 +11,11 @@ class LoginError(WikiClientError):
 
 
 class CSRFError(WikiClientError):
-    """Raised when a CSRF token remains invalid after MAX_RETRIES re-fetches."""
+    """Raised when a CSRF token remains invalid after all retries."""
 
 
 class MaxlagError(WikiClientError):
-    """Raised when server maxlag is not resolved after MAX_RETRIES attempts."""
+    """Raised when server maxlag is not resolved after all attempts."""
 
 
 class MaxRetriesExceeded(WikiClientError):

@@ -35,21 +35,11 @@ newapi/
 └── super/
     ├── __init__.py
     ├── bot.py
-    ├── bot_new.py
     ├── cookies/
     │   ├── wikidata_www_mr.ibrahembot.txt
     │   └── wikipedia_ar_mr.ibrahembot.txt
     ├── cookies_bot.py
     ├── handel_errors.py
-    ├── mwclient/
-    │   ├── __init__.py
-    │   ├── client.py
-    │   ├── errors.py
-    │   ├── image.py
-    │   ├── listing.py
-    │   ├── page.py
-    │   ├── sleep.py
-    │   └── util.py
     ├── params_help.py
     ├── S_API/
     │   ├── __init__.py
@@ -65,6 +55,5 @@ newapi/
     │   ├── bot.py
     │   ├── data.py
     │   └── super_page.py
-    └── super_login.py
 
 ```

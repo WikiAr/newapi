@@ -1,21 +1,22 @@
 """ """
 
 import logging
-import sys
 
 import pywikibot
+
+from ..config import settings
 
 logger = logging.getLogger(__name__)
 
 
 def showDiff(text_a: str, text_b: str, context: int = 0) -> None:
-    if "nodiff" in sys.argv:
+    if settings.bot.no_diff:
         return
     pywikibot.showDiff(text_a, text_b)
 
 
 def output(textm, *args, **kwargs):
-    if "noprint" in sys.argv and not kwargs.get("p", False):
+    if settings.bot.no_print and not kwargs.get("p", False):
         return
     logger.info(textm)
 

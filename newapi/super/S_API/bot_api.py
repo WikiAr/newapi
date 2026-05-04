@@ -9,7 +9,7 @@ from datetime import timedelta
 import tqdm
 
 from ...api_utils.lang_codes import change_codes
-from .bot import BOTS_APIS
+from .bot import BotsAPIS
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +17,10 @@ logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
-class NEW_API(BOTS_APIS):
+class NewApi(BotsAPIS):
     def __init__(self, login_bot, lang="", family="wikipedia"):
         # ---
         self.login_bot = login_bot
-        # ---
-        self.user_login = login_bot.user_login
         # ---
         self.username = getattr(self, "username", "")
         # self.family = family
@@ -39,17 +37,13 @@ class NEW_API(BOTS_APIS):
     def client_request(
         self,
         params,
-        Type="get",
-        addtoken=False,
-        GET_CSRF=True,
+        request_type="get",
         files=None,
-        do_error=False,
-        max_retry=0,
     ):
         # ---
         return self.login_bot.client_request(
             params,
-            method=Type,
+            method=request_type,
             files=files,
         )
 
@@ -59,7 +53,7 @@ class NEW_API(BOTS_APIS):
         action,
         _p_="pages",
         p_empty=None,
-        Max=500000,
+        max=500000,
         first=False,
         _p_2="",
         _p_2_empty=None,
@@ -69,7 +63,7 @@ class NEW_API(BOTS_APIS):
             action,
             _p_=_p_,
             p_empty=p_empty,
-            Max=Max,
+            max=max,
             first=first,
             _p_2=_p_2,
             _p_2_empty=_p_2_empty,
@@ -77,11 +71,6 @@ class NEW_API(BOTS_APIS):
 
     def get_username(self):
         return self.username
-
-    def Login_to_wiki(self):
-        # ---
-        # self.log_to_wiki_1()
-        return
 
     def Find_pages_exists_or_not(self, liste, get_redirect=False, noprint=False):
         # ---
@@ -292,7 +281,7 @@ class NEW_API(BOTS_APIS):
         if start:
             params["apfrom"] = start
         # ---
-        newp = self.post_continue(params, "query", _p_="allpages", p_empty=[], Max=limit_all)
+        newp = self.post_continue(params, "query", _p_="allpages", p_empty=[], max=limit_all)
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -330,7 +319,7 @@ class NEW_API(BOTS_APIS):
         pssearch = pssearch.strip() if pssearch else ""
         # ---
         if not pssearch:
-            return
+            return []
         # ---
         params = {
             "action": "query",
@@ -351,7 +340,7 @@ class NEW_API(BOTS_APIS):
         if pslimit.isdigit():
             params["pslimit"] = pslimit
         # ---
-        newp = self.post_continue(params, "query", _p_="prefixsearch", p_empty=[], Max=limit_all)
+        newp = self.post_continue(params, "query", _p_="prefixsearch", p_empty=[], max=limit_all)
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -401,7 +390,7 @@ class NEW_API(BOTS_APIS):
         if start:
             params["gapfrom"] = start
         # ---
-        newp = self.post_continue(params, "query", _p_="pages", p_empty=[], Max=limit_all)
+        newp = self.post_continue(params, "query", _p_="pages", p_empty=[], max=limit_all)
         # ---
         logger.debug(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
         # ---
@@ -419,7 +408,7 @@ class NEW_API(BOTS_APIS):
         ns="*",
         offset="",
         srlimit="max",
-        RETURN_dict=False,
+        return_dict=False,
         addparams=None,
     ):
         # ---
@@ -453,7 +442,7 @@ class NEW_API(BOTS_APIS):
         results = []
         # ---
         for pag in search:
-            if RETURN_dict:
+            if return_dict:
                 results.append(pag)
             else:
                 results.append(pag["title"])
@@ -502,7 +491,7 @@ class NEW_API(BOTS_APIS):
         else:
             limit = 5000
 
-        json1 = self.post_continue(params, "query", _p_="recentchanges", p_empty=[], Max=limit)
+        json1 = self.post_continue(params, "query", _p_="recentchanges", p_empty=[], max=limit)
 
         Main_table = [x["title"] for x in json1]
 
@@ -529,7 +518,7 @@ class NEW_API(BOTS_APIS):
         if ucshow:
             params["ucshow"] = ucshow
         # ---
-        results = self.post_continue(params, "query", _p_="usercontribs", p_empty=[], Max=limit)
+        results = self.post_continue(params, "query", _p_="usercontribs", p_empty=[], max=limit)
         # ---
         results = [x["title"] for x in results]
         # ---
@@ -576,8 +565,7 @@ class NEW_API(BOTS_APIS):
         # ---
         logger.debug(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
         # ---
-        if targtsitecode.endswith("wiki"):
-            targtsitecode = targtsitecode[:-4]
+        targtsitecode = targtsitecode.removesuffix("wiki")
         # ---
         #  error: {'code': 'toomanyvalues', 'info': 'Too many values supplied for parameter "titles". The limit is 50.', 'parameter': 'titles', 'limit': 50, 'lowlimit': 50, 'highlimit': 500, '*': ''}
         # if self.lang != "ar":
@@ -731,7 +719,7 @@ class NEW_API(BOTS_APIS):
         # ---
         return results
 
-    def querypage_list(self, qppage="Wantedcategories", qplimit=None, Max=None):
+    def querypage_list(self, qppage="Wantedcategories", qplimit=None, max=None):
         # ---
         params = {
             "action": "query",
@@ -791,15 +779,15 @@ class NEW_API(BOTS_APIS):
         if qppage not in qppage_values:
             logger.info(f"<<lightred>> qppage {qppage} not in qppage_values.")
         # ---
-        results = self.post_continue(params, "query", _p_="querypage", p_empty=[], Max=Max)
+        results = self.post_continue(params, "query", _p_="querypage", p_empty=[], max=max)
         # ---
         logger.debug(f" len(results) = {len(results)}")
         # ---
         return results
 
-    def Get_template_pages(self, title, namespace="*", Max=10000):
+    def Get_template_pages(self, title, namespace="*", max=10000):
         # ---
-        logger.debug(f'Get_template_pages for template:"{title}", limit:"{Max}",namespace:"{namespace}"')
+        logger.debug(f'Get_template_pages for template:"{title}", limit:"{max}",namespace:"{namespace}"')
         # ---
         params = {
             "action": "query",
@@ -877,7 +865,7 @@ class NEW_API(BOTS_APIS):
         # ---
         return data
 
-    def pageswithprop(self, pwppropname="unlinkedwikibase_id", pwplimit=None, Max=None):
+    def pageswithprop(self, pwppropname="unlinkedwikibase_id", pwplimit=None, max=None):
         # ---
         params = {
             "action": "query",
@@ -896,7 +884,7 @@ class NEW_API(BOTS_APIS):
         if pwppropname != "":
             params["pwppropname"] = pwppropname
         # ---
-        results = self.post_continue(params, "query", _p_="pageswithprop", p_empty=[], Max=Max)
+        results = self.post_continue(params, "query", _p_="pageswithprop", p_empty=[], max=max)
         # ---
         logger.debug(f" len(results) = {len(results)}")
         # ---
@@ -941,7 +929,7 @@ class NEW_API(BOTS_APIS):
         # ---
         params = {"action": "cxtoken", "format": "json"}
         # ---
-        data = self.client_request(params, addtoken=True)
+        data = self.client_request(params, request_type="post")
         # ---
         if not data:
             return ""

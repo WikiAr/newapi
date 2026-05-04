@@ -5,6 +5,8 @@ import sys
 
 import wikitextparser as wtp
 
+from ...config import settings
+
 logger = logging.getLogger(__name__)
 edit_username = {1: "Mr.Ibrahembot"}
 Bot_Cache = {}
@@ -106,7 +108,7 @@ def is_bot_edit_allowed(
     Returns:
         True if the bot is allowed to edit the page; False otherwise.
     """
-    if ("botedit" in sys.argv or "editbot" in sys.argv) or "workibrahem" in sys.argv:
+    if (settings.bot.force_edit) or settings.bot.workibrahem:
         return True
     # ---
     if botjob in ["", "fixref|cat|stub|tempcat|portal"]:
