@@ -33,7 +33,18 @@ class NewApi(BotsAPIS):
         self.cxtoken = ""
         # ---
         super().__init__()
-
+    def post_params(
+        self,
+        params,
+        request_type="get",
+        files=None,
+    ):
+        # ---
+        return self.login_bot.client_request(
+            params,
+            method=request_type,
+            files=files,
+        )
     def client_request(
         self,
         params,
