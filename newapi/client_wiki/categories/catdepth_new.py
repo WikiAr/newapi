@@ -2,10 +2,9 @@
 
 import functools
 import logging
-import sys
 import time
 
-from .bot import CategoryDepth
+from .category_db import CategoryDepth
 
 logger = logging.getLogger(__name__)
 

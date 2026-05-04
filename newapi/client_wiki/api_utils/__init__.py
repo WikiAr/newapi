@@ -3,7 +3,6 @@ from .botEdit import (
     bot_May_Edit,
     check_create_time,
     check_last_edit_time,
-    extract_templates_and_params,
 )
 
 change_codes = {
@@ -28,5 +27,4 @@ __all__ = [
     "bot_May_Edit",
     "check_create_time",
     "check_last_edit_time",
-    "extract_templates_and_params",
 ]

@@ -10,7 +10,7 @@ import logging
 
 from ..api_client.client import WikiLoginClient
 from ..super.S_API import bot_api
-from ..super.S_Category import catdepth_new
+from ..client_wiki.categories import catdepth_new
 from ..super.S_Page import super_page
 
 logger = logging.getLogger(__name__)
