@@ -485,29 +485,16 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """The underlying ``mwclient.Site`` — use for high-level wiki access."""
         return self._site
 
-    # ── Public methods ─────────────────────────────────────────────────────
-
-    def login(self, force: bool = False) -> None:
-        """
-        Force a fresh login regardless of cookie state.
-
-        Call this if you know the session has expired and want to re-authenticate
-        without creating a new WikiLoginClient instance.
-        """
-        if force or not self._site.logged_in:
-            logger.info(
-                "Forcing re-login for %s on %s.%s",
-                self.username,
-                self.lang,
-                self.family,
-            )
-            self._do_login()
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
 
     def _client_request(
         self,
         params: dict,
         method: str = "post",
         files: Optional[Any] = None,
+        **kwargs,
     ) -> dict:
         """
         Send a GET or POST request to the wiki API and return parsed JSON.
@@ -553,9 +540,10 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         action = params.get("action")
         if action in self._WRITE_ACTIONS:
             method = "post"
+
         if method == "get":
             return self._request_with_retry("GET", self.api_url, params=params)
-            #return self._site.get(action, **params)
+            # return self._site.get(action, **params)
         else:
             # Fetch a CSRF token now if the caller didn't supply one.
             # The retry loop will refresh it automatically on CSRF errors.
@@ -563,19 +551,108 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 params["token"] = self._site.get_token("csrf")
 
             return self._request_with_retry("POST", self.api_url, data=params, files=files)
-            #return self._site.post(action, **params, files=files)
+            # return self._site.post(action, **params, files=files)
+
+    def _ensure_logged_in(self) -> None:
+        """
+        Check whether the current session is authenticated.
+        """
+        # if self._site.logged_in:
+        if getattr(self._site, "logged_in", None):
+            logger.info(f"Session already authenticated {self._site.logged_in=}")
+            return
+        if self._cookie_path.exists():
+            try:
+                self._site.site_init()
+                if self._site.logged_in:
+                    logger.info("Revived session via cookies as %s", self._site.username)
+                    return
+            except Exception:
+                logger.exception("Error in site_init")
+
+        # if not self._site.logged_in: self._do_login()
+        # don't login yet, user can use login() method
+
+    def _enrich_params(self, params: dict) -> dict:
+        """
+        Inject write-action safety parameters.
+
+        For write actions:
+          - ``bot=1``        marks edits as bot edits in recent changes.
+          - ``assertuser``   ensures the API rejects requests from the wrong
+                             account (guards against accidental edits).
+
+        Query actions have write-only keys scrubbed instead.
+        """
+        params = dict(params)
+        action = params.get("action", "")
+
+        # Strip write-only params from query actions
+        if action == "query":
+            params.pop("bot", None)
+            params.pop("summary", None)
+            return params
+
+        # Inject bot marker and identity assertion for all write actions
+        is_write = action in self._WRITE_ACTIONS or action.startswith("wb") or self.family == "wikidata"
+        if is_write and self.username:
+            params.setdefault("bot", 1)
+            params.setdefault("assertuser", self.username)
+
+        return params
+
+    def _do_login(self) -> None:
+        """
+        Execute the mwclient login handshake and persist the resulting cookies.
+
+        Raises:
+            LoginError: if mwclient rejects the credentials.
+        """
+        try:
+            self._site.login(self.username, self._password)
+        except mwclient.errors.LoginError as exc:
+            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
+
+        if self._site.logged_in:
+            logger.info(
+                "Logged in successfully as %s on %s.%s",
+                self.username,
+                self.lang,
+                self.family,
+            )
+            self.save_cookies(self.cj)
+
+    # ── Public methods ─────────────────────────────────────────────────────
+
+    def login(self, force: bool = False) -> None:
+        """
+        Force a fresh login regardless of cookie state.
+
+        Call this if you know the session has expired and want to re-authenticate
+        without creating a new WikiLoginClient instance.
+        """
+        if force or not self._site.logged_in:
+            logger.info(
+                "Forcing re-login for %s on %s.%s",
+                self.username,
+                self.lang,
+                self.family,
+            )
+            self._do_login()
 
     def client_request(
         self,
         params: dict,
         method: str = "post",
         files: Optional[Any] = None,
+        **kwargs,
     ) -> dict:
         """ """
         return self._client_request(
             params=params,
             method=method,
             files=files,
+            **kwargs,
         )
 
     def client_request_safe(
@@ -583,6 +660,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         params: dict,
         method: str = "post",
         files: Optional[Any] = None,
+        **kwargs,
     ) -> dict:
         """ """
         try:
@@ -590,6 +668,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 params=params,
                 method=method,
                 files=files,
+                **kwargs,
             )
         except Exception as exc:
             logger.warning("client_request_safe: %s", exc)
@@ -600,6 +679,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         params: dict,
         method: str = "post",
         files: Optional[Any] = None,
+        **kwargs,
     ) -> dict:
         """
         Send a GET or POST request to the wiki API and return parsed JSON.
@@ -628,18 +708,25 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
         # Files can only travel via multipart POST
-        if files is not None:
+        action = params.get("action")
+        if action in self._WRITE_ACTIONS or files is not None:
             method = "post"
 
         # Always request JSON and inject write-action safety params
         params = self._enrich_params({"format": "json", **params})
 
+        skip_log_params = [
+            "token",
+            "password",
+            "lgpassword",
+            "text",
+        ]
         logger.debug(
             "%s %s params=%s files=%s",
             method.upper(),
             self.api_url,
             # Never log token values
-            {k: ("***" if k == "token" else v) for k, v in params.items()},
+            {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
 
@@ -672,6 +759,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         first: bool = False,
         _p_2: str = "",
         _p_2_empty: Optional[Union[list, dict]] = None,
+        **kwargs,
     ) -> Union[list, dict]:
         """
         Drive a MediaWiki API continuation query to completion.
@@ -754,79 +842,6 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
         logger.debug("done, %d total results", len(results))
         return results
-
-    # ------------------------------------------------------------------
-    # Private helpers
-    # ------------------------------------------------------------------
-
-    def _ensure_logged_in(self) -> None:
-        """
-        Check whether the current session is authenticated.
-        """
-        # if self._site.logged_in:
-        if getattr(self._site, "logged_in", None):
-            logger.info(f"Session already authenticated {self._site.logged_in=}")
-            return
-        if self._cookie_path.exists():
-            try:
-                self._site.site_init()
-                if self._site.logged_in:
-                    logger.info("Revived session via cookies as %s", self._site.username)
-                    return
-            except Exception:
-                logger.exception("Error in site_init")
-
-        # if not self._site.logged_in: self._do_login()
-        # don't login yet, user can use login() method
-
-    def _enrich_params(self, params: dict) -> dict:
-        """
-        Inject write-action safety parameters.
-
-        For write actions:
-          - ``bot=1``        marks edits as bot edits in recent changes.
-          - ``assertuser``   ensures the API rejects requests from the wrong
-                             account (guards against accidental edits).
-
-        Query actions have write-only keys scrubbed instead.
-        """
-        params = dict(params)
-        action = params.get("action", "")
-
-        # Strip write-only params from query actions
-        if action == "query":
-            params.pop("bot", None)
-            params.pop("summary", None)
-            return params
-
-        # Inject bot marker and identity assertion for all write actions
-        is_write = action in self._WRITE_ACTIONS or action.startswith("wb") or self.family == "wikidata"
-        if is_write and self.username:
-            params.setdefault("bot", 1)
-            params.setdefault("assertuser", self.username)
-
-        return params
-
-    def _do_login(self) -> None:
-        """
-        Execute the mwclient login handshake and persist the resulting cookies.
-
-        Raises:
-            LoginError: if mwclient rejects the credentials.
-        """
-        try:
-            self._site.login(self.username, self._password)
-        except mwclient.errors.LoginError as exc:
-            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
-
-        if self._site.logged_in:
-            logger.info(
-                "Logged in successfully as %s on %s.%s",
-                self.username,
-                self.lang,
-                self.family,
-            )
-            self.save_cookies(self.cj)
 
     def __repr__(self) -> str:
         return f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, username={self.username!r})"

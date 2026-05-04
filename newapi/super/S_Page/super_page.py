@@ -65,13 +65,13 @@ class MainPage(PageAPIS, AskBot):
     def client_request(
         self,
         params: Dict[str, Any],
-        request_type: str = "get",
+        method: str = "get",
         files: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         # ---
         return self.login_bot.client_request(
             params,
-            method=request_type,
+            method=method,
             files=files,
         )
 
