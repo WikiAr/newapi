@@ -12,8 +12,6 @@ class PageAPIS(HandelErrors):
         # print("class PageAPIS:")
         self.login_bot = login_bot
         # ---
-        self.user_login = login_bot.user_login
-        # ---
         self.title = getattr(self, "title", "")
         # ---
         super().__init__()

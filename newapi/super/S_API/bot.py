@@ -36,7 +36,7 @@ class BotsAPIS(HandelErrors, AskBot):
         # ---
         logger.debug(f"** .. [[{title}]] ")
         # ---
-        user = self.username or getattr(self, "user_login", "")
+        user = self.username
         # ---
         ask = self.ask_put(
             newtext=text,
@@ -121,7 +121,7 @@ class BotsAPIS(HandelErrors, AskBot):
         # ---
         message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
         # ---
-        user = self.username or getattr(self, "user_login", "")
+        user = self.username
         # ---
         if not self.ask_put(message=message, job="move", username=user):
             return {}

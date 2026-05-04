@@ -8,7 +8,6 @@ class TestNewAPI:
     @pytest.fixture
     def mock_login_bot(self):
         bot = MagicMock()
-        bot.user_login = "TestUser"
         return bot
 
     @pytest.fixture

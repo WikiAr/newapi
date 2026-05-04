@@ -406,7 +406,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         family: str,
         username: str,
         password: str,
-        cookies_dir: str = settings.paths.cookies_dir,
+        cookies_dir: str | None = settings.paths.cookies_dir,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -426,7 +426,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self._password = password  # kept private — never log or expose this
 
         # ── Cookie path ────────────────────────────────────────────────────
-        self._cookie_path: Path = get_cookie_path(cookies_dir, family, lang, username)
+
+        self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
 
         # ── mwclient Site ──────────────────────────────────────────────────
         logger.debug("Creating mwclient.Site for %s.%s", lang, family)

@@ -231,7 +231,7 @@ class Settings:
     site: SiteConfig = field(default_factory=SiteConfig)
 
     paths: Paths = Paths(
-        cookies_dir=os.getenv("COOKIES_DIR"),
+        cookies_dir=os.getenv("COOKIES_DIR") or os.path.join(os.getcwd()),
     )
 
     # Global settings

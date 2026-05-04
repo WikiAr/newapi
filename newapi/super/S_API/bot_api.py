@@ -22,8 +22,6 @@ class NewApi(BotsAPIS):
         # ---
         self.login_bot = login_bot
         # ---
-        self.user_login = login_bot.user_login
-        # ---
         self.username = getattr(self, "username", "")
         # self.family = family
         self.lang = change_codes.get(lang) or lang
