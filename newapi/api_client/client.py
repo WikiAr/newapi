@@ -550,7 +550,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             {k: ("***" if k == "token" else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
-        action = params.pop("action")
+        action = params.get("action")
         if action in self._WRITE_ACTIONS:
             method = "post"
         if method == "get":
