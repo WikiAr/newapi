@@ -1,12 +1,13 @@
-"""
-from newapi import botEdit
-bot_edit!
-"""
+""" """
 
+
+import logging
 from .bot_edit.bot_edit_by_templates import is_bot_edit_allowed
 from .bot_edit.bot_edit_by_time import check_create_time, check_last_edit_time
 
-Created_Cache = {}
+_created_cache = {}
+
+logger = logging.getLogger(__name__)
 
 
 def bot_May_Edit(
@@ -16,7 +17,6 @@ def bot_May_Edit(
     page=False,
     delay: int = 0,
 ) -> bool:
-    # ---
     """
     Determines whether a bot is permitted to edit a page based on templates, last edit time, and creation time.
 
@@ -33,29 +33,19 @@ def bot_May_Edit(
         True if the bot is allowed to edit the page; False otherwise.
     """
     check_it = is_bot_edit_allowed(text=text, title_page=title_page, botjob=botjob)
-    # ---
     if page and check_it:
-        # ---
         if delay and isinstance(delay, int):
-            # ---
             ns = page.namespace()
             lang = page.lang
-            # ---
             if ns != 0 or lang != "ar":
                 return check_it
-            # ---
             check_time = check_last_edit_time(page, title_page, delay)
-            # ---
             if not check_time:
                 return False
-        # ---
         check_create = check_create_time(page, title_page)
-        # ---
-        Created_Cache[title_page] = check_create
-        # ---
+        _created_cache[title_page] = check_create
         if not check_create:
             return False
-    # ---
     return check_it
 
 
@@ -65,4 +55,6 @@ def botMayEdit(**kwargs):
 
 __all__ = [
     "bot_May_Edit",
+    "check_create_time",
+    "check_last_edit_time",
 ]

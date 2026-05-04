@@ -3,7 +3,7 @@
 import datetime
 import logging
 
-Created_Cache = {}
+_created_cache = {}
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +16,8 @@ def check_create_time(page, title_page):
     Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago, caching the result for future checks.
     """
     # ---
-    if title_page in Created_Cache:
-        return Created_Cache[title_page]
+    if title_page in _created_cache:
+        return _created_cache[title_page]
     # ---
     ns = page.namespace()
     lang = page.lang
@@ -25,7 +25,7 @@ def check_create_time(page, title_page):
     if ns != 0 or lang != "ar":
         return True
     # ---
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     # ---
     create_data = page.get_create_data()  # { "timestamp" : "2025-05-07T12:00:17Z", "user" : "", "anon" : "" }
     # ---
@@ -34,7 +34,7 @@ def check_create_time(page, title_page):
     if create_data.get("timestamp"):
         # ---
         create_time = create_data["timestamp"]
-        ts_c_time = datetime.datetime.strptime(create_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+        ts_c_time = datetime.datetime.strptime(create_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.UTC)
         # ---
         diff = (now - ts_c_time).total_seconds() / (60 * 60)
         # ---
@@ -70,10 +70,10 @@ def check_last_edit_time(page, title_page, delay):
     # example: 2025-05-07T12:00:17Z
     timestamp = page.get_timestamp()
     # ---
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     # ---
     if timestamp:
-        ts_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+        ts_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.UTC)
         # ---
         diff_minutes = (now - ts_time).total_seconds() / 60
         # ---
