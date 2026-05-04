@@ -184,7 +184,9 @@ class TestHandleMaxlag:
         response.headers = {"Retry-After": "not_a_number"}
 
         with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            with patch("newapi.api_client.client.config.BACKOFF_BASE", 1):
+            from newapi.api_client.client import settings
+
+            with patch.object(settings.api_client, "backoff_base", 1):
                 client._handle_maxlag(response, 1)
                 mock_sleep.assert_called_with(2.0)  # 1 * 2^1
 
@@ -194,7 +196,9 @@ class TestHandleMaxlag:
         response.headers = {}
 
         with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            with patch("newapi.api_client.client.config.BACKOFF_BASE", 1):
+            from newapi.api_client.client import settings
+
+            with patch.object(settings.api_client, "backoff_base", 1):
                 client._handle_maxlag(response, 2)
                 mock_sleep.assert_called_with(4.0)  # 1 * 2^2
 
