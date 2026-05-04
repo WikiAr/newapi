@@ -1,6 +1,6 @@
 """ """
 
-from .pages_bots.all_apis import (
+from .client_wiki.all_apis import (
     AllAPIS,
 )
 
