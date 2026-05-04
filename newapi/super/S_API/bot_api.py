@@ -37,7 +37,11 @@ class NewApi(BotsAPIS):
         self,
         params,
         request_type="get",
+        addtoken=False,
+        get_csrf=True,
         files=None,
+        do_error=False,
+        max_retry=0,
     ):
         # ---
         return self.login_bot.client_request(
