@@ -110,10 +110,10 @@ class TestEnrichParams:
         assert "assertuser" not in result
 
 
-# ── Test client_request ──────────────────────────────────────────────────────
+# ── Test client_request_retry ──────────────────────────────────────────────────────
 
 
-class TestClientRequest:
+class TestClientRequestRetry:
     def test_invalid_method_raises(self):
         with (
             patch("newapi.api_client.client.mwclient.Site") as mock_site,
@@ -122,7 +122,7 @@ class TestClientRequest:
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             client = WikiLoginClient("en", "wikipedia", "bot", "pass")
             with pytest.raises(ValueError, match="method must be"):
-                client.client_request({"action": "query"}, method="delete")
+                client.client_request_retry({"action": "query"}, method="delete")
 
     def test_api_error_raises_wiki_client_error(self):
         with (
@@ -143,7 +143,7 @@ class TestClientRequest:
 
             client = WikiLoginClient("en", "wikipedia", "bot", "pass")
             with pytest.raises(WikiClientError):
-                client.client_request({"action": "edit"})
+                client.client_request_retry({"action": "edit"})
 
     def test_get_request(self):
         client, site = _make_client()
@@ -153,7 +153,7 @@ class TestClientRequest:
         response.headers = {"Content-Type": "application/json"}
         site.connection.request.return_value = response
 
-        result = client.client_request({"action": "query", "titles": "Python"}, method="get")
+        result = client.client_request_retry({"action": "query", "titles": "Python"}, method="get")
         assert "query" in result
         site.connection.request.assert_called_once()
 
@@ -165,7 +165,7 @@ class TestClientRequest:
         response.headers = {"Content-Type": "application/json"}
         site.connection.request.return_value = response
 
-        result = client.client_request({"action": "edit", "title": "Test"}, method="post")
+        result = client.client_request_retry({"action": "edit", "title": "Test"}, method="post")
         assert "edit" in result
 
     def test_files_forces_post(self):
@@ -177,7 +177,7 @@ class TestClientRequest:
         site.connection.request.return_value = response
 
         mock_file = MagicMock()
-        result = client.client_request(
+        result = client.client_request_retry(
             {"action": "upload", "filename": "test.png"},
             method="get",
             files={"file": mock_file},
@@ -192,7 +192,7 @@ class TestClientRequest:
         response.headers = {"Content-Type": "application/json"}
         site.connection.request.return_value = response
 
-        result = client.client_request({"action": "query", "meta": "userinfo"})
+        result = client.client_request_retry({"action": "query", "meta": "userinfo"})
         assert result["query"]["userinfo"]["id"] == 42
 
 
