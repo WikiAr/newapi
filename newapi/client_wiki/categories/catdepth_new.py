@@ -2,33 +2,15 @@
 
 import functools
 import logging
-import time
 
+from ...utils import function_timer
+from ..constants import CATEGORY_PREFIXES
 from .category_db import CategoryDepth
 
 logger = logging.getLogger(__name__)
 
 SITECODE = "en"
 FAMILY = "wikipedia"
-
-CATEGORY_PREFIXES: dict[str, str] = {
-    "ar": "تصنيف:",
-    "en": "Category:",
-    "www": "Category:",
-}
-
-
-def function_timer(func):
-    """Log how long a function takes to run."""
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.perf_counter()
-        result = func(*args, **kwargs)
-        logger.debug(f"{func.__name__} finished in {time.perf_counter() - start:.4f}s")
-        return result
-
-    return wrapper
 
 
 @functools.lru_cache(maxsize=256)
@@ -76,6 +58,7 @@ def subcatquery(login_bot, title: str, sitecode: str = SITECODE, family: str = F
             f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
         )
 
+    logger.info(f"starting subcategory query: {sitecode}:{title}")
     bot = CategoryDepth(login_bot, title, **kwargs)
     result = bot.subcatquery_()
 

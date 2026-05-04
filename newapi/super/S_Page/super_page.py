@@ -742,7 +742,7 @@ class MainPage(PageAPIS, AskBot):
         # ---
         if error != {}:
             print(pop)
-            er = self.handel_err(error, function="Save", params=params)
+            er = self.handle_err(error, function="Save", params=params)
             # ---
             return er
         # ---
@@ -863,7 +863,7 @@ class MainPage(PageAPIS, AskBot):
         # ---
         if error != {}:
             print(pop)
-            er = self.handel_err(error, function="Create", params=params)
+            er = self.handle_err(error, function="Create", params=params)
             # ---
             return er
             # ---

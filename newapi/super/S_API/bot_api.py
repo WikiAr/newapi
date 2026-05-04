@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class NewApi(BotsAPIS):
-    def __init__(self, login_bot: WikiLoginClient, lang: str="", family: str="wikipedia"):
+    def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia"):
         # ---
         self.login_bot = login_bot
         # ---

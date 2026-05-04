@@ -1,7 +1,7 @@
 """ """
 
-from .S_API import bot_api
 from ..client_wiki.categories import catdepth_new
+from .S_API import bot_api
 from .S_Page import super_page
 
 __all__ = [

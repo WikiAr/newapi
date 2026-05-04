@@ -4,10 +4,10 @@ from .super.S_Page.bot import PageAPIS
 
 """
 
-from ..handel_errors import HandelErrors
+from ...client_wiki.api_utils.handel_errors import HandleErrors
 
 
-class PageAPIS(HandelErrors):
+class PageAPIS(HandleErrors):
     def __init__(self, login_bot):
         # print("class PageAPIS:")
         self.login_bot = login_bot
