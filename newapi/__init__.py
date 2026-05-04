@@ -1,6 +1,6 @@
 """ """
 
-from newapi.api_utils.lang_codes import change_codes
+from .api_utils.lang_codes import change_codes
 
 from . import page
 from .all_apis import AllAPIS
