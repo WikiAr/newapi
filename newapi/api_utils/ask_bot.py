@@ -1,10 +1,10 @@
-"""
+""" """
 
-"""
-
-import sys
 import logging
+import sys
+
 import pywikibot
+
 from ..config import settings
 
 logger = logging.getLogger(__name__)
