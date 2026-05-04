@@ -562,7 +562,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             # return self._request_with_retry("POST", self.api_url, data=params, files=files)
             return self._site.post(action, **params, files=files)
 
-    def client_request_o(
+    def client_request_retry(
         self,
         params: dict,
         method: str = "post",

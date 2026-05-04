@@ -8,3 +8,4 @@ ratelimiter
 SPARQLWrapper
 colorlog
 python-dotenv
+pywikibot

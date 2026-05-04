@@ -6,7 +6,6 @@ cat_members = main_api.CatDepth('Category Title')
 new_api = main_api.NewApi()
 """
 
-import functools
 import logging
 
 from ..api_client.client import WikiLoginClient
@@ -17,7 +16,7 @@ from ..super.S_Page import super_page
 logger = logging.getLogger(__name__)
 
 
-class AllAPIS:  # noqa: N801
+class AllAPIS:
     """
     A class that provides access to various API functionalities.
     Usage:
@@ -35,11 +34,10 @@ class AllAPIS:  # noqa: N801
         self.password = password
         self.login_bot = self._login()
 
-    def MainPage(self, title, *args, **kwargs) -> super_page.MainPage:
+    def MainPage(self, title: str, *args, **kwargs) -> super_page.MainPage:
         return super_page.MainPage(self.login_bot, title, self.lang, family=self.family)
 
-    def CatDepth(self, title, sitecode="", family="", *args, **kwargs):
-        # cat_members = CatDepth("RTTNEURO", sitecode="www", family="mdwiki", depth=3, ns="0")
+    def CatDepth(self, title: str, sitecode: str = "", family: str = "", *args, **kwargs):
         return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
 
     def NewApi(self, *args, **kwargs) -> bot_api.NewApi:
@@ -47,12 +45,13 @@ class AllAPIS:  # noqa: N801
         return bot_api.NewApi(self.login_bot, lang=self.lang, family=self.family)
 
     def _login(self) -> WikiLoginClient:
-        return WikiLoginClient(
+        client = WikiLoginClient(
             lang=self.lang,
             family=self.family,
             username=self.username,
             password=self.password,
         )
+        return client
 
 
 __all__ = [
