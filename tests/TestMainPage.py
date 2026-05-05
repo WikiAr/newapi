@@ -85,7 +85,7 @@ class TestMainPage:
             }
         }
         page = MainPage(mock_login_bot, "الصفحة الرئيسة", "ar")
-        with patch("newapi.client_wiki.pages.super_page.botEdit.bot_May_Edit", return_value=False):
+        with patch("newapi.client_wiki.pages.super_page.bot_May_Edit", return_value=False):
             assert page.can_edit() is False
 
     def test_page_title_validation(self):
