@@ -9,10 +9,10 @@ import sys
 
 import pytest
 from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
-    Bot_Cache,
     BOT_USERNAME,
-    is_bot_edit_allowed,
     STOP_EDIT_TEMPLATES,
+    Bot_Cache,
+    is_bot_edit_allowed,
 )
 
 
