@@ -8,7 +8,8 @@ import wikitextparser as wtp
 from ...api_client import WikiLoginClient
 from ...client_wiki.api_utils.handel_errors import HandleErrors
 from ...config import settings
-from ..api_utils import botEdit, txtlib
+from ..api_utils.botEdit import bot_May_Edit
+from ..api_utils import txtlib
 from ..api_utils.ask_bot import AskBot
 from ..api_utils.lang_codes import change_codes
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
@@ -333,7 +334,7 @@ class MainPage(HandleErrors, AskBot):
 
             # 'templates': [{'ns': 10, 'title': 'قالب:No redirect'}],
 
-            self.template_data.templates_API = [ta["title"] for ta in ta.get("templates", [])]
+            self.template_data.templates_api = [ta["title"] for ta in ta.get("templates", [])]
 
         # "linkshere": [{"pageid": 189150,"ns": 0,"title": "طواف فرنسا"}, {"pageid": 308641,"ns": 10,"title": "قالب:AWB","redirect": ""}]
         self.links_data.links_here = ta.get("linkshere", [])
@@ -359,7 +360,6 @@ class MainPage(HandleErrors, AskBot):
         return self.content.text_html
 
     def get_redirect_target(self):
-
         params = {
             "action": "query",
             "titles": self.title,
@@ -367,7 +367,7 @@ class MainPage(HandleErrors, AskBot):
             "redirects": 1,
         }
 
-        data = self.client_request(params)
+        data = self.login_bot.client_request(params, method="get")
 
         # _pages_ = { 'batchcomplete': '', 'query': { 'redirects': [{ 'from': 'Yemen', 'to': 'اليمن' }], 'pages': {}, 'normalized': [{ 'from': 'yemen', 'to': 'Yemen' }] } }
 
@@ -378,7 +378,7 @@ class MainPage(HandleErrors, AskBot):
         to = redirects.get("to", "")
 
         if to:
-            logger.info(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
+            logger.debug(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
 
         return to
 
@@ -431,7 +431,7 @@ class MainPage(HandleErrors, AskBot):
                 # params = {**params, **continue_params}
                 params.update(continue_params)
 
-            json1 = self.client_request(params)
+            json1 = self.login_bot.client_request(params, method="get")
 
             continue_params = json1.get("continue", {})
 
@@ -458,7 +458,7 @@ class MainPage(HandleErrors, AskBot):
                 "ususers": self.user,
             }
 
-            data = self.client_request(params)
+            data = self.login_bot.client_request(params, method="get")
 
             # _userinfo_ = { "id": 229481, "name": "Mr. Ibrahem", "groups": ["editor", "reviewer", "rollbacker", "*", "user", "autoconfirmed"] }
 
@@ -470,24 +470,21 @@ class MainPage(HandleErrors, AskBot):
         return self.meta.userinfo
 
     def isRedirect(self):
-
         if not self.meta.is_redirect:
             self.get_infos()
 
         return self.meta.is_redirect
 
     def isDisambiguation(self):
-
         # if the title ends with '(توضيح)' or '(disambiguation)'
         self.meta.is_disambig = self.title.endswith("(توضيح)") or self.title.endswith("(disambiguation)")
 
         if self.meta.is_disambig:
-            logger.info(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
+            logger.debug(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
 
         return self.meta.is_disambig
 
     def get_categories(self, with_hidden=False):
-
         # if not self.categories_data.categories: self.get_infos()
         if not self.meta.info["done"]:
             self.get_infos()
@@ -498,14 +495,12 @@ class MainPage(HandleErrors, AskBot):
         return self.categories_data.categories
 
     def get_hidden_categories(self):
-
         if self.categories_data.categories == {} and self.categories_data.hidden_categories == {}:
             self.get_infos()
 
         return self.categories_data.hidden_categories
 
     def get_langlinks(self):
-
         if not self.meta.info["done"]:
             self.get_infos()
 
@@ -516,7 +511,7 @@ class MainPage(HandleErrors, AskBot):
         if not self.meta.info["done"]:
             self.get_infos()
 
-        return self.template_data.templates_API
+        return self.template_data.templates_api
 
     def get_links_here(self):
 
@@ -564,14 +559,13 @@ class MainPage(HandleErrors, AskBot):
         return new_tags
 
     def can_edit(self, script="", delay=0):
-
         if self.family != "wikipedia":
             return True
 
         if not self.text:
             self.text = self.get_text()
 
-        self.meta.can_be_edit = botEdit.bot_May_Edit(
+        self.meta.can_be_edit = bot_May_Edit(
             text=self.text, title_page=self.title, botjob=script, page=self, delay=delay
         )
 
@@ -628,6 +622,7 @@ class MainPage(HandleErrors, AskBot):
     def exists(self):
         if not self.meta.Exists:
             self.get_text()
+
         if not self.meta.Exists:
             logger.info(f'page "{self.title}" not exists in {self.lang}:{self.family}')
         return self.meta.Exists
@@ -635,6 +630,7 @@ class MainPage(HandleErrors, AskBot):
     def namespace(self):
         if self.ns is False:
             self.get_text()
+        logger.debug(f"namespace: {self.ns}")
         return self.ns
 
     def get_user(self):
@@ -721,7 +717,7 @@ class MainPage(HandleErrors, AskBot):
 
         # params['basetimestamp'] = self.revisions_data.timestamp
 
-        pop = self.client_request(params)
+        pop = self.login_bot.client_request(params)
 
         if not pop:
             return False
@@ -735,8 +731,8 @@ class MainPage(HandleErrors, AskBot):
         if result.lower() == "success":
             self.text = newtext
             self.user = ""
-            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
-            # logger.info('Done True...')
+            logger.warning(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.debug(f"save success for {self.title}")
 
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
             self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
@@ -747,7 +743,7 @@ class MainPage(HandleErrors, AskBot):
             return True
 
         if error != {}:
-            print(pop)
+            logger.debug(pop)
             er = self.handle_err(error, function="Save", params=params)
 
             return er
@@ -813,7 +809,6 @@ class MainPage(HandleErrors, AskBot):
         self.newtext = text
 
         if not noask:
-
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
 
             user = self.meta.username
@@ -840,7 +835,7 @@ class MainPage(HandleErrors, AskBot):
             "createonly": 1,
         }
 
-        pop = self.client_request(params)
+        pop = self.login_bot.client_request(params)
 
         if not pop:
             return False
@@ -850,13 +845,12 @@ class MainPage(HandleErrors, AskBot):
         result = edit.get("result", "")
 
         if result.lower() == "success":
-
             # {'edit': {'new': '', 'result': 'Success', 'pageid': 9090918, 'title': 'مستخدم:Mr. Ibrahem/test2024', 'contentmodel': 'wikitext', 'oldrevid': 0, 'newrevid': 61016221, 'newtimestamp': '2023-02-01T21:52:42Z'}}
 
             self.text = text
 
-            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
-            # logger.info('Done True... time.sleep() ')
+            logger.warning(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.debug(f"create success for {self.title}")
 
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
             self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
@@ -867,9 +861,8 @@ class MainPage(HandleErrors, AskBot):
             return True
 
         if error != {}:
-            print(pop)
+            logger.debug(pop)
             er = self.handle_err(error, function="Create", params=params)
-
             return er
 
         return False
