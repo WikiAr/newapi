@@ -2,7 +2,7 @@
 
 from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, TemplateData
 
-(Exists|all_categories_with_hidden|back_links|can_be_edit|categories|create_data|extlinks|flagged|hidden_categories|info|is_Disambig|is_redirect|iwlinks|length|links_here|links|newrevid|pageid|revid|revisions|summary|templates|templates_API|text_html|timestamp|touched|userinfo|username|wikibase_item|words)
+(Exists|all_categories_with_hidden|back_links|can_be_edit|categories|create_data|extlinks|flagged|hidden_categories|info|is_disambig|is_redirect|iwlinks|length|links_here|links|newrevid|pageid|revid|revisions|summary|templates|templates_api|text_html|timestamp|touched|userinfo|username|wikibase_item|words)
 
 """
 
@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Content:
+    # text: str = ""
+    # newtext: str = ""
     text_html: str = ""
     summary: str = ""
     words: int = 0
@@ -19,7 +21,7 @@ class Content:
 
 @dataclass
 class Meta:
-    is_Disambig: bool = False
+    is_disambig: bool = False
     can_be_edit: bool = False
     # ns: int = 0
     userinfo: dict = field(default_factory=dict)
@@ -62,4 +64,4 @@ class CategoriesData:
 @dataclass
 class TemplateData:
     templates: dict = field(default_factory=dict)
-    templates_API: dict = field(default_factory=dict)
+    templates_api: dict = field(default_factory=dict)

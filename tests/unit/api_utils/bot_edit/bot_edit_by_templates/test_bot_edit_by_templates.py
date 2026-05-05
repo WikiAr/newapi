@@ -8,11 +8,11 @@ caching behavior, and special template handling (nobots, bots).
 import sys
 
 import pytest
-from newapi.api_utils.bot_edit.bot_edit_by_templates import (
+from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
+    BOT_USERNAME,
+    STOP_EDIT_TEMPLATES,
     Bot_Cache,
-    edit_username,
     is_bot_edit_allowed,
-    stop_edit_temps,
 )
 
 
@@ -36,7 +36,7 @@ def original_argv():
 @pytest.fixture
 def bot_username():
     """Return the bot username for testing."""
-    return edit_username.get(1, "Mr.Ibrahembot")
+    return BOT_USERNAME
 
 
 # Test bot job normalization
@@ -101,12 +101,12 @@ class TestCaching:
 
 # Test stop templates
 class TestStopTemplates:
-    """Test cases for stop_edit_temps restrictions."""
+    """Test cases for STOP_EDIT_TEMPLATES restrictions."""
 
     def test_all_stop_templates_block_edit(self, original_argv):
         """Templates in 'all' stop list should block editing."""
         sys.argv = ["script"]
-        for template in stop_edit_temps["all"]:
+        for template in STOP_EDIT_TEMPLATES["all"]:
             text = f"{{{{{template}}}}}"
             assert not is_bot_edit_allowed(
                 text=text, title_page=f"Test_{template}", botjob="all"
@@ -115,7 +115,7 @@ class TestStopTemplates:
     def test_botjob_specific_stop_templates(self, original_argv):
         """Templates in botjob-specific stop list should block editing."""
         sys.argv = ["script"]
-        for botjob, templates in stop_edit_temps.items():
+        for botjob, templates in STOP_EDIT_TEMPLATES.items():
             if botjob == "all":
                 continue
             for template in templates:

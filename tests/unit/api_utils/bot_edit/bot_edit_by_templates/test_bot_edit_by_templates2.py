@@ -12,10 +12,10 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-from newapi.api_utils.bot_edit.bot_edit_by_templates import (
+from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
+    STOP_EDIT_TEMPLATES,
     Bot_Cache,
     is_bot_edit_allowed,
-    stop_edit_temps,
 )
 
 # ==================== Fixtures ====================
@@ -39,7 +39,7 @@ def reset_environment():
 @pytest.fixture
 def mock_wtp():
     """Provide a mocked wikitextparser."""
-    with patch("newapi.api_utils.bot_edit.bot_edit_by_templates.wtp") as mock:
+    with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.wtp") as mock:
         yield mock
 
 
@@ -343,7 +343,7 @@ class TestBotsTemplate:
 class TestStopEditTemplates:
     """Test stop edit templates handling."""
 
-    @pytest.mark.parametrize("template_name", stop_edit_temps["all"])
+    @pytest.mark.parametrize("template_name", STOP_EDIT_TEMPLATES["all"])
     def test_global_stop_templates_deny_edit(self, template_name, setup_parser):
         """Test that global stop templates deny editing."""
         setup_parser([{"name": template_name, "arguments": None}])
@@ -372,7 +372,7 @@ class TestStopEditTemplates:
 
     @pytest.mark.parametrize(
         "botjob,template_list",
-        [(job, templates) for job, templates in stop_edit_temps.items() if job != "all"],
+        [(job, templates) for job, templates in STOP_EDIT_TEMPLATES.items() if job != "all"],
     )
     def test_all_stop_templates_for_each_botjob(self, botjob, template_list, setup_parser):
         """Test all stop templates for each specific bot job."""

@@ -1,13 +1,5 @@
 """
-from .super.handel_errors import HandelErrors
-
-"""
-
-import logging
-import sys
-from typing import Any, Dict, Optional, Union
-
-from ..core.exceptions import (
+from ...core.exceptions import (
     AbuseFilterError,
     ApiError,
     ArticleExistsError,
@@ -16,11 +8,14 @@ from ..core.exceptions import (
     ProtectedPageError,
     parse_api_error,
 )
+"""
+
+import logging
 
 logger = logging.getLogger(__name__)
 
 
-class HandelErrors:
+class HandleErrors:
     """
     Error handler for MediaWiki API errors.
 
@@ -36,13 +31,13 @@ class HandelErrors:
             config: Optional BotConfig for behavior settings.
         """
 
-    def handel_err(
+    def handle_err(
         self,
-        error: Dict[str, Any],
+        error: dict,
         function: str = "",
-        params: Optional[Dict[str, Any]] = None,
+        params: dict | None = None,
         do_error: bool = True,
-    ) -> Union[str, bool, ApiError]:
+    ) -> dict | str | bool:
         """Handle errors based on the provided error dictionary.
 
         This function processes an error dictionary and performs actions based
@@ -76,14 +71,14 @@ class HandelErrors:
         err_info = error.get("info", "")
 
         _tt = f"<<lightred>>{function} ERROR: <<default>>code:{err_code}."
-        ["protectedpage", "تأخير البوتات 3 ساعات", False]
+        # ["protectedpage", "تأخير البوتات 3 ساعات", False]
         if err_code == "abusefilter-disallowed":
 
             # oioioi = {'error': {'code': 'abusefilter-disallowed', 'info': 'This', 'abusefilter': {'id': '169', 'description': 'تأخير البوتات 3 ساعات', 'actions': ['disallow']}, '*': 'See https'}, 'servedby': 'mw1374'}
 
             abusefilter = error.get("abusefilter", "")
-            description = abusefilter.get("description", "")
-            logger.info(f"<<lightred>> ** abusefilter-disallowed: {description} ")
+            description = abusefilter.get("description", "") if isinstance(abusefilter, dict) else ""
+            logger.debug(f"<<lightred>> ** abusefilter-disallowed: {description} ")
             if description in [
                 "تأخير البوتات 3 ساعات",
                 "تأخير البوتات 3 ساعات- 3 من 3",
@@ -94,23 +89,29 @@ class HandelErrors:
             return description
 
         if err_code == "no-such-entity":
-            logger.info("<<lightred>> ** no-such-entity. ")
+            logger.debug("<<lightred>> ** no-such-entity. ")
             return False
 
         if err_code == "protectedpage":
-            logger.info("<<lightred>> ** protectedpage. ")
-            # return "protectedpage"
+            logger.debug("<<lightred>> ** protectedpage. ")
             return False
 
         if err_code == "articleexists":
-            logger.info("<<lightred>> ** article already created. ")
+            logger.debug("<<lightred>> ** article already created. ")
             return "articleexists"
 
         if err_code == "maxlag":
-            logger.info("<<lightred>> ** maxlag. ")
+            logger.debug("<<lightred>> ** maxlag. ")
             return False
 
         if do_error:
-            params["data"] = {}
-            params["text"] = {}
+            if params:
+                params["data"] = {}
+                params["text"] = {}
             logger.error(f"<<lightred>>{function} ERROR: <<default>>info: {err_info}, {params=}")
+        return error
+
+
+__all__ = [
+    "HandleErrors",
+]

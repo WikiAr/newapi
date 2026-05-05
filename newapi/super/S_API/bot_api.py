@@ -8,17 +8,15 @@ from datetime import timedelta
 
 import tqdm
 
-from ...api_utils.lang_codes import change_codes
+from ...api_client import WikiLoginClient
+from ...client_wiki.api_utils.lang_codes import change_codes
 from .bot import BotsAPIS
 
 logger = logging.getLogger(__name__)
 
 
-logger = logging.getLogger(__name__)
-
-
 class NewApi(BotsAPIS):
-    def __init__(self, login_bot, lang="", family="wikipedia"):
+    def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia"):
         # ---
         self.login_bot = login_bot
         # ---
@@ -33,56 +31,6 @@ class NewApi(BotsAPIS):
         self.cxtoken = ""
         # ---
         super().__init__()
-    def post_params(
-        self,
-        params,
-        request_type="get",
-        addtoken=False,
-        get_csrf=True,
-        files=None,
-        do_error=False,
-        max_retry=0,
-    ):
-        # ---
-        return self.login_bot.client_request(
-            params,
-            method=request_type,
-            files=files,
-        )
-    def client_request(
-        self,
-        params,
-        request_type="get",
-        files=None,
-    ):
-        # ---
-        return self.login_bot.client_request(
-            params,
-            method=request_type,
-            files=files,
-        )
-
-    def post_continue(
-        self,
-        params,
-        action,
-        _p_="pages",
-        p_empty=None,
-        max=500000,
-        first=False,
-        _p_2="",
-        _p_2_empty=None,
-    ):
-        return self.login_bot.post_continue(
-            params,
-            action,
-            _p_=_p_,
-            p_empty=p_empty,
-            max=max,
-            first=first,
-            _p_2=_p_2,
-            _p_2_empty=_p_2_empty,
-        )
 
     def get_username(self):
         return self.username
@@ -944,7 +892,7 @@ class NewApi(BotsAPIS):
         # ---
         params = {"action": "cxtoken", "format": "json"}
         # ---
-        data = self.client_request(params, request_type="post")
+        data = self.client_request(params, method="post")
         # ---
         if not data:
             return ""
@@ -959,7 +907,10 @@ class NewApi(BotsAPIS):
         # ---
         return jwt
 
-    def users_infos(self, ususers=[]):
+    def users_infos(self, ususers=None) -> list[dict]:
+        # ---
+        if not isinstance(ususers, list):
+            ususers = []
         # ---
         params = {
             "action": "query",
@@ -996,3 +947,57 @@ class NewApi(BotsAPIS):
         results = [dict(x) for x in results]
         # ---
         return results
+
+    def post_params(
+        self,
+        params,
+        method="get",
+        files=None,
+        **kwargs,
+    ):
+        # ---
+        return self.login_bot.client_request(
+            params,
+            method=method,
+            files=files,
+            **kwargs,
+        )
+
+    def client_request(
+        self,
+        params,
+        method="get",
+        files=None,
+        **kwargs,
+    ):
+        # ---
+        return self.login_bot.client_request(
+            params,
+            method=method,
+            files=files,
+            **kwargs,
+        )
+
+    def post_continue(
+        self,
+        params,
+        action,
+        _p_="pages",
+        p_empty=None,
+        max=500000,
+        first=False,
+        _p_2="",
+        _p_2_empty=None,
+        **kwargs,
+    ):
+        return self.login_bot.post_continue(
+            params,
+            action,
+            _p_=_p_,
+            p_empty=p_empty,
+            max=max,
+            first=first,
+            _p_2=_p_2,
+            _p_2_empty=_p_2_empty,
+            **kwargs,
+        )

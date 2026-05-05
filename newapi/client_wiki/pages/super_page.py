@@ -5,18 +5,32 @@ from typing import Any, Dict, Optional, Union
 
 import wikitextparser as wtp
 
-from ...api_utils import botEdit, txtlib
-from ...api_utils.ask_bot import AskBot
-from ...api_utils.lang_codes import change_codes
+from ...api_client import WikiLoginClient
+from ...client_wiki.api_utils.handel_errors import HandleErrors
 from ...config import settings
-from .ar_err import find_edit_error
-from .bot import PageAPIS
+from ..api_utils import txtlib
+from ..api_utils.ask_bot import AskBot
+from ..api_utils.botEdit import bot_May_Edit
+from ..api_utils.lang_codes import change_codes
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
 
 logger = logging.getLogger(__name__)
 
 
-class MainPage(PageAPIS, AskBot):
+def find_edit_error(old, new):
+    # Define the dictionary of conversion phrases
+    conversion_phrases = {
+        "#تحويل [[",
+    }
+    for phrase in conversion_phrases:
+        if phrase in old and phrase not in new:
+            logger.info(f"ar_err.py found ({phrase}) in old but not in new. return True")
+            return True
+
+    return False
+
+
+class MainPage(HandleErrors, AskBot):
     """
     Main page class for interacting with MediaWiki pages.
 
@@ -25,60 +39,59 @@ class MainPage(PageAPIS, AskBot):
 
     def __init__(
         self,
-        login_bot: Any,
+        login_bot: WikiLoginClient,
         title: str,
         lang: str = "",
         family: str = "wikipedia",
     ) -> None:
         # print(f"class MainPage: {lang=}")
-        # ---
         """
         Initializes a MainPage instance for interacting with a MediaWiki page.
 
         Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
         """
-        # ---
+
         self.login_bot = login_bot
-        # ---
-        # ---
+
         self.title: str = title
         self.lang: str = change_codes.get(lang) or lang
         self.family: str = family
         self.endpoint: str = f"https://{self.lang}.{self.family}.org/w/api.php"
-        # ---
+
         self.text: str = ""
         self.newtext: str = ""
         self.ns: Union[bool, int] = False
         self.langlinks: Dict[str, str] = {}
-        # ---
+
         self.meta = Meta()
         self.content = Content()
         self.revisions_data = RevisionsData()
         self.links_data = LinksData()
         self.categories_data = CategoriesData()
         self.template_data = TemplateData()
-        # ---
+
         self.user: str = ""
-        # ---
-        super().__init__(login_bot)
+
+        super().__init__()
 
     def client_request(
         self,
         params: Dict[str, Any],
-        request_type: str = "get",
+        method: str = "get",
         files: Optional[Dict[str, Any]] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
-        # ---
+
         return self.login_bot.client_request(
             params,
-            method=request_type,
+            method=method,
             files=files,
+            **kwargs,
         )
 
     def false_edit(self) -> bool:
         # self.newtext
         # self.text
-        # ---
         """
         Determines if a proposed edit should be considered erroneous and aborted.
 
@@ -86,24 +99,24 @@ class MainPage(PageAPIS, AskBot):
         """
         if self.ns is False or self.ns != 0:
             return False
-        # ---
+
         if settings.bot.no_fa:
             return False
-        # ---
+
         if not self.text:
             self.text = self.get_text()
-        # ---
+
         # If the new edit will remove 90% of the text, return False
         if len(self.newtext) < 0.1 * len(self.text):
             text_err = f"Edit will remove 90% of the text. {len(self.newtext)} < 0.1 * {len(self.text)}"
             text_err += f"title: {self.title}, summary: {self.content.summary}"
             logger.exception(text_err)
             return True
-        # ---
+
         if self.lang == "ar" and self.ns == 0:
             if find_edit_error(self.text, self.newtext):
                 return True
-        # ---
+
         return False
 
     def import_page(self, family="wikipedia"):
@@ -124,13 +137,13 @@ class MainPage(PageAPIS, AskBot):
             "fullhistory": 1,
             "assignknownusers": 1,
         }
-        # ---
+
         data = self.client_request(params)
-        # ---
+
         done = data.get("import", [{}])[0].get("revisions", 0)
-        # ---
+
         logger.info(f"<<lightgreen>> imported {done} revisions")
-        # ---
+
         return data
 
     def find_create_data(self):
@@ -152,24 +165,23 @@ class MainPage(PageAPIS, AskBot):
             "rvlimit": "1",
             "rvdir": "newer",
         }
-        # ---
-        data = self.client_request(params)
-        # ---
+
+        data = self.login_bot.client_request(params, method="get")
+
         pages = data.get("query", {}).get("pages", {})
-        # ---
+
         for _, v in pages.items():
-            # ---
             page_data = v.get("revisions", [{}])[0]
-            # ---
+
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
                     "timestamp": page_data["timestamp"],
                     "user": page_data.get("user", ""),
                     "anon": page_data.get("anon", False),
                 }
-            # ---
+
             break
-        # ---
+
         return self.meta.create_data
 
     def get_text(self, redirects=False):
@@ -192,53 +204,50 @@ class MainPage(PageAPIS, AskBot):
             "rvprop": "timestamp|content|user|ids",
             "rvslots": "*",
         }  # pageprops  # revisions  # revisions
-        # ---
+
         if redirects:
             params["redirects"] = 1
-        data = self.client_request(params)
-        # ---
-        # _dat_ = { "batchcomplete": "", "query": { "normalized": [{ "from": "وب:ملعب", "to": "ويكيبيديا:ملعب" }], "pages": { "361534": { "pageid": 361534, "ns": 4, "title": "ويكيبيديا:ملعب", "revisions": [{ "revid": 61421668, "parentid": 61421528, "user": "Al-shazali Sabeel", "timestamp": "2023-03-07T13:50:29Z", "slots": { "main": { "contentmodel": "wikitext", "contentformat": "text/x-wiki", "*": "{{عنوان الملعب}}" } } }], "pageprops": { "wikibase_item": "Q3938" } } } }, }
-        # ---
+        data = self.login_bot.client_request(params, method="get")
+
         pages = data.get("query", {}).get("pages", {})
-        # ---
+
         for k, v in pages.items():
-            # ---
             if "ns" in v:
                 self.ns = v["ns"]  # ns = 0 !
-            # ---
+
             if "missing" in v or k == "-1":
                 self.meta.Exists = False
                 # break
             else:
                 self.meta.Exists = True
-            # ---
+
             # title = v["title"]
-            # ---
+
             pageprops = v.get("pageprops", {})
             self.meta.wikibase_item = pageprops.get("wikibase_item") or self.meta.wikibase_item
-            # ---
+
             # "flagged": { "stable_revid": 61366100, "level": 0, "level_text": "stable"}
             self.meta.flagged = v.get("flagged", False) is not False
-            # ---
+
             self.revisions_data.pageid = v.get("pageid") or self.revisions_data.pageid
-            # ---
+
             page_data = v.get("revisions", [{}])[0]
-            # ---
+
             self.text = page_data.get("slots", {}).get("main", {}).get("*", "")
             self.user = page_data.get("user") or self.user
             self.revisions_data.revid = page_data.get("revid") or self.revisions_data.revid
-            # ---
+
             self.revisions_data.timestamp = page_data.get("timestamp") or self.revisions_data.timestamp
-            # ---
+
             if "parentid" in page_data and page_data["parentid"] == 0:
                 self.meta.create_data = {
                     "timestamp": page_data["timestamp"],
                     "user": page_data.get("user", ""),
                     "anon": page_data.get("anon", False),
                 }
-            # ---
+
             break
-        # ---
+
         return self.text
 
     def get_qid(self):
@@ -257,7 +266,6 @@ class MainPage(PageAPIS, AskBot):
         return self.meta.wikibase_item
 
     def get_infos(self):
-        # ---
         """
         Fetches and updates comprehensive metadata for the current page from the MediaWiki API.
 
@@ -277,62 +285,62 @@ class MainPage(PageAPIS, AskBot):
             # "normalize": 1,
             "tlnamespace": "10",
         }
-        # ---
+
         # _data_ = { "continue": {}, "query": { "pages": { "9124097": { "pageid": 9124097, "ns": 0, "title": "طواف العالم للدراجات 2023", "categories": [], "langlinks": [], "templates": [{ "ns": 10, "title": "قالب:-" }], "linkshere": [{ "pageid": 189150, "ns": 0, "title": "طواف فرنسا" }], "iwlinks": [{ "prefix": "commons", "*": "Category:2023_UCI_World_Tour" }], "contentmodel": "wikitext", "pagelanguage": "ar", "pagelanguagehtmlcode": "ar", "pagelanguagedir": "rtl", "touched": "2023-03-07T11:53:53Z", "lastrevid": 61366100, "length": 985, } } }, }
-        # ---
-        data = self.client_request(params)
-        # ---
+
+        data = self.login_bot.client_request(params, method="get")
+
         # xs = { 'batchcomplete': True, 'query': { 'pages': [{ 'pageid': 151314, 'ns': 10, 'title': 'قالب:أوب', 'categories': [{ 'ns': 14, 'title': 'تصنيف:قوالب تستخدم أنماط القوالب', 'sortkey': '', 'sortkeyprefix': '', 'hidden': False }, { 'ns': 14, 'title': 'تصنيف:cc', 'sortkey': 'v', 'sortkeyprefix': 'أوب', 'hidden': True }], 'langlinks': [{ 'lang': 'bh', 'title': 'टेम्पलेट:AWB' }], 'templates': [{ 'ns': 10, 'title': 'قالب:No redirect' }], 'linkshere': [{ 'pageid': 308641, 'ns': 10, 'title': 'قالب:AWB', 'redirect': True }], 'iwlinks': [{ 'prefix': 'd', 'title': 'Q4063270' }], 'contentmodel': 'wikitext', 'pagelanguage': 'ar', 'pagelanguagehtmlcode': 'ar', 'pagelanguagedir': 'rtl', 'touched': '2023-03-05T22:10:23Z', 'lastrevid': 61388266, 'length': 3477, }] }, }
-        # ---
+
         ta = data.get("query", {}).get("pages", [{}])[0]
-        # ---
+
         # for _, ta in pages.items():
-        # ---
+
         # self.ns = ta.get("ns") or self.ns
         if "ns" in ta:
             self.ns = ta["ns"]  # ns = 0 !
-        # ---
+
         self.revisions_data.pageid = ta.get("pageid") or self.revisions_data.pageid
         self.content.length = ta.get("length") or self.content.length
         self.revisions_data.revid = ta.get("lastrevid") or self.revisions_data.revid
         self.revisions_data.touched = ta.get("touched") or self.revisions_data.touched
-        # ---
+
         self.meta.is_redirect = True if "redirect" in ta else False
-        # ---
+
         for cat in ta.get("categories", []):
-            # ---
+
             # _cat_ = { "ns": 14, "title": "تصنيف:بوابة سباق الدراجات الهوائية/مقالات متعلقة", "sortkey": "d8b7", "sortkeyprefix": "", "hidden": True }
-            # ---
+
             if "sortkey" in cat:
                 del cat["sortkey"]
-            # ---
+
             category_title = cat["title"]
-            # ---
+
             self.categories_data.all_categories_with_hidden[category_title] = cat
-            # ---
+
             if cat.get("hidden") is True:
                 self.categories_data.hidden_categories[category_title] = cat
             else:
                 del cat["hidden"]
                 self.categories_data.categories[category_title] = cat
-        # ---
+
         if ta.get("langlinks", []) != []:
-            # ---
+
             # {"lang": "ca", "*": "UCI World Tour 2023"} or {'lang': 'bh', 'title': 'टेम्पलेट:AWB'}
-            # ---
+
             self.langlinks = {ta["lang"]: ta.get("*") or ta.get("title") for ta in ta.get("langlinks", [])}
-        # ---
+
         if ta.get("templates", []) != []:
-            # ---
+
             # 'templates': [{'ns': 10, 'title': 'قالب:No redirect'}],
-            # ---
-            self.template_data.templates_API = [ta["title"] for ta in ta.get("templates", [])]
-        # ---
+
+            self.template_data.templates_api = [ta["title"] for ta in ta.get("templates", [])]
+
         # "linkshere": [{"pageid": 189150,"ns": 0,"title": "طواف فرنسا"}, {"pageid": 308641,"ns": 10,"title": "قالب:AWB","redirect": ""}]
         self.links_data.links_here = ta.get("linkshere", [])
-        # ---
+
         self.links_data.iwlinks = ta.get("iwlinks", [])
-        # ---
+
         self.meta.info["done"] = True
 
     def get_text_html(self):
@@ -342,37 +350,36 @@ class MainPage(PageAPIS, AskBot):
             "formatversion": "2",
             "prop": "text",
         }
-        # ---
+
         data = self.client_request(params)
-        # ---
+
         # _data_ = { 'warnings': { 'main': { 'warnings': 'Unrecognized parameter: bot.' } }, 'parse': { 'title': 'ويكيبيديا:ملعب', 'pageid': 361534, 'text': '' } }
-        # ---
+
         self.content.text_html = data.get("parse", {}).get("text", "")
-        # ---
+
         return self.content.text_html
 
     def get_redirect_target(self):
-        # ---
         params = {
             "action": "query",
             "titles": self.title,
             "prop": "info",
             "redirects": 1,
         }
-        # ---
-        data = self.client_request(params)
-        # ---
+
+        data = self.login_bot.client_request(params, method="get")
+
         # _pages_ = { 'batchcomplete': '', 'query': { 'redirects': [{ 'from': 'Yemen', 'to': 'اليمن' }], 'pages': {}, 'normalized': [{ 'from': 'yemen', 'to': 'Yemen' }] } }
-        # ---
+
         _redirects = {"from": "Yemen", "to": "اليمن"}
-        # ---
+
         redirects = data.get("query", {}).get("redirects", [{}])[0]
-        # ---
+
         to = redirects.get("to", "")
-        # ---
+
         if to:
-            logger.info(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
-        # ---
+            logger.debug(f"<<lightyellow>>Page:({self.title}) redirect to ({to})")
+
         return to
 
     def get_words(self):
@@ -384,19 +391,19 @@ class MainPage(PageAPIS, AskBot):
             "srlimit": srlimit,
         }
         data = self.client_request(params)
-        # ---
+
         if not data:
             return 0
-        # ---
+
         search = data.get("query", {}).get("search", [])
-        # ---
+
         for pag in search:
             tit = pag["title"]
             if tit == self.title:
                 count = pag["wordcount"]
                 self.content.words = count
                 break
-        # ---
+
         return self.content.words
 
     def get_extlinks(self):
@@ -409,34 +416,34 @@ class MainPage(PageAPIS, AskBot):
             "utf8": 1,
             "ellimit": "max",
         }
-        # ---
+
         links = []
-        # ---
+
         continue_params = {}
-        # ---
+
         d = 0
-        # ---
+
         while continue_params != {} or d == 0:
-            # ---
+
             d += 1
-            # ---
+
             if continue_params:
                 # params = {**params, **continue_params}
                 params.update(continue_params)
-            # ---
-            json1 = self.client_request(params)
-            # ---
+
+            json1 = self.login_bot.client_request(params, method="get")
+
             continue_params = json1.get("continue", {})
-            # ---
+
             linkso = json1.get("query", {}).get("pages", [{}])[0].get("extlinks", [])
-            # ---
+
             links.extend(linkso)
-        # ---
+
         links = [x["url"] for x in links]
-        # ---
+
         # remove duplicates
         liste1 = sorted(set(links))
-        # ---
+
         self.links_data.extlinks = liste1
         return liste1
 
@@ -450,128 +457,121 @@ class MainPage(PageAPIS, AskBot):
                 "usprop": "groups",
                 "ususers": self.user,
             }
-            # ---
-            data = self.client_request(params)
-            # ---
+
+            data = self.login_bot.client_request(params, method="get")
+
             # _userinfo_ = { "id": 229481, "name": "Mr. Ibrahem", "groups": ["editor", "reviewer", "rollbacker", "*", "user", "autoconfirmed"] }
-            # ---
+
             ff = data.get("query", {}).get("users", [{}])
-            # ---
+
             if ff:
                 self.meta.userinfo = ff[0]
-        # ---
+
         return self.meta.userinfo
 
     def isRedirect(self):
-        # ---
         if not self.meta.is_redirect:
             self.get_infos()
-        # ---
+
         return self.meta.is_redirect
 
     def isDisambiguation(self):
-        # ---
         # if the title ends with '(توضيح)' or '(disambiguation)'
-        self.meta.is_Disambig = self.title.endswith("(توضيح)") or self.title.endswith("(disambiguation)")
-        # ---
-        if self.meta.is_Disambig:
-            logger.info(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
-        # ---
-        return self.meta.is_Disambig
+        self.meta.is_disambig = self.title.endswith("(توضيح)") or self.title.endswith("(disambiguation)")
+
+        if self.meta.is_disambig:
+            logger.debug(f'<<lightred>> page "{self.title}" is Disambiguation / توضيح')
+
+        return self.meta.is_disambig
 
     def get_categories(self, with_hidden=False):
-        # ---
         # if not self.categories_data.categories: self.get_infos()
         if not self.meta.info["done"]:
             self.get_infos()
-        # ---
+
         if with_hidden:
             return self.categories_data.all_categories_with_hidden
-        # ---
+
         return self.categories_data.categories
 
     def get_hidden_categories(self):
-        # ---
         if self.categories_data.categories == {} and self.categories_data.hidden_categories == {}:
             self.get_infos()
-        # ---
+
         return self.categories_data.hidden_categories
 
     def get_langlinks(self):
-        # ---
         if not self.meta.info["done"]:
             self.get_infos()
-        # ---
+
         return self.langlinks
 
     def get_templates_API(self):
-        # ---
+
         if not self.meta.info["done"]:
             self.get_infos()
-        # ---
-        return self.template_data.templates_API
+
+        return self.template_data.templates_api
 
     def get_links_here(self):
-        # ---
+
         if not self.meta.info["done"]:
             self.get_infos()
-        # ---
+
         return self.links_data.links_here
 
     def get_wiki_links_from_text(self):
         if not self.text:
             self.text = self.get_text()
-        # ---
+
         parsed = wtp.parse(self.text)
         wikilinks = parsed.wikilinks
-        # ---
+
         # logger.info(f'wikilinks:{str(wikilinks)}')
-        # ---
+
         # for x in wikilinks:
         #     print(x.title)
-        # ---
+
         return wikilinks
 
     def Get_tags(self, tag=""):
         if not self.text:
             self.text = self.get_text()
-        # ---
+
         self.text = self.text.replace("<ref>", '<ref name="ss">', 1)
-        # ---
+
         parsed = wtp.parse(self.text)
         tags = parsed.get_tags()
-        # ---
+
         # logger.info(f'tags:{str(tags)}')
-        # ---
+
         if not tag:
             return tags
-        # ---
+
         new_tags = []
-        # ---
+
         for x in tags:
             if x.name == tag:
                 new_tags.append(x)
-        # ---
+
         # return tags if tag == '' else [x for x in tags if x.name == tag]
-        # ---
+
         return new_tags
 
     def can_edit(self, script="", delay=0):
-        # ---
         if self.family != "wikipedia":
             return True
-        # ---
+
         if not self.text:
             self.text = self.get_text()
-        # ---
-        self.meta.can_be_edit = botEdit.bot_May_Edit(
+
+        self.meta.can_be_edit = bot_May_Edit(
             text=self.text, title_page=self.title, botjob=script, page=self, delay=delay
         )
-        # ---
+
         return self.meta.can_be_edit
 
     def is_flagged(self):
-        # ---
         """
         Returns whether the page is flagged for review or quality control.
 
@@ -582,7 +582,7 @@ class MainPage(PageAPIS, AskBot):
         """
         if not self.text:
             self.text = self.get_text()
-        # ---
+
         return self.meta.flagged
 
     def get_create_data(self):
@@ -622,6 +622,7 @@ class MainPage(PageAPIS, AskBot):
     def exists(self):
         if not self.meta.Exists:
             self.get_text()
+
         if not self.meta.Exists:
             logger.info(f'page "{self.title}" not exists in {self.lang}:{self.family}')
         return self.meta.Exists
@@ -629,6 +630,7 @@ class MainPage(PageAPIS, AskBot):
     def namespace(self):
         if self.ns is False:
             self.get_text()
+        logger.debug(f"namespace: {self.ns}")
         return self.ns
 
     def get_user(self):
@@ -669,18 +671,18 @@ class MainPage(PageAPIS, AskBot):
         Returns:
                 True if the edit was successful, False otherwise.
         """
-        # ---
+
         self.newtext = newtext
         if summary:
             self.content.summary = summary
-        # ---
+
         if self.false_edit():
             return False
-        # ---
+
         message = f"Do you want to save this page? ({self.lang}:{self.title})"
-        # ---
+
         user = self.meta.username
-        # ---
+
         if (
             self.ask_put(
                 nodiff=nodiff,
@@ -694,7 +696,7 @@ class MainPage(PageAPIS, AskBot):
             is False
         ):
             return False
-        # ---
+
         params = {
             "action": "edit",
             "title": self.title,
@@ -703,76 +705,76 @@ class MainPage(PageAPIS, AskBot):
             "minor": minor,
             "nocreate": nocreate,
         }
-        # ---
+
         if nocreate != 1:
             del params["nocreate"]
-        # ---
+
         if self.revisions_data.revid:
             params["baserevid"] = self.revisions_data.revid
-        # ---
+
         if tags:
             params["tags"] = tags
-        # ---
+
         # params['basetimestamp'] = self.revisions_data.timestamp
-        # ---
-        pop = self.client_request(params)
-        # ---
+
+        pop = self.login_bot.client_request(params)
+
         if not pop:
             return False
-        # ---
+
         error = pop.get("error", {})
         edit = pop.get("edit", {})
         result = edit.get("result", "")
-        # ---
+
         # {'edit': {'result': 'Success', 'pageid': 5013, 'title': 'User:Mr. Ibrahem/sandbox', 'contentmodel': 'wikitext', 'oldrevid': 1336986, 'newrevid': 1343447, 'newtimestamp': '2023-04-01T23:14:07Z', 'watched': ''}}
-        # ---
+
         if result.lower() == "success":
             self.text = newtext
             self.user = ""
-            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
-            # logger.info('Done True...')
-            # ---
+            logger.warning(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.debug(f"save success for {self.title}")
+
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
             self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
             self.revisions_data.newrevid = edit.get("newrevid") or self.revisions_data.newrevid
             self.revisions_data.touched = edit.get("touched") or self.revisions_data.touched
             self.revisions_data.timestamp = edit.get("newtimestamp") or self.revisions_data.timestamp
-            # ---
+
             return True
-        # ---
+
         if error != {}:
-            print(pop)
-            er = self.handel_err(error, function="Save", params=params)
-            # ---
+            logger.debug(pop)
+            er = self.handle_err(error, function="Save", params=params)
+
             return er
-        # ---
+
         return False
 
     def purge(self):
-        # ---
+
         params = {
             "action": "purge",
             "forcelinkupdate": 1,
             "forcerecursivelinkupdate": 1,
             "titles": self.title,
         }
-        # ---
+
         data = self.client_request(params)
-        # ---
+
         if not data:
             logger.info("<<lightred>> ** purge error. ")
             return False
-        # ---
+
         title2 = self.title
-        # ---
+
         #  'normalized': [{'from': 'وب:ملعب', 'to': 'ويكيبيديا:ملعب'}]}
-        # ---
+
         for x in data.get("normalized", []):
             # logger.info(f"normalized from {x['from']} to {x['to']}")
             if x["from"] == self.title:
                 title2 = x["to"]
                 break
-        # ---
+
         for t in data.get("purge", []):
             # t = [{'ns': 4, 'title': 'ويكيبيديا:ملعب', 'purged': '', 'linkupdate': ''}]
             ti = t["title"]
@@ -790,7 +792,6 @@ class MainPage(PageAPIS, AskBot):
         nodiff="",
         noask=False,
     ) -> bool:
-        # ---
         """
         Creates a new page with the specified text and summary.
 
@@ -806,13 +807,12 @@ class MainPage(PageAPIS, AskBot):
             True if the page was created successfully, False otherwise or if the user aborts.
         """
         self.newtext = text
-        # ---
+
         if not noask:
-            # ---
             message = f"Do you want to create this page? ({self.lang}:{self.title})"
-            # ---
+
             user = self.meta.username
-            # ---
+
             if (
                 self.ask_put(
                     nodiff=nodiff,
@@ -825,7 +825,7 @@ class MainPage(PageAPIS, AskBot):
                 is False
             ):
                 return False
-        # ---
+
         params = {
             "action": "edit",
             "title": self.title,
@@ -834,39 +834,37 @@ class MainPage(PageAPIS, AskBot):
             "notminor": 1,
             "createonly": 1,
         }
-        # ---
-        pop = self.client_request(params)
-        # ---
+
+        pop = self.login_bot.client_request(params)
+
         if not pop:
             return False
-        # ---
+
         error = pop.get("error", {})
         edit = pop.get("edit", {})
         result = edit.get("result", "")
-        # ---
+
         if result.lower() == "success":
-            # ---
             # {'edit': {'new': '', 'result': 'Success', 'pageid': 9090918, 'title': 'مستخدم:Mr. Ibrahem/test2024', 'contentmodel': 'wikitext', 'oldrevid': 0, 'newrevid': 61016221, 'newtimestamp': '2023-02-01T21:52:42Z'}}
-            # ---
+
             self.text = text
-            # ---
-            logger.info(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
-            # logger.info('Done True... time.sleep() ')
-            # ---
+
+            logger.warning(f"<<lightgreen>> ** true .. [[{self.lang}:{self.family}:{self.title}]] ")
+            logger.debug(f"create success for {self.title}")
+
             self.revisions_data.pageid = edit.get("pageid") or self.revisions_data.pageid
             self.revisions_data.revid = edit.get("newrevid") or self.revisions_data.revid
             self.revisions_data.touched = edit.get("touched") or self.revisions_data.touched
             self.revisions_data.newrevid = edit.get("newrevid") or self.revisions_data.newrevid
             self.revisions_data.timestamp = edit.get("newtimestamp") or self.revisions_data.timestamp
-            # ---
+
             return True
-        # ---
+
         if error != {}:
-            print(pop)
-            er = self.handel_err(error, function="Create", params=params)
-            # ---
+            logger.debug(pop)
+            er = self.handle_err(error, function="Create", params=params)
             return er
-            # ---
+
         return False
 
     def Create(
@@ -892,18 +890,18 @@ class MainPage(PageAPIS, AskBot):
             "formatversion": "2",
             "gblredirect": 1,
         }
-        # ---
+
         # x = { 'batchcomplete': True, 'limits': { 'backlinks': 2500 }, 'query': { 'redirects': [{ 'from': 'فريدريش زيمرمان', 'to': 'فريدريش تسيمرمان' }], 'pages': [{ 'pageid': 2941285, 'ns': 0, 'title': 'فولفغانغ شويبله' }, { 'pageid': 4783977, 'ns': 0, 'title': 'وزارة الشؤون الرقمية والنقل' }, { 'pageid': 5218323, 'ns': 0, 'title': 'فريدريش تسيمرمان' }, { 'pageid': 6662649, 'ns': 0, 'title': 'غونتر كراوزه' }] } }
-        # ---
+
         # data = self.client_request(params)
         # pages = data.get("query", {}).get("pages", [])
-        # ---
+
         pages = self.post_continue(params, "query", _p_="pages", p_empty=[])
-        # ---
+
         back_links = [x for x in pages if x["title"] != self.title]
-        # ---
+
         self.links_data.back_links = back_links
-        # ---
+
         return self.links_data.back_links
 
     def page_links(self) -> list:
@@ -925,13 +923,13 @@ class MainPage(PageAPIS, AskBot):
         }
         # data = self.client_request(params)
         # data = data.get('parse', {}).get('links', [])
-        # ---
+
         data: list = self.post_continue(params, "parse", _p_="links", p_empty=[])
-        # ---
+
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
-        # ---
+
         self.links_data.links2 = data
-        # ---
+
         return self.links_data.links2
 
     def page_links_query(self, plnamespace="*"):
@@ -946,17 +944,17 @@ class MainPage(PageAPIS, AskBot):
         }
         # data = self.client_request(params)
         # data = data.get('query', {}).get('links', [])
-        # ---
+
         data = self.post_continue(params, "query", _p_="links", p_empty=[])
-        # ---
+
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
-        # ---
+
         self.links_data.links = data
-        # ---
+
         return self.links_data.links
 
-    def get_revisions(self, rvprops=[]):
-        # ---
+    def get_revisions(self, rvprops=None) -> list:
+
         rvprop = [
             "comment",
             "timestamp",
@@ -964,11 +962,12 @@ class MainPage(PageAPIS, AskBot):
             # "content",
             "ids",
         ]
-        # ---
-        for x in rvprops:
-            if x not in rvprop:
-                rvprop.append(x)
-        # ---
+
+        if rvprops:
+            for x in rvprops:
+                if x not in rvprop:
+                    rvprop.append(x)
+
         params = {
             "action": "query",
             "format": "json",
@@ -982,20 +981,44 @@ class MainPage(PageAPIS, AskBot):
             # "rvprop": "comment|timestamp|user|content|ids",
             "rvprop": "|".join(rvprop),
         }
-        # ---
+
         _revisions = self.post_continue(params, "query", _p_="pages", p_empty=[])
-        # ---
+
         revisions = []
-        # ---
+
         for x in _revisions:
             revisions.extend(x["revisions"])
-        # ---
+
         self.revisions_data.revisions = revisions
-        # ---
+
         return revisions
+
+    def post_continue(
+        self,
+        params,
+        action,
+        _p_="pages",
+        p_empty=None,
+        max=500000,
+        first=False,
+        _p_2="",
+        _p_2_empty=None,
+        **kwargs,
+    ):
+        return self.login_bot.post_continue(
+            params,
+            action,
+            _p_=_p_,
+            p_empty=p_empty,
+            max=max,
+            first=first,
+            _p_2=_p_2,
+            _p_2_empty=_p_2_empty,
+            **kwargs,
+        )
 
     def __getitem__(self, key):
         if key == "q":
             return self.get_qid()
         else:
-            raise
+            raise  # noqa: PLE0704

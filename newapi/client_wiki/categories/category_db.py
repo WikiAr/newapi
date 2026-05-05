@@ -5,6 +5,8 @@ import logging
 
 from tqdm import tqdm
 
+from ...api_client import WikiLoginClient
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,7 +17,12 @@ class CategoryDepth:
     Provides methods for recursively querying category members.
     """
 
-    def __init__(self, login_bot, title: str = "", **kwargs) -> None:
+    def __init__(
+        self,
+        login_bot: WikiLoginClient,
+        title: str = "",
+        **kwargs,
+    ) -> None:
         self.login_bot = login_bot
 
         self.title: str = title
@@ -57,11 +64,12 @@ class CategoryDepth:
         self.len_pages = 0
         self.revids, self.timestamps, self.result_table = {}, {}, {}
         self.title = kwargs.get("title", "")
+        logger.debug(f"parsing params for {self.title}: depth={kwargs.get('depth')}, ns={kwargs.get('ns')}")
 
         try:
             self.depth = int(kwargs.get("depth", 0))
         except ValueError:
-            print(f"self.depth != int: {kwargs.get('depth')}")
+            logger.error(f"self.depth != int: {kwargs.get('depth')}")
             self.depth = 0
 
         self.props = []
@@ -249,10 +257,10 @@ class CategoryDepth:
             if continue_params:
                 params.update(continue_params)
 
-            api_data = self.client_request(params)
+            api_data = self.login_bot.client_request(params, method="get")
 
             if not api_data:
-                print(f"api is False for {cac}")
+                logger.info(f"api is False for {cac}")
                 break
 
             continue_params = api_data.get("continue", {})
@@ -289,6 +297,7 @@ class CategoryDepth:
         self.result_table[x] = tab
 
     def subcatquery_(self) -> dict:
+        logger.info(f"starting subcatquery for {self.title}, depth={self.depth}")
         tablemember = self.get_cat_new(self.title)
 
         for x, zz in tablemember.items():
@@ -308,6 +317,7 @@ class CategoryDepth:
                 break
 
             depth_done += 1
+            logger.info(f"depth {depth_done}/{self.depth}: {len(new_list)} subcategories to process")
 
             for cat in tqdm(new_list):
                 table2 = self.get_cat_new(cat)
@@ -323,4 +333,5 @@ class CategoryDepth:
             soro = sorted(self.result_table.items(), key=lambda item: self.timestamps.get(item[0], 0), reverse=True)
             self.result_table = dict(soro)
 
+        logger.debug(f"subcatquery done: {len(self.result_table)} total results")
         return self.result_table

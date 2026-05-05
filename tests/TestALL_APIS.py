@@ -7,10 +7,10 @@ from newapi import AllAPIS
 @pytest.fixture
 def mock_dependencies():
     with (
-        patch("newapi.pages_bots.all_apis.WikiLoginClient") as mock_login,
-        patch("newapi.pages_bots.all_apis.super_page.MainPage") as mock_main_page,
-        patch("newapi.pages_bots.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
-        patch("newapi.pages_bots.all_apis.bot_api.NewApi") as mock_new_api,
+        patch("newapi.client_wiki.all_apis.WikiLoginClient") as mock_login,
+        patch("newapi.client_wiki.all_apis.super_page.MainPage") as mock_main_page,
+        patch("newapi.client_wiki.all_apis.catdepth_new.subcatquery") as mock_subcatquery,
+        patch("newapi.client_wiki.all_apis.bot_api.NewApi") as mock_new_api,
     ):
         mock_login_instance = MagicMock()
         mock_login.return_value = mock_login_instance

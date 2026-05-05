@@ -1,17 +1,11 @@
-"""
-
-main_api = AllAPIS(lang='en', family='wikipedia', username='your_username', password='your_password')
-page = main_api.MainPage('Main Page Title')
-cat_members = main_api.CatDepth('Category Title')
-new_api = main_api.NewApi()
-"""
+""" """
 
 import logging
 
-from ..api_client.client import WikiLoginClient
+from ..api_client import WikiLoginClient
 from ..super.S_API import bot_api
-from ..super.S_Category import catdepth_new
-from ..super.S_Page import super_page
+from .categories import catdepth_new
+from .pages import super_page
 
 logger = logging.getLogger(__name__)
 

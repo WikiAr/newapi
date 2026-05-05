@@ -5,10 +5,9 @@ from .super.S_API.bot import BotsAPIS
 """
 
 import logging
-import sys
 
-from ...api_utils.ask_bot import AskBot
-from ..handel_errors import HandelErrors
+from ...client_wiki.api_utils.ask_bot import AskBot
+from ...client_wiki.api_utils.handel_errors import HandleErrors
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ yes_answer = ["y", "a", "", "Y", "A", "all", "aaa"]
 file_name = "bot_api.py"
 
 
-class BotsAPIS(HandelErrors, AskBot):
+class BotsAPIS(HandleErrors, AskBot):
     def __init__(self):
         # print("class BotsAPIS:")
         # ---
@@ -80,7 +79,7 @@ class BotsAPIS(HandelErrors, AskBot):
         # ---
         if error != {}:
             print(results)
-            er = self.handel_err(error, function="Add_To_Bottom", params=params)
+            er = self.handle_err(error, function="Add_To_Bottom", params=params)
             # ---
             return er
         # ---
