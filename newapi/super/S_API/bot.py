@@ -5,7 +5,6 @@ from .super.S_API.bot import BotsAPIS
 """
 
 import logging
-import sys
 
 from ...client_wiki.api_utils.ask_bot import AskBot
 from ...client_wiki.api_utils.handel_errors import HandleErrors

@@ -8,9 +8,9 @@ import wikitextparser as wtp
 from ...api_client import WikiLoginClient
 from ...client_wiki.api_utils.handel_errors import HandleErrors
 from ...config import settings
-from ..api_utils.botEdit import bot_May_Edit
 from ..api_utils import txtlib
 from ..api_utils.ask_bot import AskBot
+from ..api_utils.botEdit import bot_May_Edit
 from ..api_utils.lang_codes import change_codes
 from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, TemplateData
 
