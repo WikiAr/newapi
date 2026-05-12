@@ -9,9 +9,9 @@ from datetime import timedelta
 import tqdm
 
 from ...api_client import WikiLoginClient
-from ...client_wiki.api_utils.lang_codes import change_codes
 from ...client_wiki.api_utils.ask_bot import AskBot
 from ...client_wiki.api_utils.handel_errors import HandleErrors
+from ...client_wiki.api_utils.lang_codes import change_codes
 
 logger = logging.getLogger(__name__)
 
