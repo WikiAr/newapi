@@ -56,7 +56,7 @@ class NewApi(HandleErrors, AskBot):
             # ---
             # if get_redirect: params["redirects"] = 1
             # ---
-            json1 = self.login_bot.client_request_safe(params)
+            json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
                 if not noprint:
@@ -138,7 +138,7 @@ class NewApi(HandleErrors, AskBot):
             if get_redirect:
                 params["redirects"] = 1
             # ---
-            json1 = self.login_bot.client_request_safe(params)
+            json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
                 if not noprint:
@@ -560,7 +560,7 @@ class NewApi(HandleErrors, AskBot):
             # ---
             # logger.debug(f'work for {len(group)} pages')
             # ---
-            json1 = self.login_bot.client_request_safe(params)
+            json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
                 logger.info("bot_api. json1 is empty")
@@ -608,7 +608,7 @@ class NewApi(HandleErrors, AskBot):
             "formatversion": 2,
         }
         # ---
-        data = self.login_bot.client_request_safe(params)
+        data = self.login_bot.client_request_safe(params, method="post")
         # ---
         if not data:
             return []
@@ -788,7 +788,7 @@ class NewApi(HandleErrors, AskBot):
             "formatversion": "2",
         }
         # ---
-        results = self.login_bot.client_request_safe(params)
+        results = self.login_bot.client_request_safe(params, method="post")
         # ---
         if not results:
             return ""
@@ -820,7 +820,7 @@ class NewApi(HandleErrors, AskBot):
             "formatversion": "2",
         }
         # ---
-        results = self.login_bot.client_request_safe(params)
+        results = self.login_bot.client_request_safe(params, method="post")
         # ---
         if not results:
             return ""
