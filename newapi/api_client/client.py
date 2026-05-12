@@ -433,6 +433,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         logger.debug("Creating mwclient.Site for %s.%s", lang, family)
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
 
+        if self.api_url == "https://www.mdwiki.org/w/api.php":
+            self.api_url = "https://mdwiki.org/w/api.php"
+
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
         except Exception as exc:
