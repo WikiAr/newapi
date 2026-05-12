@@ -439,7 +439,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
         except Exception as exc:
-            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}") from exc
+            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}.org") from exc
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
@@ -614,7 +614,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         try:
             self._site.login(self.username, self._password)
         except mwclient.errors.LoginError as exc:
-            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
+            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}.org: {exc}") from exc
 
         if self._site.logged_in:
             logger.info(
