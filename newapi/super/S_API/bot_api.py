@@ -425,11 +425,11 @@ class NewApi(BotsAPIS):
         offset_hours=False,
     ):
         if three_houers:
-            dd = datetime.datetime.utcnow() - timedelta(hours=3)
+            dd = datetime.datetime.now(datetime.UTC) - timedelta(hours=3)
             rcstart = dd.strftime("%Y-%m-%dT%H:%M:00.000Z")
 
         elif offset_minutes and isinstance(offset_minutes, int):
-            dd = datetime.datetime.utcnow() - timedelta(minutes=offset_minutes)
+            dd = datetime.datetime.now(datetime.UTC) - timedelta(minutes=offset_minutes)
             rcstart = dd.strftime("%Y-%m-%dT%H:%M:00.000Z")
 
         params = {
