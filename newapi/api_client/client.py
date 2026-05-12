@@ -430,7 +430,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
 
         # ── mwclient Site ──────────────────────────────────────────────────
-        logger.debug("Creating mwclient.Site for %s.%s", lang, family)
+        logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
 
         if self.api_url == "https://www.mdwiki.org/w/api.php":
@@ -471,7 +471,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         Called by the base-class retry loop; never call directly.
         """
         logger.warning(
-            "assertnameduserfailed for %s on %s.%s — clearing cookies and re-logging in",
+            "assertnameduserfailed for %s on %s.%s.org — clearing cookies and re-logging in",
             self.username,
             self.lang,
             self.family,
@@ -618,7 +618,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
         if self._site.logged_in:
             logger.info(
-                "Logged in successfully as %s on %s.%s",
+                "Logged in successfully as %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
@@ -636,7 +636,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         if force or not self._site.logged_in:
             logger.info(
-                "Forcing re-login for %s on %s.%s",
+                "Forcing re-login for %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
