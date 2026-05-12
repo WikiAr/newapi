@@ -17,7 +17,6 @@ class TestAuthentication:
         """Test successful authentication"""
         params = {"action": "query", "titles": "Main Page", "format": "json"}
         mock_login_client.client_request.return_value = {"query": {"pages": {"1": {"title": "Main Page"}}}}
-        mock_login_client.client_request_safe.return_value = {"query": {"pages": {"1": {"title": "Main Page"}}}}
         response = mock_login_client.client_request(params, method="post")
         assert response is not None
         assert len(response) > 0
