@@ -257,7 +257,7 @@ class CategoryDepth:
             if continue_params:
                 params.update(continue_params)
 
-            api_data = self.login_bot.client_request(params, method="get")
+            api_data = self.login_bot.client_request_safe(params, method="get")
 
             if not api_data:
                 logger.info(f"api is False for {cac}")

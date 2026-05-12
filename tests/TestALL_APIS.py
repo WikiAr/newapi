@@ -26,7 +26,8 @@ def mock_dependencies():
 
 def test_all_apis_init(mock_dependencies):
     lang, family, username, password = "en", "wikipedia", "user", "pass"
-    api = AllAPIS(lang, family, username, password)
+    use_cookies = True
+    api = AllAPIS(lang, family, username, password, use_cookies)
 
     assert api.lang == lang
     assert api.family == family
@@ -34,7 +35,11 @@ def test_all_apis_init(mock_dependencies):
     assert api.password == password
 
     mock_dependencies["WikiLoginClient"].assert_called_once_with(
-        lang=lang, family=family, username=username, password=password
+        lang=lang,
+        family=family,
+        username=username,
+        password=password,
+        use_cookies=use_cookies,
     )
 
 

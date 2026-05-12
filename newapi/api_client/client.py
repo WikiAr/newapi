@@ -407,6 +407,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         username: str,
         password: str,
         cookies_dir: str | None = settings.paths.cookies_dir,
+        use_cookies: bool = True,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -426,22 +427,27 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self._password = password  # kept private — never log or expose this
 
         # ── Cookie path ────────────────────────────────────────────────────
-
-        self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
-
+        self._cookie_path = None
+        self.use_cookies = use_cookies
         # ── mwclient Site ──────────────────────────────────────────────────
-        logger.debug("Creating mwclient.Site for %s.%s", lang, family)
+        logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
+
+        if self.api_url == "https://www.mdwiki.org/w/api.php":
+            self.api_url = "https://mdwiki.org/w/api.php"
 
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
         except Exception as exc:
-            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}") from exc
+            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}.org") from exc
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
-        self.cj = self._make_cookiejar(self._cookie_path)
-        self._site.connection.cookies = self.cj
+        self.cj = None
+        if self.use_cookies:
+            self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
+            self.cj = self._make_cookiejar(self._cookie_path)
+            self._site.connection.cookies = self.cj
 
         # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
         # wrap_session(self._site.connection, self._site)
@@ -468,12 +474,13 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         Called by the base-class retry loop; never call directly.
         """
         logger.warning(
-            "assertnameduserfailed for %s on %s.%s — clearing cookies and re-logging in",
+            "assertnameduserfailed for %s on %s.%s.org — clearing cookies and re-logging in",
             self.username,
             self.lang,
             self.family,
         )
-        _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
+        if self.use_cookies:
+            _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
         self._do_login()
 
     # ------------------------------------------------------------------
@@ -561,14 +568,16 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if getattr(self._site, "logged_in", None):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
-        if self._cookie_path.exists():
-            try:
-                self._site.site_init()
-                if self._site.logged_in:
-                    logger.info("Revived session via cookies as %s", self._site.username)
-                    return
-            except Exception:
-                logger.exception("Error in site_init")
+
+        if self.use_cookies:
+            if self._cookie_path.exists():
+                try:
+                    self._site.site_init()
+                    if self._site.logged_in:
+                        logger.info("Revived session via cookies as %s", self._site.username)
+                        return
+                except Exception:
+                    logger.exception("Error in site_init")
 
         # if not self._site.logged_in: self._do_login()
         # don't login yet, user can use login() method
@@ -611,16 +620,17 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         try:
             self._site.login(self.username, self._password)
         except mwclient.errors.LoginError as exc:
-            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
+            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}.org: {exc}") from exc
 
         if self._site.logged_in:
             logger.info(
-                "Logged in successfully as %s on %s.%s",
+                "Logged in successfully as %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
             )
-            self.save_cookies(self.cj)
+            if self.use_cookies:
+                self.save_cookies(self.cj)
 
     # ── Public methods ─────────────────────────────────────────────────────
 
@@ -633,7 +643,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         """
         if force or not self._site.logged_in:
             logger.info(
-                "Forcing re-login for %s on %s.%s",
+                "Forcing re-login for %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
@@ -803,7 +813,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 logger.debug("Applying continue_params: %s", continue_params)
                 page_params.update(continue_params)
 
-            body = self.client_request(page_params)
+            body = self.client_request_safe(page_params)
 
             if not body:
                 logger.debug("empty response, stopping")
