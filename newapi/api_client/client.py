@@ -407,6 +407,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         username: str,
         password: str,
         cookies_dir: str | None = settings.paths.cookies_dir,
+        use_cookies: bool = True,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -426,9 +427,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self._password = password  # kept private — never log or expose this
 
         # ── Cookie path ────────────────────────────────────────────────────
-
-        self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
-
+        self._cookie_path = None
+        self.use_cookies = use_cookies
         # ── mwclient Site ──────────────────────────────────────────────────
         logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
         self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
@@ -443,8 +443,11 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
-        self.cj = self._make_cookiejar(self._cookie_path)
-        self._site.connection.cookies = self.cj
+        self.cj = None
+        if self.use_cookies:
+            self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
+            self.cj = self._make_cookiejar(self._cookie_path)
+            self._site.connection.cookies = self.cj
 
         # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
         # wrap_session(self._site.connection, self._site)
@@ -476,7 +479,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             self.lang,
             self.family,
         )
-        _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
+        if self.use_cookies:
+            _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
         self._do_login()
 
     # ------------------------------------------------------------------
@@ -564,14 +568,16 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if getattr(self._site, "logged_in", None):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
-        if self._cookie_path.exists():
-            try:
-                self._site.site_init()
-                if self._site.logged_in:
-                    logger.info("Revived session via cookies as %s", self._site.username)
-                    return
-            except Exception:
-                logger.exception("Error in site_init")
+
+        if self.use_cookies:
+            if self._cookie_path.exists():
+                try:
+                    self._site.site_init()
+                    if self._site.logged_in:
+                        logger.info("Revived session via cookies as %s", self._site.username)
+                        return
+                except Exception:
+                    logger.exception("Error in site_init")
 
         # if not self._site.logged_in: self._do_login()
         # don't login yet, user can use login() method
@@ -623,7 +629,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 self.lang,
                 self.family,
             )
-            self.save_cookies(self.cj)
+            if self.use_cookies:
+                self.save_cookies(self.cj)
 
     # ── Public methods ─────────────────────────────────────────────────────
 
