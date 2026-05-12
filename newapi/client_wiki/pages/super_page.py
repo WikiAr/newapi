@@ -717,7 +717,7 @@ class MainPage(HandleErrors, AskBot):
 
         # params['basetimestamp'] = self.revisions_data.timestamp
 
-        pop = self.login_bot.client_request_safe(params)
+        pop = self.login_bot.client_request_safe(params, method="post")
 
         if not pop:
             return False
