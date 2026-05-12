@@ -21,11 +21,19 @@ class AllAPIS:
         new_api = main_api.NewApi()
     """
 
-    def __init__(self, lang: str, family: str, username: str, password: str) -> None:
+    def __init__(
+        self,
+        lang: str,
+        family: str,
+        username: str,
+        password: str,
+        use_cookies: bool = True,
+    ) -> None:
         self.lang = lang
         self.family = family
         self.username = username
         self.password = password
+        self.use_cookies = use_cookies
         self.login_bot = self._login()
 
     def MainPage(self, title: str, *args, **kwargs) -> super_page.MainPage:
@@ -44,6 +52,7 @@ class AllAPIS:
             family=self.family,
             username=self.username,
             password=self.password,
+            use_cookies=self.use_cookies,
         )
         return client
 
