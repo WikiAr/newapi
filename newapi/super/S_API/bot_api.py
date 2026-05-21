@@ -216,7 +216,7 @@ class NewApi(HandleErrors, AskBot):
         apfilterredir="",
         ppprop="",
         limit_all=100000,
-    ):
+    ) -> list[str]:
         # ---
         logger.debug(
             f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}"

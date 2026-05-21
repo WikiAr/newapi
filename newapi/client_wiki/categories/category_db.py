@@ -296,8 +296,8 @@ class CategoryDepth:
 
         self.result_table[x] = tab
 
-    def subcatquery_(self) -> dict:
-        logger.info(f"starting subcatquery for {self.title}, depth={self.depth}")
+    def subcatquery_(self) -> dict[str, dict]:
+        logger.debug(f"starting subcatquery for {self.title}, depth={self.depth}")
         tablemember = self.get_cat_new(self.title)
 
         for x, zz in tablemember.items():
@@ -317,7 +317,7 @@ class CategoryDepth:
                 break
 
             depth_done += 1
-            logger.info(f"depth {depth_done}/{self.depth}: {len(new_list)} subcategories to process")
+            logger.debug(f"depth {depth_done}/{self.depth}: {len(new_list)} subcategories to process")
 
             for cat in tqdm(new_list):
                 table2 = self.get_cat_new(cat)
@@ -333,5 +333,5 @@ class CategoryDepth:
             soro = sorted(self.result_table.items(), key=lambda item: self.timestamps.get(item[0], 0), reverse=True)
             self.result_table = dict(soro)
 
-        logger.debug(f"subcatquery done: {len(self.result_table)} total results")
+        logger.info(f"{self.title=}, {self.depth}, {len(self.result_table)} total results")
         return self.result_table
