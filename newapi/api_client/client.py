@@ -57,6 +57,12 @@ from .exceptions import (
 logger = logging.getLogger(__name__)
 
 
+skip_log_params = [
+    "token",
+    "password",
+    "lgpassword",
+    "text",
+]
 # ---------------------------------------------------------------------------
 # RequestsHandler — transport + retry layer
 # ---------------------------------------------------------------------------
@@ -541,7 +547,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             method.upper(),
             self.api_url,
             # Never log token values
-            {k: ("***" if k == "token" else v) for k, v in params.items()},
+            {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
         action = params.get("action")

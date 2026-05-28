@@ -58,12 +58,12 @@ def subcatquery(login_bot, title: str, sitecode: str = SITECODE, family: str = F
             f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
         )
 
-    logger.info(f"starting subcategory query: {sitecode}:{title}")
+    # logger.debug(f"starting subcategory query: {sitecode}:{title}")
     bot = CategoryDepth(login_bot, title, **kwargs)
-    result = bot.subcatquery_()
+    result: dict[str, dict] = bot.subcatquery_()
 
     if get_revids:
-        result = bot.get_revids()
+        result: dict[str, int] = bot.get_revids()
 
     if print_s:
         lenpages = bot.get_len_pages()
