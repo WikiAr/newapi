@@ -1,8 +1,23 @@
-Python module for Wikimedia API:
+Python library for automated bot operations on MediaWiki projects (Wikipedia, Wikidata). Provides authenticated API access, page reading/editing/creation, recursive category traversal, Wikidata SPARQL queries, and local database storage. Used as a dependency by other bot repositories in this ecosystem.
+
+## Shared Infrastructure
+
+`newapi_bot` is the core API layer consumed by other repos in the ecosystem. Shared modules are hosted at [`shared/`](https://github.com/MrIbrahem/arwiki_shared):
+
+| Consumer   | Import                                  |
+| ---------- | --------------------------------------- |
+| `core1`    | `from newapi import AllAPIS`            |
+| `asa_core` | `from newapi.page import load_main_api` |
+| `core_cat` | `from newapi import ...`                |
+| `master2`  | `from newapi import ...`                |
+| `wd_core`  | `from newapi import ...`                |
+
+---
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WikiAr/newapi)
 
-----
+---
+
 # Usage
 
 The recommended way to use the library is via the `ALL_APIS` class, which serves as the central entry point. It handles authentication, session management, and configuration for you.
@@ -24,13 +39,13 @@ api = ALL_APIS(
 
 ## MainPage
 
-The ````MainPage```` class is a core component of the newapi framework that provides a high-level interface for interacting with individual wiki pages. Use the `api` instance to create page objects.
+The `MainPage` class is a core component of the newapi framework that provides a high-level interface for interacting with individual wiki pages. Use the `api` instance to create page objects.
 
 For general API operations that don't target specific pages, see NEW_API. For category-specific operations, see CatDepth.
 
 See [Doc/MainPage.md](Doc/MainPage.md)
 
-```` python
+```python
 # Create a MainPage instance using the initialized API
 # Language and family are inherited from the api instance
 page = api.MainPage("Earth")
@@ -51,14 +66,15 @@ if page.exists():
     links = page.page_links()
     word_count = page.get_words()
 
-````
+```
 
 ## CatDepth
+
 The CategoryDepth system provides functionality for traversing MediaWiki categories and retrieving category members recursively.
 
 See [Doc/CatDepth.md](Doc/CatDepth.md)
 
-```` python
+```python
 # Get members of a category using the api instance
 cat_members = api.CatDepth("Living people")
 
@@ -66,14 +82,15 @@ cat_members = api.CatDepth("Living people")
 print(f"Found {len(cat_members)} members")
 for title, info in cat_members.items():
     print(f"Title: {title}, NS: {info.get('ns')}")
-````
+```
 
 ## NEW_API
+
 The NEW_API class provides a robust, high-level interface to the MediaWiki API, abstracting away the complexities of direct API interaction.
 
 See [Doc/NEW_API.md](Doc/NEW_API.md)
 
-```` python
+```python
 # Access the API interface via your initialized instance
 api_new = api.NEW_API()
 
@@ -93,13 +110,15 @@ detailed_results = api_new.Search(
     addparams={"srinfo": "totalhits"}
 )
 
-````
+```
 
-----
+---
+
 # newapi.wd_sparql Module:
+
 See [Doc/wd_sparql.md](Doc/wd_sparql.md)
 
-```` python
+```python
 from newapi.wd_sparql import get_query_result
 
 # Query for items with English label containing "python"
@@ -116,16 +135,18 @@ LIMIT 10
 results = get_query_result(query)
 for result in results:
     print(f"Item: {result['itemLabel']['value']}")
-````
+```
+
 # newapi.db_bot Module:
+
 The LiteDB class in db_bot.py provides a wrapper around SQLite operations, offering:
 
-- Table creation and management
-- Data insertion and querying
-- Schema introspection
-See [Doc/db_bot.md](Doc/db_bot.md)
+-   Table creation and management
+-   Data insertion and querying
+-   Schema introspection
+    See [Doc/db_bot.md](Doc/db_bot.md)
 
-```` python
+```python
 from newapi.db_bot import LiteDB
 
 # Initialize database
@@ -148,14 +169,15 @@ db.insert("page_cache", {
 # Query data
 results = db.select("page_cache", {"title": "Example Page"})
 
-````
+```
 
 # newapi.pymysql_bot Module:
+
 The pymysql_bot module provides functions for connecting to MySQL databases and executing queries:
 
 See [Doc/pymysql_bot.md](Doc/pymysql_bot.md)
 
-```` python
+```python
 from newapi import pymysql_bot
 
 # Execute query
@@ -184,14 +206,13 @@ dict_results = pymysql_bot.sql_connect_pymysql(
         "database": "wiki_db"
     }
 )
-````
-
-
+```
 
 # Combined Examples for Real-World Tasks
 
 ## Finding Uncategorized Articles
-```` python
+
+```python
 from newapi import ALL_APIS
 
 # Initialize API
@@ -215,10 +236,11 @@ for page_info in uncategorized:
         # ... logic to determine appropriate categories ...
         new_text = text + "\n[[Category:Appropriate Category]]"
         page.save(newtext=new_text, summary="Added missing category")
-````
+```
 
 ## Updating Interlanguage Links
-```` python
+
+```python
 from newapi import ALL_APIS
 
 # Initialize API
@@ -240,11 +262,11 @@ for title in category_members:
         search_results = api_es.Search(value=title, ns="0", srlimit="1")
         if search_results:
             print(f"Possible match for {title}: {search_results[0]} (es)")
-````
+```
 
 ## Batch Processing Template Changes
 
-```` python
+```python
 from newapi import ALL_APIS
 
 # Initialize API
@@ -267,4 +289,4 @@ for title in template_pages:
 
         if new_text != text:
             page.save(newtext=new_text, summary="Updated outdated template to update template with date")
-````
+```

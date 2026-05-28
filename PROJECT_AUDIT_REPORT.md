@@ -353,3 +353,21 @@ These are crash bugs and security vulnerabilities that must be fixed before any 
 5. **Month 3+**: Long-term strategic refactoring -- exception unification, rate limiting, async support.
 
 The codebase has a solid architectural foundation and comprehensive API coverage. The issues are fixable. The priority is stabilizing the crash bugs and security vulnerabilities, then systematically reducing technical debt through the roadmap above.
+
+---
+
+## Shared Module Dependencies
+
+`newapi_bot` is **independent shared infrastructure** — it does not import from `shared/`. Instead, it **provides** the core API layer consumed by other repos:
+
+| Consumer | Import |
+|----------|--------|
+| `core1` | `from newapi import AllAPIS`, `from newapi.page import load_main_api` |
+| `asa_core` | `from newapi.page import load_main_api` |
+| `core_cat` | `from newapi import ...` |
+| `master2` | `from newapi import ...` |
+| `wd_core` | `from newapi import ...` |
+
+The `AllAPIS` facade in `newapi/client_wiki/all_apis.py` is the primary entry point. The deprecated `newapi.page.load_main_api()` still exists for backwards compatibility.
+
+Note: `shared/` contains a parallel `api_page` module that wraps `newapi` with `lru_cache`. Some repos use `shared/api_page` while others import `newapi` directly.
