@@ -24,7 +24,7 @@ BOT_USERNAME = "Mr.Ibrahembot"
 Bot_Cache = {}
 
 
-def _handle_nobots_template(params, title_page, botjob, _template):
+def _handle_nobots_template(params, title_page, botjob, _template) -> bool:
     """Handle nobots template logic."""
     # {{nobots}}                منع جميع البوتات
     # منع جميع البوتات

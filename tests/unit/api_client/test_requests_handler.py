@@ -10,7 +10,7 @@ from newapi.api_client.client import WikiLoginClient
 from newapi.api_client.exceptions import CSRFError, MaxlagError, WikiClientError
 
 
-def _make_client(lang="en", family="wikipedia", username="MyBot", password="pass"):
+def _make_client(lang: str = "en", family: str = "wikipedia", username: str = "MyBot", password: str = "pass"):
     """Create a WikiLoginClient with all external dependencies mocked."""
     with (
         patch("newapi.api_client.client.mwclient.Site") as mock_site,
@@ -30,7 +30,7 @@ def _make_client(lang="en", family="wikipedia", username="MyBot", password="pass
 class TestNonJsonResponse:
     """Tests for non-JSON response handling."""
 
-    def test_non_json_content_type_returns_empty_dict(self):
+    def test_non_json_content_type_returns_empty_dict(self) -> None:
         client, site = _make_client()
         response = MagicMock()
         response.raise_for_status = MagicMock()
@@ -45,7 +45,7 @@ class TestNonJsonResponse:
 class TestJsonParsingError:
     """Tests for JSON parsing error handling."""
 
-    def test_json_parse_failure_returns_empty_dict(self):
+    def test_json_parse_failure_returns_empty_dict(self) -> None:
         client, site = _make_client()
         response = MagicMock()
         response.raise_for_status = MagicMock()
@@ -60,7 +60,7 @@ class TestJsonParsingError:
 class TestMaxlagHandling:
     """Tests for maxlag error handling."""
 
-    def test_maxlag_error_retries_and_succeeds(self):
+    def test_maxlag_error_retries_and_succeeds(self) -> None:
         client, site = _make_client()
         maxlag_response = MagicMock()
         maxlag_response.raise_for_status = MagicMock()
@@ -78,7 +78,7 @@ class TestMaxlagHandling:
             result = client.client_request_retry({"action": "query"}, method="get")
             assert "query" in result
 
-    def test_maxlag_exhausted_retries_raises_maxlag_error(self):
+    def test_maxlag_exhausted_retries_raises_maxlag_error(self) -> None:
         client, site = _make_client()
         maxlag_response = MagicMock()
         maxlag_response.raise_for_status = MagicMock()
@@ -94,7 +94,7 @@ class TestMaxlagHandling:
 class TestCSRFErrorHandling:
     """Tests for CSRF token error handling."""
 
-    def test_csrf_error_refreshes_token_and_retries(self):
+    def test_csrf_error_refreshes_token_and_retries(self) -> None:
         client, site = _make_client()
 
         csrf_error_response = MagicMock()
@@ -117,7 +117,7 @@ class TestCSRFErrorHandling:
 class TestAssertNamedUserFailed:
     """Tests for assertnameduserfailed recovery."""
 
-    def test_assertnameduserfailed_recovery_succeeds(self):
+    def test_assertnameduserfailed_recovery_succeeds(self) -> None:
         client, site = _make_client()
 
         assert_failed_response = MagicMock()
@@ -143,7 +143,7 @@ class TestOnAssertNamedUserFailed:
     """Tests for _on_assertnameduserfailed method."""
 
     @patch("newapi.api_client.client._delete_cookie_file")
-    def test_on_assertnameduserfailed_clears_cookies_and_relogs(self, mock_delete):
+    def test_on_assertnameduserfailed_clears_cookies_and_relogs(self, mock_delete) -> None:
         client, site = _make_client()
         site.login = MagicMock()
 
@@ -157,7 +157,7 @@ class TestLoginForced:
     """Tests for login method with force=True."""
 
     @patch.object(WikiLoginClient, "_do_login")
-    def test_login_force_calls_do_login_when_not_logged_in(self, mock_do_login):
+    def test_login_force_calls_do_login_when_not_logged_in(self, mock_do_login) -> None:
         client, site = _make_client()
         site.logged_in = False
 
@@ -169,7 +169,7 @@ class TestLoginForced:
 class TestHandleMaxlag:
     """Tests for _handle_maxlag method."""
 
-    def test_handle_maxlag_with_retry_after_header(self):
+    def test_handle_maxlag_with_retry_after_header(self) -> None:
         client, _ = _make_client()
         response = MagicMock()
         response.headers = {"Retry-After": "3"}
@@ -178,7 +178,7 @@ class TestHandleMaxlag:
             client._handle_maxlag(response, 1)
             mock_sleep.assert_called_with(3.0)
 
-    def test_handle_maxlag_with_invalid_retry_after_uses_backoff(self):
+    def test_handle_maxlag_with_invalid_retry_after_uses_backoff(self) -> None:
         client, _ = _make_client()
         response = MagicMock()
         response.headers = {"Retry-After": "not_a_number"}
@@ -190,7 +190,7 @@ class TestHandleMaxlag:
                 client._handle_maxlag(response, 1)
                 mock_sleep.assert_called_with(2.0)  # 1 * 2^1
 
-    def test_handle_maxlag_no_retry_after_uses_backoff(self):
+    def test_handle_maxlag_no_retry_after_uses_backoff(self) -> None:
         client, _ = _make_client()
         response = MagicMock()
         response.headers = {}
@@ -206,19 +206,19 @@ class TestHandleMaxlag:
 class TestInjectToken:
     """Tests for _inject_token static method."""
 
-    def test_inject_token_into_data(self):
+    def test_inject_token_into_data(self) -> None:
         from newapi.api_client.client import RequestsHandler
 
         data, params = RequestsHandler._inject_token("new_token", {"token": "old"}, {})
         assert data["token"] == "new_token"
 
-    def test_inject_token_into_params(self):
+    def test_inject_token_into_params(self) -> None:
         from newapi.api_client.client import RequestsHandler
 
         data, params = RequestsHandler._inject_token("new_token", {}, {"token": "old"})
         assert params["token"] == "new_token"
 
-    def test_inject_token_no_existing_token(self):
+    def test_inject_token_no_existing_token(self) -> None:
         from newapi.api_client.client import RequestsHandler
 
         data, params = RequestsHandler._inject_token("new_token", {}, {})
@@ -230,7 +230,7 @@ class TestInjectToken:
 class TestPostContinue:
     """Tests for post_continue method."""
 
-    def test_post_continue_single_page(self):
+    def test_post_continue_single_page(self) -> None:
         client, site = _make_client()
 
         response = MagicMock()
@@ -242,7 +242,7 @@ class TestPostContinue:
         result = client.post_continue({"action": "query"}, "query", p_empty={})
         assert result == {"1": {"title": "Test"}}
 
-    def test_post_continue_with_continuation(self):
+    def test_post_continue_with_continuation(self) -> None:
         client, site = _make_client()
 
         first_response = MagicMock()
@@ -265,7 +265,7 @@ class TestCookieLoading:
     """Tests for cookie loading error handling."""
 
     @patch("newapi.api_client.client.http.cookiejar.LWPCookieJar")
-    def test_make_cookiejar_loads_existing_cookies(self, mock_jar_class):
+    def test_make_cookiejar_loads_existing_cookies(self, mock_jar_class) -> None:
         from pathlib import Path
 
         from newapi.api_client.client import CookiesClient
@@ -284,7 +284,7 @@ class TestCookieSaving:
     """Tests for cookie saving error handling."""
 
     @patch("newapi.api_client.client.logger")
-    def test_save_cookies_failure_is_logged(self, mock_logger):
+    def test_save_cookies_failure_is_logged(self, mock_logger) -> None:
         from newapi.api_client.client import CookiesClient
 
         mock_cj = MagicMock()

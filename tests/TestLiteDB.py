@@ -18,7 +18,7 @@ class TestLiteDB:
         os.unlink(path)
 
     @pytest.mark.skip("TypeError: argument of type 'NoneType' is not iterable")
-    def test_create_table(self, temp_db):
+    def test_create_table(self, temp_db) -> None:
         """Test table creation"""
         fields = {"name": str, "age": int}
         temp_db.create_table("test_table", fields)
@@ -26,14 +26,14 @@ class TestLiteDB:
         # Verify table exists by checking table names
         assert "test_table" in tables
 
-    def test_create_table2(self, temp_db):
+    def test_create_table2(self, temp_db) -> None:
         """Test table creation"""
         fields = {"name": str, "age": int}
         temp_db.create_table("test_table2", fields)
         table_names = temp_db.db.table_names()
         assert "test_table2" in table_names
 
-    def test_insert_data(self, temp_db):
+    def test_insert_data(self, temp_db) -> None:
         """Test data insertion"""
         fields = {"name": str, "age": int}
         temp_db.create_table("test_table", fields)

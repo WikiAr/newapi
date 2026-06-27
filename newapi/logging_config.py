@@ -188,7 +188,7 @@ def setup_logging(
         file_logger(log_file_2, project_logger, logging.WARNING)
 
 
-def file_logger(log_file, project_logger, numeric_level):
+def file_logger(log_file, project_logger, numeric_level) -> None:
     file_formatter = logging.Formatter(
         fmt="%(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",

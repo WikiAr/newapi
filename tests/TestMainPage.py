@@ -45,22 +45,22 @@ class TestMainPage:
         }
         return MainPage(mock_bot, "وب:ملعب", "ar")
 
-    def test_page_exists(self, test_page):
+    def test_page_exists(self, test_page) -> None:
         """Test page existence check"""
         exists = test_page.exists()
         assert exists is True
 
-    def test_can_edit_permission(self, arabic_page):
+    def test_can_edit_permission(self, arabic_page) -> None:
         """Test edit permission check"""
         can_edit = arabic_page.can_edit()
         assert isinstance(can_edit, bool)
 
-    def test_get_text(self, arabic_page):
+    def test_get_text(self, arabic_page) -> None:
         """Test text retrieval"""
         text = arabic_page.get_text()
         assert len(text) >= 0, "Text should be retrievable"
 
-    def test_nonexistent_page(self, mock_login_bot):
+    def test_nonexistent_page(self, mock_login_bot) -> None:
         """Test behavior with non-existent page"""
         mock_login_bot.client_request_safe.return_value = {
             "query": {"pages": {"-1": {"title": "NonExistentPage12345", "missing": ""}}}
@@ -69,10 +69,10 @@ class TestMainPage:
         assert page.exists() is False
         assert isinstance(page.get_text(), str)
 
-    def test_empty_page_content(self):
+    def test_empty_page_content(self) -> None:
         """Test page with empty content"""
 
-    def test_page_without_edit_permission(self, mock_login_bot):
+    def test_page_without_edit_permission(self, mock_login_bot) -> None:
         """Test page where user cannot edit"""
         mock_login_bot.client_request_safe.return_value = {
             "query": {
@@ -90,5 +90,5 @@ class TestMainPage:
         with patch("newapi.client_wiki.pages.super_page.bot_May_Edit", return_value=False):
             assert page.can_edit() is False
 
-    def test_page_title_validation(self):
+    def test_page_title_validation(self) -> None:
         """Test various page title formats"""

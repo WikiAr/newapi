@@ -17,7 +17,7 @@ from .data import CategoriesData, Content, LinksData, Meta, RevisionsData, Templ
 logger = logging.getLogger(__name__)
 
 
-def find_edit_error(old, new):
+def find_edit_error(old, new) -> bool:
     # Define the dictionary of conversion phrases
     conversion_phrases = {
         "#تحويل [[",
@@ -119,7 +119,7 @@ class MainPage(HandleErrors, AskBot):
 
         return False
 
-    def import_page(self, family="wikipedia"):
+    def import_page(self, family: str = "wikipedia"):
         """
         Imports the page from another wiki family using the MediaWiki API.
 
@@ -184,7 +184,7 @@ class MainPage(HandleErrors, AskBot):
 
         return self.meta.create_data
 
-    def get_text(self, redirects=False):
+    def get_text(self, redirects: bool = False):
         """
         Retrieves the current wikitext content and metadata for the page.
 
@@ -265,7 +265,7 @@ class MainPage(HandleErrors, AskBot):
             self.get_text()
         return self.meta.wikibase_item
 
-    def get_infos(self):
+    def get_infos(self) -> None:
         """
         Fetches and updates comprehensive metadata for the current page from the MediaWiki API.
 
@@ -484,7 +484,7 @@ class MainPage(HandleErrors, AskBot):
 
         return self.meta.is_disambig
 
-    def get_categories(self, with_hidden=False):
+    def get_categories(self, with_hidden: bool = False):
         # if not self.categories_data.categories: self.get_infos()
         if not self.meta.info["done"]:
             self.get_infos()
@@ -534,7 +534,7 @@ class MainPage(HandleErrors, AskBot):
 
         return wikilinks
 
-    def Get_tags(self, tag=""):
+    def Get_tags(self, tag: str = ""):
         if not self.text:
             self.text = self.get_text()
 
@@ -558,7 +558,7 @@ class MainPage(HandleErrors, AskBot):
 
         return new_tags
 
-    def can_edit(self, script="", delay=0):
+    def can_edit(self, script: str = "", delay: int = 0):
         if self.family != "wikipedia":
             return True
 
@@ -646,13 +646,13 @@ class MainPage(HandleErrors, AskBot):
 
     def save(
         self,
-        newtext="",
-        summary="",
-        nocreate=1,
-        minor="0",
-        tags="",
-        nodiff=False,
-        ask=False,
+        newtext: str = "",
+        summary: str = "",
+        nocreate: int = 1,
+        minor: str = "0",
+        tags: str = "",
+        nodiff: bool = False,
+        ask: bool = False,
     ) -> bool | str:
         """
         Saves new text to the page, updating its content and metadata.
@@ -787,10 +787,10 @@ class MainPage(HandleErrors, AskBot):
 
     def create(
         self,
-        text="",
-        summary="",
-        nodiff="",
-        noask=False,
+        text: str = "",
+        summary: str = "",
+        nodiff: str = "",
+        noask: bool = False,
     ) -> bool:
         """
         Creates a new page with the specified text and summary.
@@ -869,14 +869,14 @@ class MainPage(HandleErrors, AskBot):
 
     def Create(
         self,
-        text="",
-        summary="",
-        nodiff="",
-        noask=False,
+        text: str = "",
+        summary: str = "",
+        nodiff: str = "",
+        noask: bool = False,
     ) -> bool:
         return self.create(text=text, summary=summary, nodiff=nodiff, noask=noask)
 
-    def page_backlinks(self, ns=0):
+    def page_backlinks(self, ns: int = 0):
         params = {
             "action": "query",
             "maxlag": "3",
@@ -932,7 +932,7 @@ class MainPage(HandleErrors, AskBot):
 
         return self.links_data.links2
 
-    def page_links_query(self, plnamespace="*"):
+    def page_links_query(self, plnamespace: str = "*"):
         params = {
             "action": "query",
             "prop": "links",
@@ -997,11 +997,11 @@ class MainPage(HandleErrors, AskBot):
         self,
         params,
         action,
-        _p_="pages",
+        _p_: str = "pages",
         p_empty=None,
-        max=500000,
-        first=False,
-        _p_2="",
+        max: int = 500000,
+        first: bool = False,
+        _p_2: str = "",
         _p_2_empty=None,
         **kwargs,
     ):

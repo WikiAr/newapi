@@ -12,7 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def sql_connect_pymysql(
-    query, return_dict=False, values=None, main_args={}, credentials={}, conversions=None, many=False, **kwargs
+    query,
+    return_dict: bool = False,
+    values=None,
+    main_args={},
+    credentials={},
+    conversions=None,
+    many: bool = False,
+    **kwargs,
 ):
     args = copy.deepcopy(main_args)
     args["cursorclass"] = pymysql.cursors.DictCursor if return_dict else pymysql.cursors.Cursor

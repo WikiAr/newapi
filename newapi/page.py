@@ -45,7 +45,7 @@ def _load_credentials() -> tuple[str, str]:
 
 
 @functools.lru_cache(maxsize=1)
-def load_main_api(lang, family="wikipedia") -> AllAPIS:
+def load_main_api(lang, family: str = "wikipedia") -> AllAPIS:
     """
     Loads and returns an instance of AllAPIS for the specified language and family, using cached credentials.
     """
@@ -59,7 +59,7 @@ def load_main_api(lang, family="wikipedia") -> AllAPIS:
 
 
 # @deprecated(MainPage_DEPRECATION_WARNING)
-def MainPage(title, lang, family="wikipedia"):
+def MainPage(title, lang, family: str = "wikipedia"):
     # ---
     main_bot = load_main_api(lang, family)
     # ---
@@ -69,7 +69,7 @@ def MainPage(title, lang, family="wikipedia"):
 
 
 # @deprecated(CatDepth_DEPRECATION_WARNING)
-def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
+def CatDepth(title, sitecode: str = "", family: str = "wikipedia", **kwargs):
     # ---
     main_bot = load_main_api(sitecode, family)
     # ---
@@ -79,7 +79,7 @@ def CatDepth(title, sitecode="", family="wikipedia", **kwargs):
 
 
 # @deprecated(NEW_API_DEPRECATION_WARNING)
-def NewApi(lang="", family="wikipedia") -> bot_api.NewApi:
+def NewApi(lang: str = "", family: str = "wikipedia") -> bot_api.NewApi:
     main_bot = load_main_api(lang, family)
     return main_bot.NewApi()
 

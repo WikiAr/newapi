@@ -197,7 +197,7 @@ class WikiSiteInfo:
             return self.use
         raise KeyError(key)
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         """Support 'in' operator for backward compatibility."""
         return key in ("family", "code", "use", 1)
 
@@ -244,12 +244,12 @@ class Settings:
         """Check if the application is running in production mode."""
         return os.getenv("APP_ENV", "").lower() == "production"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Process command-line arguments and environment variables."""
         self._process_env_vars()
         self._process_argv()
 
-    def _process_env_vars(self):
+    def _process_env_vars(self) -> None:
         """Load configuration from environment variables."""
 
         # Wikidata config
@@ -288,7 +288,7 @@ class Settings:
         if os.getenv("LOG_LEVEL"):
             self.log_level = os.environ["LOG_LEVEL"]
 
-    def _process_argv(self):
+    def _process_argv(self) -> None:
         """Process command-line arguments for configuration overrides."""
         for arg in sys.argv:
             arg_name, _, value = arg.partition(":")

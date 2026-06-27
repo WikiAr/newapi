@@ -53,7 +53,7 @@ def process_python_file(path: Path) -> bool:
     return modified
 
 
-def process_directory(root: Path):
+def process_directory(root: Path) -> None:
     """
     Walk through all .py files and process them.
     """

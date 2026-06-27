@@ -47,7 +47,7 @@ def mock_wtp():
 def create_mock_template():
     """Factory fixture for creating mock templates."""
 
-    def _create_template(name, arguments=None):
+    def _create_template(name: str, arguments=None):
         mock_template = MagicMock()
         mock_template.normal_name.return_value = name
         mock_template.string = f"{{{{{name}}}}}"
@@ -98,25 +98,25 @@ def setup_parser(mock_wtp, create_mock_template):
 class TestBasicFunctionality:
     """Test basic functionality of is_bot_edit_allowed."""
 
-    def test_empty_text_allows_edit(self):
+    def test_empty_text_allows_edit(self) -> None:
         """Test that empty text allows bot editing."""
         result = is_bot_edit_allowed(text="", title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_plain_text_allows_edit(self):
+    def test_plain_text_allows_edit(self) -> None:
         """Test that plain text without templates allows bot editing."""
         text = "This is just plain text without any templates."
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_default_botjob_parameter(self):
+    def test_default_botjob_parameter(self) -> None:
         """Test that empty botjob defaults to 'all'."""
         text = "Plain text"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="")
         assert result is True
         assert "all" in Bot_Cache
 
-    def test_fixref_cat_stub_tempcat_portal_defaults_to_all(self):
+    def test_fixref_cat_stub_tempcat_portal_defaults_to_all(self) -> None:
         """Test that combined botjob string defaults to 'all'."""
         text = "Plain text"
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="fixref|cat|stub|tempcat|portal")
@@ -130,7 +130,7 @@ class TestBasicFunctionality:
 class TestCacheBehavior:
     """Test cache behavior and management."""
 
-    def test_cache_hit_returns_cached_value(self):
+    def test_cache_hit_returns_cached_value(self) -> None:
         """Test that cached results are returned on subsequent calls."""
         text = "Plain text"
         title = "Test Page"
@@ -146,7 +146,7 @@ class TestCacheBehavior:
         assert botjob in Bot_Cache
         assert title in Bot_Cache[botjob]
 
-    def test_cache_separate_for_different_botjobs(self):
+    def test_cache_separate_for_different_botjobs(self) -> None:
         """Test that cache is separate for different bot jobs."""
         text = "Plain text"
         title = "Test Page"
@@ -157,13 +157,13 @@ class TestCacheBehavior:
         assert "all" in Bot_Cache
         assert "cat" in Bot_Cache
 
-    def test_cache_structure_created_correctly(self):
+    def test_cache_structure_created_correctly(self) -> None:
         """Test that cache structure is created correctly for new botjobs."""
         is_bot_edit_allowed(text="", title_page="Page1", botjob="cat")
         assert "cat" in Bot_Cache
         assert isinstance(Bot_Cache["cat"], dict)
 
-    def test_multiple_pages_cached_separately(self):
+    def test_multiple_pages_cached_separately(self) -> None:
         """Test that different pages are cached separately."""
         is_bot_edit_allowed(text="", title_page="Page1", botjob="all")
         is_bot_edit_allowed(text="", title_page="Page2", botjob="all")
@@ -171,7 +171,7 @@ class TestCacheBehavior:
         assert "Page1" in Bot_Cache["all"]
         assert "Page2" in Bot_Cache["all"]
 
-    def test_cache_persists_across_calls(self):
+    def test_cache_persists_across_calls(self) -> None:
         """Test that cache persists across multiple function calls."""
         page = "Test Page"
         botjob = "all"
@@ -193,7 +193,7 @@ class TestCacheBehavior:
 class TestNobotsTemplate:
     """Test nobots template handling."""
 
-    def test_nobots_without_params_denies_edit(self, setup_parser):
+    def test_nobots_without_params_denies_edit(self, setup_parser) -> None:
         """Test that {{nobots}} without parameters denies editing."""
         setup_parser([{"name": "nobots", "arguments": None}])
 
@@ -201,7 +201,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_nobots_with_all_denies_edit(self, setup_parser):
+    def test_nobots_with_all_denies_edit(self, setup_parser) -> None:
         """Test that {{nobots|1=all}} denies editing."""
         setup_parser([{"name": "nobots", "arguments": {"1": "all"}}])
 
@@ -209,7 +209,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_nobots_with_specific_bot_denies_edit(self, setup_parser):
+    def test_nobots_with_specific_bot_denies_edit(self, setup_parser) -> None:
         """Test that {{nobots|1=Mr.Ibrahembot}} denies editing."""
         setup_parser([{"name": "nobots", "arguments": {"1": "Mr.Ibrahembot"}}])
 
@@ -217,7 +217,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_nobots_with_bot_list_including_our_bot_denies(self, setup_parser):
+    def test_nobots_with_bot_list_including_our_bot_denies(self, setup_parser) -> None:
         """Test that {{nobots|1=Bot1,Mr.Ibrahembot,Bot2}} denies editing."""
         setup_parser([{"name": "nobots", "arguments": {"1": "Bot1,Mr.Ibrahembot,Bot2"}}])
 
@@ -225,7 +225,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_nobots_with_other_bots_allows_edit(self, setup_parser):
+    def test_nobots_with_other_bots_allows_edit(self, setup_parser) -> None:
         """Test that {{nobots|1=OtherBot}} allows editing."""
         setup_parser([{"name": "nobots", "arguments": {"1": "OtherBot,AnotherBot"}}])
 
@@ -233,7 +233,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_nobots_case_insensitive(self, setup_parser):
+    def test_nobots_case_insensitive(self, setup_parser) -> None:
         """Test that nobots template matching is case insensitive."""
         setup_parser([{"name": "NoBots", "arguments": None}])
 
@@ -241,7 +241,7 @@ class TestNobotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_nobots_with_whitespace_in_bot_names(self, setup_parser):
+    def test_nobots_with_whitespace_in_bot_names(self, setup_parser) -> None:
         """Test handling of whitespace in bot name lists."""
         setup_parser([{"name": "nobots", "arguments": {"1": " Bot1 , Mr.Ibrahembot , Bot2 "}}])
 
@@ -256,7 +256,7 @@ class TestNobotsTemplate:
 class TestBotsTemplate:
     """Test bots template handling."""
 
-    def test_bots_without_params_denies_edit(self, setup_parser):
+    def test_bots_without_params_denies_edit(self, setup_parser) -> None:
         """Test that {{bots}} without parameters denies editing."""
         setup_parser([{"name": "bots", "arguments": None}])
 
@@ -264,7 +264,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_bots_allow_all_allows_edit(self, setup_parser):
+    def test_bots_allow_all_allows_edit(self, setup_parser) -> None:
         """Test that {{bots|allow=all}} allows editing."""
         setup_parser([{"name": "bots", "arguments": {"allow": "all"}}])
 
@@ -272,7 +272,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_bots_allow_specific_bot_allows_edit(self, setup_parser):
+    def test_bots_allow_specific_bot_allows_edit(self, setup_parser) -> None:
         """Test that {{bots|allow=Mr.Ibrahembot}} allows editing."""
         setup_parser([{"name": "bots", "arguments": {"allow": "Mr.Ibrahembot"}}])
 
@@ -280,7 +280,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_bots_allow_bot_list_including_our_bot_allows(self, setup_parser):
+    def test_bots_allow_bot_list_including_our_bot_allows(self, setup_parser) -> None:
         """Test that {{bots|allow=Bot1,Mr.Ibrahembot,Bot2}} allows editing."""
         setup_parser([{"name": "bots", "arguments": {"allow": "Bot1,Mr.Ibrahembot,Bot2"}}])
 
@@ -288,7 +288,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_bots_allow_none_denies_edit(self, setup_parser):
+    def test_bots_allow_none_denies_edit(self, setup_parser) -> None:
         """Test that {{bots|allow=none}} denies editing."""
         setup_parser([{"name": "bots", "arguments": {"allow": "none"}}])
 
@@ -296,7 +296,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_bots_allow_other_bots_denies_edit(self, setup_parser):
+    def test_bots_allow_other_bots_denies_edit(self, setup_parser) -> None:
         """Test that {{bots|allow=OtherBot}} denies editing."""
         setup_parser([{"name": "bots", "arguments": {"allow": "OtherBot,AnotherBot"}}])
 
@@ -304,7 +304,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_bots_deny_all_denies_edit(self, setup_parser):
+    def test_bots_deny_all_denies_edit(self, setup_parser) -> None:
         """Test that {{bots|deny=all}} denies editing."""
         setup_parser([{"name": "bots", "arguments": {"deny": "all"}}])
 
@@ -312,7 +312,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_bots_deny_specific_bot_denies_edit(self, setup_parser):
+    def test_bots_deny_specific_bot_denies_edit(self, setup_parser) -> None:
         """Test that {{bots|deny=Mr.Ibrahembot}} denies editing."""
         setup_parser([{"name": "bots", "arguments": {"deny": "Mr.Ibrahembot"}}])
 
@@ -320,7 +320,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_bots_deny_other_bots_allows_edit(self, setup_parser):
+    def test_bots_deny_other_bots_allows_edit(self, setup_parser) -> None:
         """Test that {{bots|deny=OtherBot}} allows editing."""
         setup_parser([{"name": "bots", "arguments": {"deny": "OtherBot,AnotherBot"}}])
 
@@ -328,7 +328,7 @@ class TestBotsTemplate:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_bots_case_insensitive(self, setup_parser):
+    def test_bots_case_insensitive(self, setup_parser) -> None:
         """Test that bots template matching is case insensitive."""
         setup_parser([{"name": "Bots", "arguments": {"allow": "all"}}])
 
@@ -344,7 +344,7 @@ class TestStopEditTemplates:
     """Test stop edit templates handling."""
 
     @pytest.mark.parametrize("template_name", STOP_EDIT_TEMPLATES["all"])
-    def test_global_stop_templates_deny_edit(self, template_name, setup_parser):
+    def test_global_stop_templates_deny_edit(self, template_name: str, setup_parser) -> None:
         """Test that global stop templates deny editing."""
         setup_parser([{"name": template_name, "arguments": None}])
 
@@ -352,7 +352,7 @@ class TestStopEditTemplates:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_specific_botjob_stop_template_denies_edit(self, setup_parser):
+    def test_specific_botjob_stop_template_denies_edit(self, setup_parser) -> None:
         """Test that job-specific stop templates deny editing."""
         # Test تعريب job with its specific template
         setup_parser([{"name": "لا للتعريب", "arguments": None}])
@@ -361,7 +361,7 @@ class TestStopEditTemplates:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="تعريب")
         assert result is False
 
-    def test_stop_template_for_different_botjob_allows_edit(self, setup_parser):
+    def test_stop_template_for_different_botjob_allows_edit(self, setup_parser) -> None:
         """Test that stop templates for different bot jobs allow editing."""
         # Template for تعريب job, but we're running cat job
         setup_parser([{"name": "لا للتعريب", "arguments": None}])
@@ -374,7 +374,7 @@ class TestStopEditTemplates:
         "botjob,template_list",
         [(job, templates) for job, templates in STOP_EDIT_TEMPLATES.items() if job != "all"],
     )
-    def test_all_stop_templates_for_each_botjob(self, botjob, template_list, setup_parser):
+    def test_all_stop_templates_for_each_botjob(self, botjob, template_list, setup_parser) -> None:
         """Test all stop templates for each specific bot job."""
         for template_name in template_list:
             Bot_Cache.clear()
@@ -391,7 +391,7 @@ class TestStopEditTemplates:
 class TestMultipleTemplates:
     """Test handling of multiple templates."""
 
-    def test_multiple_templates_first_restricting_denies(self, setup_parser):
+    def test_multiple_templates_first_restricting_denies(self, setup_parser) -> None:
         """Test that first restricting template denies editing."""
         setup_parser(
             [
@@ -404,7 +404,7 @@ class TestMultipleTemplates:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is False
 
-    def test_multiple_non_restricting_templates_allows(self, setup_parser):
+    def test_multiple_non_restricting_templates_allows(self, setup_parser) -> None:
         """Test that multiple non-restricting templates allow editing."""
         setup_parser(
             [
@@ -424,7 +424,7 @@ class TestMultipleTemplates:
 class TestEdgeCases:
     """Test edge cases and special conditions."""
 
-    def test_empty_template_parameters(self, setup_parser):
+    def test_empty_template_parameters(self, setup_parser) -> None:
         """Test handling of templates with empty parameter values."""
         setup_parser([{"name": "nobots", "arguments": {"1": ""}}])
 
@@ -433,7 +433,7 @@ class TestEdgeCases:
         # Empty params should be treated as no params
         assert result is False
 
-    def test_template_with_multiple_parameters(self, setup_parser):
+    def test_template_with_multiple_parameters(self, setup_parser) -> None:
         """Test template with multiple parameters."""
         setup_parser(
             [
@@ -448,7 +448,7 @@ class TestEdgeCases:
         result = is_bot_edit_allowed(text=text, title_page="Test Page", botjob="all")
         assert result is True
 
-    def test_parameter_filtering_empty_values(self, setup_parser):
+    def test_parameter_filtering_empty_values(self, setup_parser) -> None:
         """Test that parameters with empty values are filtered out."""
         setup_parser([{"name": "bots", "arguments": {"allow": "all", "empty_param": ""}}])
 
@@ -471,13 +471,13 @@ class TestParametrizedScenarios:
             ("Some content without templates", True),
         ],
     )
-    def test_non_template_text_allows_editing(self, text, expected):
+    def test_non_template_text_allows_editing(self, text: str, expected) -> None:
         """Test that non-template text allows editing."""
         result = is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
         assert result == expected
 
     @pytest.mark.parametrize("botjob", ["all", "cat", "stub", "portal", "fixref"])
-    def test_cache_initialized_for_different_botjobs(self, botjob):
+    def test_cache_initialized_for_different_botjobs(self, botjob) -> None:
         """Test that cache is initialized for different botjobs."""
         is_bot_edit_allowed(text="", title_page="Test", botjob=botjob)
         expected_job = "all" if botjob in ["", "fixref|cat|stub|tempcat|portal"] else botjob
@@ -493,7 +493,7 @@ class TestParametrizedScenarios:
             ("all", False),
         ],
     )
-    def test_nobots_with_various_bot_lists(self, bot_list, should_allow, setup_parser):
+    def test_nobots_with_various_bot_lists(self, bot_list, should_allow, setup_parser) -> None:
         """Test nobots template with various bot lists."""
         setup_parser([{"name": "nobots", "arguments": {"1": bot_list}}])
 
@@ -510,7 +510,7 @@ class TestParametrizedScenarios:
             ("OtherBot", False),
         ],
     )
-    def test_bots_allow_with_various_lists(self, allow_list, should_allow, setup_parser):
+    def test_bots_allow_with_various_lists(self, allow_list, should_allow, setup_parser) -> None:
         """Test bots allow parameter with various lists."""
         setup_parser([{"name": "bots", "arguments": {"allow": allow_list}}])
 
@@ -527,7 +527,7 @@ class TestParametrizedScenarios:
             ("Bot1,Bot2", True),
         ],
     )
-    def test_bots_deny_with_various_lists(self, deny_list, should_allow, setup_parser):
+    def test_bots_deny_with_various_lists(self, deny_list, should_allow, setup_parser) -> None:
         """Test bots deny parameter with various lists."""
         setup_parser([{"name": "bots", "arguments": {"deny": deny_list}}])
 
@@ -541,7 +541,7 @@ class TestParametrizedScenarios:
 class TestIntegration:
     """Integration tests for complete workflows."""
 
-    def test_complete_workflow_allowed(self, setup_parser):
+    def test_complete_workflow_allowed(self, setup_parser) -> None:
         """Test complete workflow where editing is allowed."""
         # Setup non-restricting template
         setup_parser([{"name": "infobox", "arguments": None}])
@@ -557,7 +557,7 @@ class TestIntegration:
         assert "Article" in Bot_Cache["all"]
         assert Bot_Cache["all"]["Article"] is True
 
-    def test_complete_workflow_denied(self, setup_parser):
+    def test_complete_workflow_denied(self, setup_parser) -> None:
         """Test complete workflow where editing is denied."""
         # Setup restricting template
         setup_parser([{"name": "nobots", "arguments": None}])
@@ -573,7 +573,7 @@ class TestIntegration:
         assert "Article" in Bot_Cache["all"]
         assert Bot_Cache["all"]["Article"] is False
 
-    def test_different_pages_different_results(self, setup_parser):
+    def test_different_pages_different_results(self, setup_parser) -> None:
         """Test that different pages can have different results."""
         # Page 1 - allowed
         setup_parser([{"name": "infobox", "arguments": None}])
@@ -595,7 +595,7 @@ class TestIntegration:
 class TestSpecialCases:
     """Test special cases and boundary conditions."""
 
-    def test_very_long_bot_list(self, setup_parser):
+    def test_very_long_bot_list(self, setup_parser) -> None:
         """Test handling of very long bot lists."""
         long_list = ",".join([f"Bot{i}" for i in range(100)])
         setup_parser([{"name": "nobots", "arguments": {"1": long_list}}])
@@ -603,14 +603,14 @@ class TestSpecialCases:
         result = is_bot_edit_allowed(text="{{nobots}}", title_page="Test", botjob="all")
         assert result is True  # Our bot not in the list
 
-    def test_unicode_bot_names(self, setup_parser):
+    def test_unicode_bot_names(self, setup_parser) -> None:
         """Test handling of unicode characters in bot names."""
         setup_parser([{"name": "nobots", "arguments": {"1": "بوت1,بوت2"}}])
 
         result = is_bot_edit_allowed(text="{{nobots}}", title_page="Test", botjob="all")
         assert result is True  # Our bot not in the list
 
-    def test_mixed_case_template_names(self, setup_parser):
+    def test_mixed_case_template_names(self, setup_parser) -> None:
         """Test that template name matching works with mixed case."""
         for name in ["nobots", "Nobots", "NOBOTS", "nObOtS"]:
             Bot_Cache.clear()
@@ -626,16 +626,16 @@ class TestSpecialCases:
 class TestSmokeTests:
     """Quick smoke tests for CI/CD."""
 
-    def test_basic_allow(self):
+    def test_basic_allow(self) -> None:
         """Basic allow scenario."""
         assert is_bot_edit_allowed("", "Test", "all") is True
 
-    def test_basic_deny(self, setup_parser):
+    def test_basic_deny(self, setup_parser) -> None:
         """Basic deny scenario."""
         setup_parser([{"name": "nobots", "arguments": None}])
         assert is_bot_edit_allowed("{{nobots}}", "Test", "all") is False
 
-    def test_cache_works(self):
+    def test_cache_works(self) -> None:
         """Cache functionality works."""
         is_bot_edit_allowed("", "Test", "all")
         assert "all" in Bot_Cache

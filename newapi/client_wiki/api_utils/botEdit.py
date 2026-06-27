@@ -12,7 +12,7 @@ def bot_May_Edit(
     text: str = "",
     title_page: str = "",
     botjob: str = "all",
-    page=False,
+    page: bool = False,
     delay: int = 0,
 ) -> bool:
     """

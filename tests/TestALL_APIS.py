@@ -24,7 +24,7 @@ def mock_dependencies():
         }
 
 
-def test_all_apis_init(mock_dependencies):
+def test_all_apis_init(mock_dependencies) -> None:
     lang, family, username, password = "en", "wikipedia", "user", "pass"
     use_cookies = True
     api = AllAPIS(lang, family, username, password, use_cookies)
@@ -43,7 +43,7 @@ def test_all_apis_init(mock_dependencies):
     )
 
 
-def test_all_apis_main_page(mock_dependencies):
+def test_all_apis_main_page(mock_dependencies) -> None:
     api = AllAPIS("en", "wikipedia", "user", "pass")
     title = "Test Page"
 
@@ -54,7 +54,7 @@ def test_all_apis_main_page(mock_dependencies):
     )
 
 
-def test_all_apis_cat_depth(mock_dependencies):
+def test_all_apis_cat_depth(mock_dependencies) -> None:
     api = AllAPIS("en", "wikipedia", "user", "pass")
     title = "Category:Test"
 
@@ -69,7 +69,7 @@ def test_all_apis_cat_depth(mock_dependencies):
     )
 
 
-def test_all_apis_new_api(mock_dependencies):
+def test_all_apis_new_api(mock_dependencies) -> None:
     api = AllAPIS("en", "wikipedia", "user", "pass")
 
     api.NewApi()

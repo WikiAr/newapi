@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=512)
-def extract_templates_and_params(text):
+def extract_templates_and_params(text: str):
     # ---
     result = []
     # ---
@@ -49,7 +49,7 @@ def extract_templates_and_params(text):
     return result
 
 
-def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_temps=False):
+def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: bool = False, get_all_temps: bool = False):
     ingr = extract_templates_and_params(text)
     # ---
     temps = templates
@@ -87,7 +87,7 @@ def get_one_temp_params(text, tempname="", templates=[], lowers=False, get_all_t
     return named
 
 
-def get_all_temps_params(text, templates=None, lowers=False):
+def get_all_temps_params(text: str, templates=None, lowers: bool = False):
     # ---
     if templates is None:
         templates = []

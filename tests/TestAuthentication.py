@@ -13,7 +13,7 @@ def mock_requests(mocker):
 
 class TestAuthentication:
 
-    def test_successful_login(self, mock_login_client: WikiLoginClient):
+    def test_successful_login(self, mock_login_client: WikiLoginClient) -> None:
         """Test successful authentication"""
         params = {"action": "query", "titles": "Main Page", "format": "json"}
         mock_login_client.client_request.return_value = {"query": {"pages": {"1": {"title": "Main Page"}}}}

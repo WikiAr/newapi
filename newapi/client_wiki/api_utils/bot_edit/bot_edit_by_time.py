@@ -49,7 +49,7 @@ def check_create_time(page, title_page):
     return True
 
 
-def check_last_edit_time(page, title_page, delay):
+def check_last_edit_time(page, title_page, delay) -> bool:
     """
     Checks if enough time has passed since the last non-bot edit before allowing a bot to edit.
 

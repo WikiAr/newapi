@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-def generate_domain_test_placeholders(src_root, test_root):
+def generate_domain_test_placeholders(src_root, test_root) -> None:
     """
     ينشئ ملفات اختبار تجريبية مع نص وصفي داخلها للمسارات المحددة فقط.
     """

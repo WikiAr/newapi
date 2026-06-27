@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class NewApi(HandleErrors, AskBot):
-    def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia"):
+    def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
         # ---
         self.login_bot = login_bot
         # ---
@@ -36,7 +36,7 @@ class NewApi(HandleErrors, AskBot):
     def get_username(self):
         return self.username
 
-    def Find_pages_exists_or_not(self, liste, get_redirect=False, noprint=False):
+    def Find_pages_exists_or_not(self, liste, get_redirect: bool = False, noprint: bool = False):
         # ---
         done = 0
         # ---
@@ -110,11 +110,11 @@ class NewApi(HandleErrors, AskBot):
     def Find_pages_exists_or_not_with_qids(
         self,
         liste,
-        get_redirect=False,
-        noprint=False,
-        return_all_jsons=False,
-        use_user_input_title=False,
-        chunk_size=50,
+        get_redirect: bool = False,
+        noprint: bool = False,
+        return_all_jsons: bool = False,
+        use_user_input_title: bool = False,
+        chunk_size: int = 50,
     ):
         # ---
         done = 0
@@ -210,12 +210,12 @@ class NewApi(HandleErrors, AskBot):
 
     def Get_All_pages(
         self,
-        start="",
-        namespace="0",
-        limit="max",
-        apfilterredir="",
-        ppprop="",
-        limit_all=100000,
+        start: str = "",
+        namespace: str = "0",
+        limit: int = "max",
+        apfilterredir: str = "",
+        ppprop: str = "",
+        limit_all: int = 100000,
     ) -> list[str]:
         # ---
         logger.debug(
@@ -257,7 +257,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return Main_table
 
-    def PrefixSearch(self, pssearch="", ns="0", pslimit="max", limit_all=100000):
+    def PrefixSearch(self, pssearch: str = "", ns: str = "0", pslimit: str = "max", limit_all: int = 100000):
         """Perform a prefix search for titles in a specified namespace.
 
         This function constructs a query to search for titles that start with a
@@ -318,12 +318,12 @@ class NewApi(HandleErrors, AskBot):
 
     def Get_All_pages_generator(
         self,
-        start="",
-        namespace="0",
-        limit="max",
-        filterredir="",
-        ppprop="",
-        limit_all=100000,
+        start: str = "",
+        namespace: str = "0",
+        limit: int = "max",
+        filterredir: str = "",
+        ppprop: str = "",
+        limit_all: int = 100000,
     ):
         # ---
         logger.debug(
@@ -368,11 +368,11 @@ class NewApi(HandleErrors, AskBot):
 
     def Search(
         self,
-        value="",
-        ns="*",
-        offset="",
-        srlimit="max",
-        return_dict=False,
+        value: str = "",
+        ns: str = "*",
+        offset: int = "",
+        srlimit: str = "max",
+        return_dict: bool = False,
         addparams=None,
     ):
         # ---
@@ -417,13 +417,13 @@ class NewApi(HandleErrors, AskBot):
 
     def Get_Newpages(
         self,
-        limit=5000,
-        namespace="0",
-        rcstart="",
-        user="",
-        three_houers=False,
-        offset_minutes=False,
-        offset_hours=False,
+        limit: int = 5000,
+        namespace: str = "0",
+        rcstart: str = "",
+        user: str = "",
+        three_houers: bool = False,
+        offset_minutes: bool = False,
+        offset_hours: bool = False,
     ):
         if three_houers:
             dd = datetime.datetime.now(datetime.UTC) - timedelta(hours=3)
@@ -463,7 +463,7 @@ class NewApi(HandleErrors, AskBot):
 
         return Main_table
 
-    def UserContribs(self, user, limit=5000, namespace="*", ucshow=""):
+    def UserContribs(self, user, limit: int = 5000, namespace: str = "*", ucshow: str = ""):
         # ---
         params = {
             "action": "query",
@@ -488,7 +488,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return results
 
-    def chunk_titles(self, titles, chunk_size=50, noprint=False):
+    def chunk_titles(self, titles, chunk_size: int = 50, noprint: bool = False):
         # ---
         if isinstance(titles, dict):
             titles = list(titles.keys())
@@ -504,7 +504,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return result
 
-    def Get_langlinks_for_list(self, titles, targtsitecode="", numbes=40):
+    def Get_langlinks_for_list(self, titles, targtsitecode: str = "", numbes: int = 40):
         """Retrieve language links for a list of titles from a specified target
         site.
 
@@ -660,7 +660,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return results
 
-    def get_revisions(self, title, rvprop="comment|timestamp|user|content|ids", options=None):
+    def get_revisions(self, title, rvprop: str = "comment|timestamp|user|content|ids", options=None):
         # ---
         params = {
             "action": "query",
@@ -683,7 +683,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return results
 
-    def querypage_list(self, qppage="Wantedcategories", qplimit=None, max=None):
+    def querypage_list(self, qppage: str = "Wantedcategories", qplimit=None, max=None):
         # ---
         params = {
             "action": "query",
@@ -749,7 +749,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return results
 
-    def Get_template_pages(self, title, namespace="*", max=10000):
+    def Get_template_pages(self, title, namespace: str = "*", max: int = 10000):
         # ---
         logger.debug(f'Get_template_pages for template:"{title}", limit:"{max}",namespace:"{namespace}"')
         # ---
@@ -829,7 +829,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return data
 
-    def pageswithprop(self, pwppropname="unlinkedwikibase_id", pwplimit=None, max=None):
+    def pageswithprop(self, pwppropname: str = "unlinkedwikibase_id", pwplimit=None, max=None):
         # ---
         params = {
             "action": "query",
@@ -952,7 +952,7 @@ class NewApi(HandleErrors, AskBot):
     def post_params(
         self,
         params,
-        method="get",
+        method: str = "get",
         files=None,
         **kwargs,
     ):
@@ -967,7 +967,7 @@ class NewApi(HandleErrors, AskBot):
     def client_request_safe(
         self,
         params,
-        method="get",
+        method: str = "get",
         files=None,
         **kwargs,
     ):
@@ -983,11 +983,11 @@ class NewApi(HandleErrors, AskBot):
         self,
         params,
         action,
-        _p_="pages",
+        _p_: str = "pages",
         p_empty=None,
-        max=500000,
-        first=False,
-        _p_2="",
+        max: int = 500000,
+        first: bool = False,
+        _p_2: str = "",
         _p_2_empty=None,
         **kwargs,
     ):
@@ -1003,7 +1003,7 @@ class NewApi(HandleErrors, AskBot):
             **kwargs,
         )
 
-    def Add_To_Bottom(self, text, summary, title, poss="Head|Bottom"):
+    def Add_To_Bottom(self, text: str, summary, title, poss: str = "Head|Bottom"):
         # ---
         if not title.strip():
             logger.info('** .. title == ""')
@@ -1069,10 +1069,10 @@ class NewApi(HandleErrors, AskBot):
         self,
         old_title,
         to,
-        reason="",
-        noredirect=False,
-        movesubpages=False,
-        return_dict=False,
+        reason: str = "",
+        noredirect: bool = False,
+        movesubpages: bool = False,
+        return_dict: bool = False,
     ):
         # ---
         logger.info(f"<<lightyellow>> def [[{old_title}]] to [[{to}]] ")
@@ -1197,7 +1197,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return {}
 
-    def expandtemplates(self, text):
+    def expandtemplates(self, text: str):
         # ---
         params = {
             "action": "expandtemplates",
@@ -1242,7 +1242,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return textnew
 
-    def upload_by_file(self, file_name, text, file_path, comment="", ignorewarnings=False):
+    def upload_by_file(self, file_name, text: str, file_path, comment: str = "", ignorewarnings: bool = False):
         # ---
         logger.info(f"<<lightyellow>> def . {file_name=}")
         # ---

@@ -43,21 +43,21 @@ def bot_username():
 class TestBotJobNormalization:
     """Test cases for bot job parameter normalization."""
 
-    def test_empty_botjob_normalized_to_all(self, original_argv):
+    def test_empty_botjob_normalized_to_all(self, original_argv) -> None:
         """Empty string botjob should be normalized to 'all'."""
         sys.argv = ["script"]
         text = "some text"
         is_bot_edit_allowed(text=text, title_page="Test1", botjob="")
         assert "all" in Bot_Cache
 
-    def test_combined_botjob_normalized_to_all(self, original_argv):
+    def test_combined_botjob_normalized_to_all(self, original_argv) -> None:
         """Combined botjob string should be normalized to 'all'."""
         sys.argv = ["script"]
         text = "some text"
         is_bot_edit_allowed(text=text, title_page="Test2", botjob="fixref|cat|stub|tempcat|portal")
         assert "all" in Bot_Cache
 
-    def test_normal_botjob_preserved(self, original_argv):
+    def test_normal_botjob_preserved(self, original_argv) -> None:
         """Normal botjob values should be preserved."""
         sys.argv = ["script"]
         text = "some text"
@@ -70,7 +70,7 @@ class TestBotJobNormalization:
 class TestCaching:
     """Test cases for result caching functionality."""
 
-    def test_cache_hit_returns_cached_value(self, original_argv, bot_username):
+    def test_cache_hit_returns_cached_value(self, original_argv, bot_username) -> None:
         """Subsequent calls should return cached value."""
         sys.argv = ["script"]
         text = f"{{{{nobots|{bot_username}}}}}"
@@ -84,7 +84,7 @@ class TestCaching:
         assert result1 == result2
         assert Bot_Cache["all"][title] == result1
 
-    def test_cache_key_includes_botjob(self, original_argv):
+    def test_cache_key_includes_botjob(self, original_argv) -> None:
         """Different botjob values should have separate cache entries."""
         sys.argv = ["script"]
         text = "some text"
@@ -103,7 +103,7 @@ class TestCaching:
 class TestStopTemplates:
     """Test cases for STOP_EDIT_TEMPLATES restrictions."""
 
-    def test_all_stop_templates_block_edit(self, original_argv):
+    def test_all_stop_templates_block_edit(self, original_argv) -> None:
         """Templates in 'all' stop list should block editing."""
         sys.argv = ["script"]
         for template in STOP_EDIT_TEMPLATES["all"]:
@@ -112,7 +112,7 @@ class TestStopTemplates:
                 text=text, title_page=f"Test_{template}", botjob="all"
             ), f"Template '{template}' should block editing for 'all' botjob"
 
-    def test_botjob_specific_stop_templates(self, original_argv):
+    def test_botjob_specific_stop_templates(self, original_argv) -> None:
         """Templates in botjob-specific stop list should block editing."""
         sys.argv = ["script"]
         for botjob, templates in STOP_EDIT_TEMPLATES.items():
@@ -124,13 +124,13 @@ class TestStopTemplates:
                     text=text, title_page=f"Test_{botjob}_{template}", botjob=botjob
                 ), f"Template '{template}' should block editing for '{botjob}' botjob"
 
-    def test_other_templates_dont_block_edit(self, original_argv):
+    def test_other_templates_dont_block_edit(self, original_argv) -> None:
         """Templates not in stop lists should not block editing."""
         sys.argv = ["script"]
         text = "{{infobox}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nested_template_in_text(self, original_argv):
+    def test_nested_template_in_text(self, original_argv) -> None:
         """Should detect templates even when embedded in other text."""
         sys.argv = ["script"]
         text = "Some text {{تحرر}} more text"
@@ -141,50 +141,50 @@ class TestStopTemplates:
 class TestNobotsTemplate:
     """Test cases for {{nobots}} template handling."""
 
-    def test_nobots_no_params_blocks_all(self, original_argv):
+    def test_nobots_no_params_blocks_all(self, original_argv) -> None:
         """{{nobots}} with no parameters should block all bots."""
         sys.argv = ["script"]
         text = "{{nobots}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_with_all_blocks(self, original_argv):
+    def test_nobots_with_all_blocks(self, original_argv) -> None:
         """{{nobots|all}} should block all bots."""
         sys.argv = ["script"]
         text = "{{nobots|all}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_with_bot_username_blocks(self, original_argv, bot_username):
+    def test_nobots_with_bot_username_blocks(self, original_argv, bot_username) -> None:
         """{{nobots|botname}} should block the specified bot."""
         sys.argv = ["script"]
         text = f"{{{{nobots|{bot_username}}}}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_with_multiple_bots_including_ours(self, original_argv, bot_username):
+    def test_nobots_with_multiple_bots_including_ours(self, original_argv, bot_username) -> None:
         """{{nobots|bot1,bot2,ours}} should block if our bot is listed."""
         sys.argv = ["script"]
         text = f"{{{{nobots|OtherBot,{bot_username}}}}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_with_other_bots_allows_ours(self, original_argv, bot_username):
+    def test_nobots_with_other_bots_allows_ours(self, original_argv, bot_username) -> None:
         """{{nobots|OtherBot}} should allow our bot."""
         sys.argv = ["script"]
         text = "{{nobots|OtherBot}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_case_insensitive(self, original_argv):
+    def test_nobots_case_insensitive(self, original_argv) -> None:
         """Template name should be case-insensitive."""
         sys.argv = ["script"]
         for variant in ["{{nobots}}", "{{NoBots}}", "{{NOBOTS}}", "{{NoBoTs}}"]:
             text = variant
             assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_whitespace_handling(self, original_argv):
+    def test_nobots_whitespace_handling(self, original_argv) -> None:
         """Should handle whitespace in parameters."""
         sys.argv = ["script"]
         text = "{{nobots| all , OtherBot }}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nobots_empty_param_blocks_all(self, original_argv):
+    def test_nobots_empty_param_blocks_all(self, original_argv) -> None:
         """{{Nobots|}} with empty parameter should block all bots."""
         sys.argv = ["script"]
         text = "{{Nobots|}}"
@@ -195,68 +195,68 @@ class TestNobotsTemplate:
 class TestBotsTemplate:
     """Test cases for {{bots}} template handling."""
 
-    def test_bots_no_params_blocks(self, original_argv):
+    def test_bots_no_params_blocks(self, original_argv) -> None:
         """{{bots}} with no parameters should deny all bots."""
         sys.argv = ["script"]
         text = "{{bots}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_allow_all(self, original_argv):
+    def test_bots_allow_all(self, original_argv) -> None:
         """{{bots|allow=all}} should allow all bots."""
         sys.argv = ["script"]
         text = "{{bots|allow=all}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_allow_bot_username(self, original_argv, bot_username):
+    def test_bots_allow_bot_username(self, original_argv, bot_username) -> None:
         """{{bots|allow=botname}} should allow the specified bot."""
         sys.argv = ["script"]
         text = f"{{{{bots|allow={bot_username}}}}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_allow_multiple_bots_including_ours(self, original_argv, bot_username):
+    def test_bots_allow_multiple_bots_including_ours(self, original_argv, bot_username) -> None:
         """{{bots|allow=bot1,bot2,ours}} should allow if our bot is listed."""
         sys.argv = ["script"]
         text = f"{{{{bots|allow=OtherBot,{bot_username}}}}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_allow_other_bots_denies_ours(self, original_argv, bot_username):
+    def test_bots_allow_other_bots_denies_ours(self, original_argv, bot_username) -> None:
         """{{bots|allow=OtherBot}} should deny our bot."""
         sys.argv = ["script"]
         text = "{{bots|allow=OtherBot}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_deny_all(self, original_argv):
+    def test_bots_deny_all(self, original_argv) -> None:
         """{{bots|deny=all}} should deny all bots."""
         sys.argv = ["script"]
         text = "{{bots|deny=all}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_deny_bot_username(self, original_argv, bot_username):
+    def test_bots_deny_bot_username(self, original_argv, bot_username) -> None:
         """{{bots|deny=botname}} should deny the specified bot."""
         sys.argv = ["script"]
         text = f"{{{{bots|deny={bot_username}}}}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_deny_other_bots_allows_ours(self, original_argv, bot_username):
+    def test_bots_deny_other_bots_allows_ours(self, original_argv, bot_username) -> None:
         """{{bots|deny=OtherBot}} should allow our bot."""
         sys.argv = ["script"]
         text = "{{bots|deny=OtherBot}}"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_deny_multiple_bots_including_ours(self, original_argv, bot_username):
+    def test_bots_deny_multiple_bots_including_ours(self, original_argv, bot_username) -> None:
         """{{bots|deny=bot1,bot2,ours}} should deny if our bot is listed."""
         sys.argv = ["script"]
         text = f"{{{{bots|deny=OtherBot,{bot_username}}}}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_case_insensitive(self, original_argv):
+    def test_bots_case_insensitive(self, original_argv) -> None:
         """Template name should be case-insensitive."""
         sys.argv = ["script"]
         for variant in ["{{bots}}", "{{Bots}}", "{{BOTS}}"]:
             text = variant
             assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bots_whitespace_handling(self, original_argv):
+    def test_bots_whitespace_handling(self, original_argv) -> None:
         """Should handle whitespace in allow/deny parameters."""
         sys.argv = ["script"]
         text = "{{bots|allow= all , OtherBot }}"
@@ -267,24 +267,24 @@ class TestBotsTemplate:
 class TestDefaultBehavior:
     """Test cases for default behavior when no restrictions are found."""
 
-    def test_empty_text_allows_edit(self, original_argv):
+    def test_empty_text_allows_edit(self, original_argv) -> None:
         """Empty text should allow editing."""
         sys.argv = ["script"]
         assert is_bot_edit_allowed(text="", title_page="Test", botjob="all")
 
-    def test_no_templates_allows_edit(self, original_argv):
+    def test_no_templates_allows_edit(self, original_argv) -> None:
         """Text with no templates should allow editing."""
         sys.argv = ["script"]
         text = "This is just plain text with no templates."
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_harmless_templates_allows_edit(self, original_argv):
+    def test_harmless_templates_allows_edit(self, original_argv) -> None:
         """Text with harmless templates should allow editing."""
         sys.argv = ["script"]
         text = "{{infobox}} {{cite web}} some content"
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_multiple_templates_all_except_restrictions(self, original_argv):
+    def test_multiple_templates_all_except_restrictions(self, original_argv) -> None:
         """Multiple templates should be checked until restriction found."""
         sys.argv = ["script"]
         text = "{{infobox}} {{cite web}} {{nobots}}"
@@ -295,34 +295,34 @@ class TestDefaultBehavior:
 class TestEdgeCases:
     """Test cases for edge cases and special scenarios."""
 
-    def test_template_with_parameters(self, original_argv):
+    def test_template_with_parameters(self, original_argv) -> None:
         """Templates with parameters should be handled correctly."""
         sys.argv = ["script"]
         text = "{{تحرر|param1=value1}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_malformed_template(self, original_argv):
+    def test_malformed_template(self, original_argv) -> None:
         """Malformed templates should not crash the function."""
         sys.argv = ["script"]
         text = "{{broken template"
         # Should not raise exception, just allow edit
         assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_nested_templates(self, original_argv):
+    def test_nested_templates(self, original_argv) -> None:
         """Nested templates should be processed."""
         sys.argv = ["script"]
         text = "{{outer template {{nobots}} }}"
         # wikitextparser should find the inner template
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_empty_params_in_nobots(self, original_argv):
+    def test_empty_params_in_nobots(self, original_argv) -> None:
         """Empty parameter in nobots should be handled."""
         sys.argv = ["script"]
         text = "{{nobots|}}"
         # Empty param means no list, so should block all
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_unicode_in_params(self, original_argv):
+    def test_unicode_in_params(self, original_argv) -> None:
         """Unicode characters in parameters should work correctly."""
         sys.argv = ["script"]
         text = "{{nobots|SomeBot,أخرى}}"
@@ -334,7 +334,7 @@ class TestEdgeCases:
 class TestArabicStopTemplates:
     """Test cases specifically for Arabic stop templates."""
 
-    def test_arabic_all_stop_templates(self, original_argv):
+    def test_arabic_all_stop_templates(self, original_argv) -> None:
         """Test all Arabic stop templates in the 'all' list."""
         sys.argv = ["script"]
         arabic_templates = ["تحرر", "قيد التطوير", "يحرر", "تطوير مقالة"]
@@ -344,7 +344,7 @@ class TestArabicStopTemplates:
                 text=text, title_page=f"Test_{template}", botjob="all"
             ), f"Arabic template '{template}' should block editing"
 
-    def test_arabic_specific_botjob_templates(self, original_argv):
+    def test_arabic_specific_botjob_templates(self, original_argv) -> None:
         """Test Arabic templates for specific bot jobs."""
         sys.argv = ["script"]
 
@@ -365,7 +365,7 @@ class TestArabicStopTemplates:
                 text=text, title_page=f"Test_{botjob}_{template}", botjob=botjob
             ), f"Template '{template}' should block editing for '{botjob}'"
 
-    def test_different_botjob_not_affected_by_specific_template(self, original_argv):
+    def test_different_botjob_not_affected_by_specific_template(self, original_argv) -> None:
         """A template specific to one botjob should not affect other botjobs."""
         sys.argv = ["script"]
         text = "{{لا للتعريب}}"

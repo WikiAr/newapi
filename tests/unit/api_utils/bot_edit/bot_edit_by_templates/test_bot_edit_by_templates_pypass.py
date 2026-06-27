@@ -46,7 +46,7 @@ def mock_wtp():
 def create_mock_template():
     """Factory fixture for creating mock templates."""
 
-    def _create_template(name, arguments=None):
+    def _create_template(name: str, arguments=None):
         mock_template = MagicMock()
         mock_template.normal_name.return_value = name
         mock_template.string = f"{{{{{name}}}}}"
@@ -98,7 +98,7 @@ class TestCommandLineBypass:
     """Test command line argument bypass functionality."""
 
     @pytest.mark.parametrize("argv_value", ["botedit", "editbot", "workibrahem"])
-    def test_argv_bypasses_all_checks(self, argv_value, setup_parser):
+    def test_argv_bypasses_all_checks(self, argv_value, setup_parser) -> None:
         """Test that specific argv values bypass all restrictions."""
         setup_parser([{"name": "nobots", "arguments": None}])
 
@@ -115,28 +115,28 @@ class TestCommandLineBypass:
 class TestBypassConditions:
     """Test cases for bypass conditions via command line arguments."""
 
-    def test_bypass_with_botedit_arg(self, original_argv):
+    def test_bypass_with_botedit_arg(self, original_argv) -> None:
         """Should return True when 'botedit' is in sys.argv."""
         text = "{{nobots}}"
         with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
             mock_settings.bot.force_edit = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bypass_with_editbot_arg(self, original_argv):
+    def test_bypass_with_editbot_arg(self, original_argv) -> None:
         """Should return True when 'editbot' is in sys.argv."""
         text = "{{nobots}}"
         with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
             mock_settings.bot.force_edit = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_bypass_with_workibrahem_arg(self, original_argv):
+    def test_bypass_with_workibrahem_arg(self, original_argv) -> None:
         """Should return True when 'workibrahem' is in sys.argv."""
         text = "{{nobots}}"
         with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
             mock_settings.bot.workibrahem = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
-    def test_no_bypass_without_args(self, original_argv):
+    def test_no_bypass_without_args(self, original_argv) -> None:
         """Should check templates when no bypass args are present."""
         text = "{{nobots}}"
         assert not is_bot_edit_allowed(text=text, title_page="Test", botjob="all")

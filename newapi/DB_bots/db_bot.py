@@ -17,7 +17,7 @@ from typing import Any, Dict, Iterator, List, Optional
 import sqlite_utils
 
 
-def tracer(sql, params):
+def tracer(sql, params) -> None:
     print(f"SQL: {sql} - params: {params}")
 
 

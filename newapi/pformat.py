@@ -15,7 +15,7 @@ import wikitextparser as wtp
 # python3 core8/pwb.py newapi/pformat -title:قالب:Cs1_wrapper
 
 
-def make_new_text(text):
+def make_new_text(text: str):
     # ---
     new_text = text
     # ---

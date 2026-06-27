@@ -15,34 +15,34 @@ def showDiff(text_a: str, text_b: str, context: int = 0) -> None:
     pywikibot.showDiff(text_a, text_b)
 
 
-def output(textm, *args, **kwargs):
+def output(textm, *args, **kwargs) -> None:
     if settings.bot.no_print and not kwargs.get("p", False):
         return
     logger.info(textm)
 
 
-def error(text, *args, **kwargs):
+def error(text: str, *args, **kwargs) -> None:
     text = f"<<red>> {str(text)} <<default>>"
     logger.error(text)
 
 
-def info(text, *args, **kwargs):
+def info(text: str, *args, **kwargs) -> None:
     logger.info(text)
 
 
-def warn(text, *args, **kwargs):
+def warn(text: str, *args, **kwargs) -> None:
     logger.warning(text)
 
 
-def warning(text, *args, **kwargs):
+def warning(text: str, *args, **kwargs) -> None:
     logger.warning(text)
 
 
-def debug(text, *args, **kwargs):
+def debug(text: str, *args, **kwargs) -> None:
     logger.debug(text)
 
 
-def test_print(text, *args, **kwargs):
+def test_print(text: str, *args, **kwargs) -> None:
     logger.debug(text)
 
 
