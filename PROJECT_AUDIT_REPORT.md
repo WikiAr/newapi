@@ -115,7 +115,7 @@ The codebase has **9 crash-level bugs** in common code paths, **1 SQL injection 
 
 1. **God classes**: `NewApi` (1300 lines), `MainPage` (1000 lines), `WikiLoginClient` (850 lines)
 2. **Code duplication**: `client_request_retry` is a copy-paste of `_client_request`
-3. **Unused abstractions**: `core/exceptions.py` hierarchy defined but never used; `MaxRetriesExceeded` and `CookieError` defined but never raised
+3. **Unused abstractions**: `core/exceptions.py` hierarchy defined but never used; `MaxRetriesExceededError` and `CookieError` defined but never raised
 4. **Hardcoded values**: `BOT_USERNAME = "Mr.Ibrahembot"`, `mdwiki.org` special case, Arabic `"قالب:"` prefix
 5. **Commented-out code**: Scattered across `db_bot.py`, `bot_api.py`, `page.py`
 6. **Outdated config**: `pyproject.toml` references `src_paths = "ArWikiCats"` (non-existent project)

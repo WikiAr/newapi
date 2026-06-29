@@ -52,7 +52,7 @@ Three-layer architecture:
 ```
 Layer 1: Transport + Auth (newapi/api_client/)
   RequestsHandler (retry/CSRF/maxlag) -> WikiLoginClient (auth, cookies, pagination)
-  Exceptions: WikiClientError -> LoginError, CSRFError, MaxlagError, MaxRetriesExceeded, CookieError
+  Exceptions: WikiClientError -> LoginError, CSRFError, MaxlagError, MaxRetriesExceededError, CookieError
 
 Layer 2: Wiki Business Logic (newapi/client_wiki/)
   AllAPIS (main facade) -> MainPage (page ops), CategoryDepth (recursive traversal), NewApi (bulk ops)
@@ -95,7 +95,7 @@ Sessions persisted as Mozilla-format cookie jar files. Auto-expire after 3 days.
 ### Error Handling
 
 Two parallel exception hierarchies:
-1. `api_client/exceptions.py`: `WikiClientError` -> `LoginError`, `CSRFError`, `MaxlagError`, `MaxRetriesExceeded`, `CookieError`
+1. `api_client/exceptions.py`: `WikiClientError` -> `LoginError`, `CSRFError`, `MaxlagError`, `MaxRetriesExceededError`, `CookieError`
 2. `core/exceptions.py`: `NewApiException` -> `ApiError` -> `AbuseFilterError`, `MaxLagError`, `ArticleExistsError`, `ProtectedPageError`, etc. Includes `parse_api_error()` for mapping API error dicts.
 
 ### Patterns to Know

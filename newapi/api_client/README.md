@@ -65,7 +65,7 @@ The client is single-threaded with no connection pooling configuration beyond wh
 ## Weaknesses
 
 - **Code duplication**: `client_request_retry` (lines 693-766) is a copy-paste of `_client_request` logic. Any bug fix in one must be manually replicated in the other.
-- **Unused exceptions**: `MaxRetriesExceeded` and `CookieError` are defined and exported but never raised anywhere in the codebase.
+- **Unused exceptions**: `MaxRetriesExceededError` and `CookieError` are defined and exported but never raised anywhere in the codebase.
 - **Shadowed builtins**: The `max` parameter in `post_continue` shadows Python's built-in `max()`.
 - **Hardcoded domain workaround**: `mdwiki.org` special case baked into the general-purpose client (line 442).
 - **Unused `**kwargs`**: All three request methods accept `**kwargs` but never pass them downstream.
@@ -132,7 +132,7 @@ Uses `client_request_safe` for continuation pages. If a continuation page fails,
 1. Increment `attempt` in the `ratelimited` handler to prevent infinite loops.
 2. Add `timeout` parameter to `_execute_request`.
 3. Remove `client_request_retry` duplication -- delegate to `_client_request`.
-4. Raise unused exceptions (`MaxRetriesExceeded`, `CookieError`) or remove them.
+4. Raise unused exceptions (`MaxRetriesExceededError`, `CookieError`) or remove them.
 5. Fix the f-string logger call to use `%s` formatting.
 
 ### Medium-Term Improvements

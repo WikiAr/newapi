@@ -7,7 +7,7 @@ from newapi.api_client.exceptions import (
     CSRFError,
     LoginError,
     MaxlagError,
-    MaxRetriesExceeded,
+    MaxRetriesExceededError,
     WikiClientError,
 )
 
@@ -26,7 +26,7 @@ class TestExceptionHierarchy:
         assert issubclass(MaxlagError, WikiClientError)
 
     def test_max_retries_exceeded_is_wiki_client_error(self) -> None:
-        assert issubclass(MaxRetriesExceeded, WikiClientError)
+        assert issubclass(MaxRetriesExceededError, WikiClientError)
 
     def test_cookie_error_is_wiki_client_error(self) -> None:
         assert issubclass(CookieError, WikiClientError)
