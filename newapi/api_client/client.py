@@ -506,9 +506,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self,
         params: dict,
         method: str = "post",
-        files: Optional[Any] = None,
+        files: Any | None = None,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Send a GET or POST request to the wiki API and return parsed JSON.
 
@@ -535,36 +535,44 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if method not in ("get", "post"):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
+        method = method.upper()
+
         # Files can only travel via multipart POST
-        if files is not None:
-            method = "post"
+        action = params.get("action")
+        if action in self._WRITE_ACTIONS or files is not None:
+            method = "POST"
 
         # Always request JSON and inject write-action safety params
         params = self._enrich_params({"format": "json", **params})
 
         logger.debug(
             "%s %s params=%s files=%s",
-            method.upper(),
+            method,
             self.api_url,
             # Never log token values
             {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
-        action = params.get("action")
-        if action in self._WRITE_ACTIONS:
-            method = "post"
 
-        if method == "get":
-            return self._request_with_retry("GET", self.api_url, params=params)
-            # return self._site.get(action, **params)
+        # Fetch a CSRF token now if the caller didn't supply one.
+        # The retry loop will refresh it automatically on CSRF errors.
+        if method == "POST" and "token" not in params:
+            params["token"] = self._site.get_token("csrf")
+
+        args = {}
+
+        if method == "GET":
+            args["params"] = params
         else:
-            # Fetch a CSRF token now if the caller didn't supply one.
-            # The retry loop will refresh it automatically on CSRF errors.
-            if "token" not in params:
-                params["token"] = self._site.get_token("csrf")
+            args["data"] = params
+            if files:
+                args["files"] = files
 
-            return self._request_with_retry("POST", self.api_url, data=params, files=files)
-            # return self._site.post(action, **params, files=files)
+        return self._request_with_retry(
+            method,
+            self.api_url,
+            **args,
+        )
 
     def _ensure_logged_in(self) -> None:
         """
@@ -731,12 +739,6 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         # Always request JSON and inject write-action safety params
         params = self._enrich_params({"format": "json", **params})
 
-        skip_log_params = [
-            "token",
-            "password",
-            "lgpassword",
-            "text",
-        ]
         logger.debug(
             "%s %s params=%s files=%s",
             method.upper(),
