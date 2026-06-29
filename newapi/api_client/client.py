@@ -731,41 +731,12 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if method not in ("get", "post"):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
-        # Files can only travel via multipart POST
-        action = params.get("action")
-        if action in self._WRITE_ACTIONS or files is not None:
-            method = "post"
-
-        # Always request JSON and inject write-action safety params
-        params = self._enrich_params({"format": "json", **params})
-
-        logger.debug(
-            "%s %s params=%s files=%s",
-            method.upper(),
-            self.api_url,
-            # Never log token values
-            {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
-            list(files.keys()) if files else None,
+        return self._client_request(
+            params=params,
+            method=method,
+            files=files,
+            **kwargs,
         )
-
-        if method == "get":
-            return self._request_with_retry(
-                "GET",
-                self.api_url,
-                params=params,
-            )
-        else:
-            # Fetch a CSRF token now if the caller didn't supply one.
-            # The retry loop will refresh it automatically on CSRF errors.
-            if "token" not in params:
-                params["token"] = self._site.get_token("csrf")
-
-            return self._request_with_retry(
-                "POST",
-                self.api_url,
-                data=params,
-                files=files,
-            )
 
     def post_continue(
         self,
