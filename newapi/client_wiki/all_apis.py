@@ -9,7 +9,6 @@ from .pages import super_page
 
 logger = logging.getLogger(__name__)
 
-
 class AllAPIS:
     """
     A class that provides access to various API functionalities.
@@ -28,12 +27,14 @@ class AllAPIS:
         username: str,
         password: str,
         use_cookies: bool = True,
+        cookies_dir: None | str = None,
     ) -> None:
         self.lang = lang
         self.family = family
         self.username = username
         self.password = password
         self.use_cookies = use_cookies
+        self.cookies_dir = cookies_dir
         self.login_bot = self._login()
 
     def MainPage(self, title: str, *args, **kwargs) -> super_page.MainPage:
@@ -53,6 +54,7 @@ class AllAPIS:
             username=self.username,
             password=self.password,
             use_cookies=self.use_cookies,
+            cookies_dir=self.cookies_dir,
         )
         return client
 

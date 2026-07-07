@@ -13,9 +13,20 @@ logger = logging.getLogger(__name__)
 # Cookie files older than this are treated as stale and deleted before loading.
 _COOKIE_MAX_AGE_DAYS = 3
 
+def get_cookies_dir() -> str:
+    """Load configuration from environment variables."""
+    cookies_dir = os.getenv("COOKIES_DIR") or "~/tmp/cookies"
+    cookies_dir = os.path.expandvars(cookies_dir)
+    try:
+        cookies_dir = Path(str(cookies_dir)).expanduser()
+    except Exception as e:
+        logger.error(f"Error expanding cookies directory: {e}")
+
+    return str(cookies_dir)
+
 
 def get_cookie_path(
-    cookies_dir: str,
+    cookies_dir: str | None,
     family: str,
     lang: str,
     username: str,
@@ -36,6 +47,9 @@ def get_cookie_path(
     spaces replaced with underscores; bot-password suffix (@...) stripped.
     """
     # ── Resolve base directory ─────────────────────────────────────────────
+    if cookies_dir is None:
+        cookies_dir = get_cookies_dir()
+
     base = Path(cookies_dir)
 
     base.mkdir(parents=True, exist_ok=True)

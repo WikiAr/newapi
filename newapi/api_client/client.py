@@ -111,10 +111,11 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         family: str,
         username: str,
         password: str,
-        cookies_dir: str,
+        cookies_dir: str | None,
         max_retries: int = 5,
         backoff_base: int = 1,
         maxlag_header: str = "Retry-After",
+        use_cookies: None | bool = None,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -152,7 +153,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
         except Exception as exc:
-            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}") from exc
+            raise WikiClientError(f"Invalid site ID: {self.lang}.{self.family}.org") from exc
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
@@ -184,12 +185,13 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         Called by the base-class retry loop; never call directly.
         """
         logger.warning(
-            "assertnameduserfailed for %s on %s.%s — clearing cookies and re-logging in",
+            "assertnameduserfailed for %s on %s.%s.org — clearing cookies and re-logging in",
             self.username,
             self.lang,
             self.family,
         )
-        _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
+        if self.use_cookies:
+            _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
         self._do_login()
 
     # ------------------------------------------------------------------
@@ -250,7 +252,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
 
         logger.debug(
             "%s %s params=%s files=%s",
-            method,
+            method.upper(),
             self.api_url,
             # Never log token values
             {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
@@ -285,14 +287,16 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         if getattr(self._site, "logged_in", None):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
-        if self._cookie_path.exists():
-            try:
-                self._site.site_init()
-                if self._site.logged_in:
-                    logger.info("Revived session via cookies as %s", self._site.username)
-                    return
-            except Exception:
-                logger.exception("Error in site_init")
+
+        if self.use_cookies:
+            if self._cookie_path.exists():
+                try:
+                    self._site.site_init()
+                    if self._site.logged_in:
+                        logger.info("Revived session via cookies as %s", self._site.username)
+                        return
+                except Exception:
+                    logger.exception("Error in site_init")
 
         # if not self._site.logged_in: self._do_login()
         # don't login yet, user can use login() method
