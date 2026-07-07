@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+
 from newapi.super.S_API.bot_api import NewApi
 
 

@@ -4,6 +4,7 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates import (
     Bot_Cache,
     is_bot_edit_allowed,

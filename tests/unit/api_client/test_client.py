@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import mwclient.errors
 import pytest
+
 from newapi.api_client.client import WikiLoginClient
 from newapi.api_client.exceptions import LoginError, WikiClientError
 
@@ -31,7 +32,7 @@ def _make_client(
         site_instance.connection = MagicMock()
         site_instance.api_url = "http://example.com/api"
 
-        kw = dict(lang=lang, family=family, username=username, password=password, use_cookies=use_cookies)
+        kw = {"lang": lang, "family": family, "username": username, "password": password, "use_cookies": use_cookies}
         if cookies_dir is not None:
             kw["cookies_dir"] = cookies_dir
         client = WikiLoginClient(**kw)
