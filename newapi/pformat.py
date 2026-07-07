@@ -2,8 +2,6 @@
 python3 core8/pwb.py newapi/pformat
 """
 
-import sys
-from pathlib import Path
 
 import wikitextparser as wtp
 

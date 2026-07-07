@@ -36,7 +36,6 @@ from typing import Any
 
 import mwclient
 import mwclient.errors
-import requests
 
 from .cookies_client import CookiesClient
 from .exceptions import LoginError, WikiClientError
