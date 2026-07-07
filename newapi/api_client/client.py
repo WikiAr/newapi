@@ -531,6 +531,8 @@ class WikiLoginClient:
             max = int(max)
         if max == 0:
             max = 500_000
+        if max is None:
+            max = 500_000
         results = []
         continue_params: dict = {}
         iterations = 0
