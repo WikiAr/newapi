@@ -229,41 +229,6 @@ class TestInjectToken:
         assert params == {}
 
 
-@pytest.mark.skip(reason="This test is never end")
-class TestPostContinue:
-    """Tests for post_continue method."""
-
-    def test_post_continue_single_page(self) -> None:
-        client, site = _make_client()
-
-        response = MagicMock()
-        response.raise_for_status = MagicMock()
-        response.headers = {"Content-Type": "application/json"}
-        response.json.return_value = {"query": {"pages": {"1": {"title": "Test"}}}}
-        site.connection.request.return_value = response
-
-        result = client.post_continue({"action": "query"}, "query", p_empty={})
-        assert result == {"1": {"title": "Test"}}
-
-    def test_post_continue_with_continuation(self) -> None:
-        client, site = _make_client()
-
-        first_response = MagicMock()
-        first_response.raise_for_status = MagicMock()
-        first_response.headers = {"Content-Type": "application/json"}
-        first_response.json.return_value = {"query": {"pages": {"1": {"title": "Test1"}}}, "continue": {"gpsoffset": 1}}
-
-        second_response = MagicMock()
-        second_response.raise_for_status = MagicMock()
-        second_response.headers = {"Content-Type": "application/json"}
-        second_response.json.return_value = {"query": {"pages": {"2": {"title": "Test2"}}}}
-
-        site.connection.request.side_effect = [first_response, second_response]
-
-        result = client.post_continue({"action": "query"}, "query", p_empty=[])
-        assert len(result) == 2
-
-
 class TestCookieLoading:
     """Tests for cookie loading error handling."""
 

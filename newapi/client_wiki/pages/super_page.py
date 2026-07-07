@@ -965,7 +965,6 @@ class MainPage(AskBot):
         def _load_data(body):
             return body.get("query", {}).get("links") or []
 
-        # ---
         data: list = self.login_bot.post_continue_list(
             params=params,
             action="query",
@@ -1025,30 +1024,6 @@ class MainPage(AskBot):
         self.revisions_data.revisions = revisions
 
         return revisions
-
-    def post_continue(
-        self,
-        params,
-        action,
-        _p_: str = "pages",
-        p_empty=None,
-        max: int = 500000,
-        first: bool = False,
-        _p_2: str = "",
-        _p_2_empty=None,
-        **kwargs,
-    ):
-        return self.login_bot.post_continue(
-            params,
-            action,
-            _p_=_p_,
-            p_empty=p_empty,
-            max=max,
-            first=first,
-            _p_2=_p_2,
-            _p_2_empty=_p_2_empty,
-            **kwargs,
-        )
 
     def __getitem__(self, key):
         if key == "q":
