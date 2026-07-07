@@ -13,7 +13,12 @@ from newapi.api_client.exceptions import LoginError, WikiClientError
 
 
 def _make_client(
-    lang: str = "en", family: str = "wikipedia", username: str = "MyBot", password: str = "pass", cookies_dir=None
+    lang: str = "en",
+    family: str = "wikipedia",
+    username: str = "MyBot",
+    password: str = "pass",
+    cookies_dir=None,
+    use_cookies=True,
 ):
     """Create a WikiLoginClient with all external dependencies mocked."""
     with (
@@ -26,7 +31,7 @@ def _make_client(
         site_instance.connection = MagicMock()
         site_instance.api_url = "http://example.com/api"
 
-        kw = dict(lang=lang, family=family, username=username, password=password)
+        kw = dict(lang=lang, family=family, username=username, password=password, use_cookies=use_cookies)
         if cookies_dir is not None:
             kw["cookies_dir"] = cookies_dir
         client = WikiLoginClient(**kw)
@@ -298,7 +303,7 @@ class TestInitCookiesDir:
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             mock_path.return_value = MagicMock()
 
-            WikiLoginClient("en", "wikipedia", "bot", "pass", cookies_dir="/tmp/cookies")
+            WikiLoginClient("en", "wikipedia", "bot", "pass", cookies_dir="/tmp/cookies", use_cookies=True)
             mock_path.assert_called_once_with("/tmp/cookies", "wikipedia", "en", "bot")
 
     def test_default_cookies_dir_is_default_value(self) -> None:
@@ -309,6 +314,6 @@ class TestInitCookiesDir:
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             mock_path.return_value = MagicMock()
 
-            WikiLoginClient("en", "wikipedia", "bot", "pass", "/tmp/cookies")
+            WikiLoginClient("en", "wikipedia", "bot", "pass", "/tmp/cookies", use_cookies=True)
             args = mock_path.call_args[0]
             assert args[0] == "/tmp/cookies"

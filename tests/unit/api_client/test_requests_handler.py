@@ -73,7 +73,7 @@ class TestMaxlagHandling:
 
         site.connection.request.side_effect = [maxlag_response, success_response]
 
-        with patch("newapi.api_client.client.time.sleep") as mock_sleep:
+        with patch("newapi.api_client.requests_handler.time.sleep") as mock_sleep:
             result = client.client_request_retry({"action": "query"}, method="get")
             assert "query" in result
 
@@ -85,7 +85,7 @@ class TestMaxlagHandling:
         maxlag_response.json.return_value = {"error": {"code": "maxlag", "info": "Lag"}}
         site.connection.request.return_value = maxlag_response
 
-        with patch("newapi.api_client.client.time.sleep"):
+        with patch("newapi.api_client.requests_handler.time.sleep"):
             with pytest.raises(MaxlagError):
                 client.client_request_retry({"action": "query"}, method="get")
 
@@ -141,15 +141,27 @@ class TestAssertNamedUserFailed:
 class TestOnAssertNamedUserFailed:
     """Tests for _on_assertnameduserfailed method."""
 
-    @patch("newapi.api_client.client._delete_cookie_file")
+    @patch("newapi.api_client.cookies_client._delete_cookie_file")
     def test_on_assertnameduserfailed_clears_cookies_and_relogs(self, mock_delete) -> None:
-        client, site = _make_client()
-        site.login = MagicMock()
+        from newapi.api_client.client import WikiLoginClient
 
-        client._on_assertnameduserfailed()
+        with (
+            patch("newapi.api_client.client.mwclient.Site") as mock_site,
+            patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
+        ):
+            mock_path.return_value = MagicMock()
+            site_instance = mock_site.return_value
+            site_instance.api.return_value = {"query": {"userinfo": {"id": 1}}}
+            site_instance.connection = MagicMock()
+            site_instance.get_token = MagicMock(return_value="test_token")
+            site_instance.login = MagicMock()
 
-        mock_delete.assert_called_once()
-        site.login.assert_called_once_with("MyBot", "pass")
+            client = WikiLoginClient(
+                "en", "wikipedia", "MyBot", "pass", use_cookies=True
+            )
+            client._on_assertnameduserfailed()
+            mock_delete.assert_called_once()
+            site_instance.login.assert_called_once_with("MyBot", "pass")
 
 
 class TestLoginForced:
@@ -173,8 +185,8 @@ class TestHandleMaxlag:
         response = MagicMock()
         response.headers = {"Retry-After": "3"}
 
-        with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            client._handle_maxlag(response, 1)
+        with patch("newapi.api_client.requests_handler.time.sleep") as mock_sleep:
+            client.requests_handler._handle_maxlag(response, 1)
             mock_sleep.assert_called_with(3.0)
 
     def test_handle_maxlag_with_invalid_retry_after_uses_backoff(self) -> None:
@@ -182,24 +194,18 @@ class TestHandleMaxlag:
         response = MagicMock()
         response.headers = {"Retry-After": "not_a_number"}
 
-        with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            from newapi.api_client.client import settings
-
-            with patch.object(settings.api_client, "backoff_base", 1):
-                client._handle_maxlag(response, 1)
-                mock_sleep.assert_called_with(2.0)  # 1 * 2^1
+        with patch("newapi.api_client.requests_handler.time.sleep") as mock_sleep:
+            client.requests_handler._handle_maxlag(response, 1)
+            mock_sleep.assert_called_with(2.0)  # 1 * 2^1
 
     def test_handle_maxlag_no_retry_after_uses_backoff(self) -> None:
         client, _ = _make_client()
         response = MagicMock()
         response.headers = {}
 
-        with patch("newapi.api_client.client.time.sleep") as mock_sleep:
-            from newapi.api_client.client import settings
-
-            with patch.object(settings.api_client, "backoff_base", 1):
-                client._handle_maxlag(response, 2)
-                mock_sleep.assert_called_with(4.0)  # 1 * 2^2
+        with patch("newapi.api_client.requests_handler.time.sleep") as mock_sleep:
+            client.requests_handler._handle_maxlag(response, 2)
+            mock_sleep.assert_called_with(4.0)  # 1 * 2^2
 
 
 class TestInjectToken:
@@ -265,16 +271,18 @@ class TestCookieLoading:
 
     @patch("newapi.api_client.cookies_client.http.cookiejar.LWPCookieJar")
     def test_make_cookiejar_loads_existing_cookies(self, mock_jar_class) -> None:
-        from pathlib import Path
-
-        from newapi.api_client.client import CookiesClient
+        from newapi.api_client.cookies_client import CookiesClient
 
         mock_cj = MagicMock()
         mock_jar_class.return_value = mock_cj
 
-        with patch("pathlib.Path.exists", return_value=True):
+        with (
+            patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            mock_path.return_value = MagicMock()
             mock_cj.load.side_effect = Exception("Parse error")
-            result = CookiesClient._make_cookiejar(Path("/fake/path"))
+            client = CookiesClient("en", "wikipedia", "MyBot", "/tmp", use_cookies=True)
 
         mock_cj.load.assert_called_once_with(ignore_discard=True, ignore_expires=True)
 
@@ -282,9 +290,9 @@ class TestCookieLoading:
 class TestCookieSaving:
     """Tests for cookie saving error handling."""
 
-    @patch("newapi.api_client.client.logger")
+    @patch("newapi.api_client.cookies_client.logger")
     def test_save_cookies_failure_is_logged(self, mock_logger) -> None:
-        from newapi.api_client.client import CookiesClient
+        from newapi.api_client.cookies_client import CookiesClient
 
         mock_cj = MagicMock()
         mock_cj.save.side_effect = Exception("IO Error")
