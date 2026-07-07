@@ -463,7 +463,7 @@ class WikiLoginClient:
                 logger.debug("Applying continue_params: %s", continue_params)
                 page_params.update(continue_params)
 
-            body = self.client_request(page_params)
+            body = self.client_request_safe(page_params)
 
             if not body:
                 logger.debug("empty response, stopping")
@@ -545,7 +545,7 @@ class WikiLoginClient:
                 logger.debug("Applying continue_params: %s", continue_params)
                 page_params.update(continue_params)
 
-            body = self.client_request(page_params)
+            body = self.client_request_safe(page_params)
 
             if not body:
                 logger.debug("empty response, stopping")
