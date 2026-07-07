@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import copy
 import logging
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import mwclient
 import mwclient.errors
@@ -409,17 +409,11 @@ class WikiLoginClient:
             **kwargs,
         )
 
-    def post_continue(
+    def post_continue_dict(
         self,
         params: dict,
         action: str,
-        _p_: str | None = None,
-        p_empty: Union[list, dict] | None = None,
-        max: int | None = None,
-        first: int | None = None,
-        _p_2: str | None = None,
-        _p_2_empty: Union[list, dict] | None = None,
-        **kwargs,
+        _load_data: Callable,
     ) -> dict[str, Any]:
         """
         Drive a MediaWiki API continuation query to completion.
@@ -430,28 +424,18 @@ class WikiLoginClient:
         Args:
             params:     Base API parameters.
             action:     Top-level JSON key to extract results from
-                        (e.g. ``"query"``).
-            _p_:        Sub-key inside *action* (default ``"pages"``).
-            p_empty:    Seed value for the accumulator (list or dict).
-            max:        Stop accumulating after this many results.
-            first:      Return only the first element of the result list.
-            _p_2:       Secondary sub-key when *first* is True.
-            _p_2_empty: Seed for secondary accumulator.
 
         Returns:
             Accumulated results as a list or dict, depending on *p_empty*.
         """
-        logger.debug("action=%s _p_=%s", action, _p_)
+        logger.debug("action=%s", action)
 
         if isinstance(max, str) and max.isdigit():
             max = int(max)
         if max == 0:
             max = 500_000
 
-        p_empty = p_empty if p_empty is not None else []
-        _p_2_empty = _p_2_empty if _p_2_empty is not None else []
-
-        results = p_empty
+        results = {}
         continue_params: dict = {}
         iterations = 0
 
@@ -469,21 +453,13 @@ class WikiLoginClient:
                 logger.debug("empty response, stopping")
                 break
 
-            continue_params = {}
+            continue_params = body.get("continue", {})
 
-            if action == "wbsearchentities":
-                data = body.get("search", [])
-            else:
-                continue_params = body.get("continue", {})
-                data = body.get(action, {}).get(_p_, p_empty)
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
 
-                if _p_ == "querypage":
-                    data = data.get("results", [])
-                elif first:
-                    if isinstance(data, list) and data:
-                        data = data[0]
-                        if _p_2:
-                            data = data.get(_p_2, _p_2_empty)
+            data = _load_data(body)
 
             if not data:
                 logger.debug("no data in response, stopping")
@@ -491,14 +467,7 @@ class WikiLoginClient:
 
             logger.debug("+%d items (total %d)", len(data), len(results))
 
-            if len(results) >= max:
-                logger.debug("max=%d reached, stopping", max)
-                break
-
-            if isinstance(results, list):
-                results.extend(data)
-            else:
-                results = {**results, **data}
+            results = {**results, **data}
 
         logger.debug("done, %d total results", len(results))
         return results
@@ -535,15 +504,14 @@ class WikiLoginClient:
             max = 500_000
         results = []
         continue_params: dict = {}
-        iterations = 0
 
-        while continue_params or iterations == 0:
+        while True:
             page_params = copy.deepcopy(params)
-            iterations += 1
 
-            if continue_params:
-                logger.debug("Applying continue_params: %s", continue_params)
-                page_params.update(continue_params)
+            if not continue_params:
+                break
+            logger.debug("Applying continue_params: %s", continue_params)
+            page_params.update(continue_params)
 
             body = self.client_request(page_params)
 
@@ -553,6 +521,10 @@ class WikiLoginClient:
 
             continue_params = body.get("continue", {})
 
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
+
             data = _load_data(body)
 
             if not data:
@@ -560,10 +532,6 @@ class WikiLoginClient:
                 break
 
             logger.debug("+%d items (total %d)", len(data), len(results))
-
-            if len(results) >= max:
-                logger.debug("max=%d reached, stopping", max)
-                break
 
             results.extend(data)
 

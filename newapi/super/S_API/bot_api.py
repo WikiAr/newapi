@@ -1,11 +1,9 @@
 """ """
 
-import copy
 import datetime
 import logging
 from collections.abc import KeysView
 from datetime import timedelta
-from typing import Any, Callable
 
 import tqdm
 
@@ -262,7 +260,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("allpages") or []
 
         # ---
-        newp = self.post_continue_list(params=params, action="query", max=limit_all, _load_data=_load_data)
+        newp = self.login_bot.post_continue_list(params=params, action="query", max=limit_all, _load_data=_load_data)
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -317,7 +315,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("pages") or []
 
         # ---
-        newp = self.post_continue_list(
+        newp = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -386,7 +384,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("prefixsearch") or []
 
         # ---
-        newp = self.post_continue_list(
+        newp = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -443,7 +441,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("search") or []
 
         # ---
-        search = self.post_continue_list(
+        search = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -505,7 +503,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("recentchanges") or []
 
         # ---
-        json1 = self.post_continue_list(
+        json1 = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -541,7 +539,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("usercontribs") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -685,7 +683,7 @@ class NewApi(AskBot, NewApiHelpers):
             return data
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -714,7 +712,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("pages") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params,
             "query",
             "pages",
@@ -746,7 +744,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("pages") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -814,12 +812,12 @@ class NewApi(AskBot, NewApiHelpers):
         if qppage not in qppage_values:
             logger.info(f"<<lightred>> qppage {qppage} not in qppage_values.")
 
-        # ---
         def _load_data(body):
-            return body.get("query", {}).get("querypage") or []
+            query = body.get("query", {})
+            return query.get("querypage") or query.get("results") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -849,7 +847,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("pages") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -943,7 +941,7 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("pageswithprop") or []
 
         # ---
-        results = self.post_continue_list(
+        results = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
@@ -975,7 +973,7 @@ class NewApi(AskBot, NewApiHelpers):
                 return body.get("query", {}).get("redirects") or []
 
             # ---
-            json1 = self.post_continue_list(
+            json1 = self.login_bot.post_continue_list(
                 params=params,
                 action="query",
                 _load_data=_load_data,
@@ -1328,68 +1326,10 @@ class NewApi(AskBot, NewApiHelpers):
             **kwargs,
         )
 
-    def post_continue_list(
-        self,
-        params: dict,
-        action: str,
-        _load_data: Callable,
-        max: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Drive a MediaWiki API continuation query to completion.
+    def __repr__(self) -> str:
+        return f"NewApi(lang={self.lang!r}, username={self.username!r})"
 
-        Iterates the ``continue`` token until all pages are fetched or *max*
-        results have been collected.
 
-        Args:
-            params:     Base API parameters.
-            action:     Top-level JSON key to extract results from
-                        (e.g. ``"query"``).
-            max:        Stop accumulating after this many results.
-
-        Returns:
-            Accumulated results as a list
-        """
-        logger.debug("action=%s", action)
-
-        if isinstance(max, str) and max.isdigit():
-            max = int(max)
-        if max == 0:
-            max = 500_000
-        if max is None:
-            max = 500_000
-        results = []
-        continue_params: dict = {}
-
-        while True:
-            page_params = copy.deepcopy(params)
-
-            if not continue_params:
-                break
-            logger.debug("Applying continue_params: %s", continue_params)
-            page_params.update(continue_params)
-
-            body = self.login_bot.client_request(page_params)
-
-            if not body:
-                logger.debug("empty response, stopping")
-                break
-
-            continue_params = body.get("continue", {})
-
-            data = _load_data(body)
-
-            if not data:
-                logger.debug("no data in response, stopping")
-                break
-
-            logger.debug("+%d items (total %d)", len(data), len(results))
-
-            if len(results) >= max:
-                logger.debug("max=%d reached, stopping", max)
-                break
-
-            results.extend(data)
-
-        logger.debug("done, %d total results", len(results))
-        return results
+__all__ = [
+    "NewApi",
+]
