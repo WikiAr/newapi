@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import mwclient.errors
 import pytest
-
 from newapi.api_client.client import WikiLoginClient
 from newapi.api_client.exceptions import LoginError, WikiClientError
 

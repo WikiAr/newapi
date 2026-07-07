@@ -37,6 +37,7 @@ class NewApiHelpers:
         # ---
         return result
 
+
 class NewApi(AskBot, NewApiHelpers):
     def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
         # ---

@@ -2,7 +2,6 @@ import os
 import tempfile
 
 import pytest
-
 from newapi.DB_bots.db_bot import LiteDB
 
 
