@@ -17,6 +17,7 @@ exclude = '''
       | buck-out
       | build
       | dist
+      | typings
     )/
 '''
 
@@ -37,8 +38,6 @@ include_trailing_comma = true
 ensure_newline_before_comments = true
 
 # Project paths
-src_paths = "ArWikiCats"
-known_first_party = "ArWikiCats"
 skip = [
     ".env",
     "env",
@@ -72,6 +71,7 @@ exclude = [
     ".tox",
     ".venv",
     ".vscode",
+    "typings",
     "__pypackages__",
     "_build",
     "buck-out",
@@ -111,6 +111,8 @@ ignore = [
     "N802",
     "UP007",
     "UP045",
+    "UP031",
+    "F841",
 ]
 select = [
     "E",       # pycodestyle (error)
@@ -151,7 +153,6 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
-line-length = 120
 
 [tool.pylint.messages_control]
 max-line-length = 120
@@ -160,3 +161,92 @@ disable = [
     "C0103", # invalid-name
     "R0913", # too-many-arguments
 ]
+
+
+[tool.pyright]
+# Target Python version for type analysis
+pythonVersion = "3.13"
+stubPath = "typings"
+# Paths to include and exclude from checking
+include = ["src"]
+exclude = ["typings", "**/node_modules", "**/__pycache__", ".venv"]
+
+# Diagnostic modes: "basic" or "standard" or "strict"
+typeCheckingMode = "basic"
+
+# Automatically find virtual environments
+venvPath = "."
+venv = ".venv"
+
+# Fine-tune specific warning rules
+reportMissingTypeStubs = false
+reportGeneralTypeIssues = false
+reportUnknownMemberType = false
+enableReachabilityAnalysis = false
+strictListInference = false
+strictDictionaryInference = false
+strictSetInference = false
+deprecateTypingAliases = false
+enableExperimentalFeatures = false
+
+analyzeUnannotatedFunctions = true
+disableBytesTypePromotions = true
+strictParameterNoneValue = true
+enableTypeIgnoreComments = true
+reportMissingModuleSource = "warning"
+reportInvalidTypeForm = "warning"
+reportMissingImports = "warning"
+reportUndefinedVariable = "warning"
+
+reportReturnType = false
+reportArgumentType = false
+reportAttributeAccessIssue = "warning"
+reportAssignmentType = "warning"
+reportOptionalMemberAccess = "warning"
+reportCallIssue = "warning"
+reportOptionalSubscript = "warning"
+
+
+# -----
+reportAbstractUsage = false
+reportAssertAlwaysTrue = false
+reportAssertTypeFailure = false
+reportCallInDefaultInitializer = false
+reportConstantRedefinition = false
+reportDeprecated = false
+reportDuplicateImport = false
+reportFunctionMemberAccess = false
+reportImplicitOverride = false
+reportImplicitStringConcatenation = false
+reportImportCycles = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportIncompleteStub = false
+reportInconsistentOverload = false
+reportIndexIssue = false
+reportInvalidStringEscapeSequence = false
+reportInvalidStubStatement = false
+reportInvalidTypeArguments = false
+reportInvalidTypeVarUse = false
+reportMatchNotExhaustive = false
+reportMissingParameterType = false
+reportMissingSuperCall = false
+reportMissingTypeArgument = false
+reportOperatorIssue = false
+reportOptionalCall = false
+reportOptionalContextManager = false
+reportOptionalIterable = false
+reportOptionalOperand = false
+reportOverlappingOverload = false
+reportPossiblyUnboundVariable = false
+reportPrivateImportUsage = false
+reportPrivateUsage = false
+reportPropertyTypeMismatch = false
+reportRedeclaration = false
+reportTypeCommentUsage = false
+reportTypedDictNotRequiredAccess = false
+reportUnboundVariable = false
+reportUnhashable = false
+reportUninitializedInstanceVariable = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false

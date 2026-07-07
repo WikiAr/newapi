@@ -33,7 +33,7 @@ class LiteDB:
 
     def query(self, sql: str) -> List[tuple]:
         # return self.db.query(sql)
-        return [r for r in self.db.execute(sql).fetchall()]
+        return list(self.db.execute(sql).fetchall())
 
     def update(self, sql: str) -> None:
         self.db.executescript(sql)

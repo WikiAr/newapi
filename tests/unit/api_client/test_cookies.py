@@ -4,16 +4,14 @@ Unit tests for src/core/api_client/cookies.py module.
 
 import os
 from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import MagicMock, patch
 
-from newapi.api_client.cookies import (
+from newapi.api_client.cookies_client import (
     _COOKIE_MAX_AGE_DAYS,
     _delete_cookie_file,
     _delete_if_stale,
     get_cookie_path,
 )
-from newapi.api_client.exceptions import CookieError
+from newapi.api_client.exceptions import CookieError  # noqa: F401
 
 
 class TestGetCookiePath:

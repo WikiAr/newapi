@@ -2,7 +2,7 @@
 Unit tests for src/core/api_client/client.py module.
 """
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import mwclient.errors
 import pytest
@@ -13,12 +13,17 @@ from newapi.api_client.exceptions import LoginError, WikiClientError
 
 
 def _make_client(
-    lang: str = "en", family: str = "wikipedia", username: str = "MyBot", password: str = "pass", cookies_dir=None
+    lang: str = "en",
+    family: str = "wikipedia",
+    username: str = "MyBot",
+    password: str = "pass",
+    cookies_dir=None,
+    use_cookies=True,
 ):
     """Create a WikiLoginClient with all external dependencies mocked."""
     with (
         patch("newapi.api_client.client.mwclient.Site") as mock_site,
-        patch("newapi.api_client.client.get_cookie_path") as mock_path,
+        patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
     ):
         mock_path.return_value = MagicMock()
         site_instance = mock_site.return_value
@@ -26,7 +31,7 @@ def _make_client(
         site_instance.connection = MagicMock()
         site_instance.api_url = "http://example.com/api"
 
-        kw = dict(lang=lang, family=family, username=username, password=password)
+        kw = dict(lang=lang, family=family, username=username, password=password, use_cookies=use_cookies)
         if cookies_dir is not None:
             kw["cookies_dir"] = cookies_dir
         client = WikiLoginClient(**kw)
@@ -39,7 +44,7 @@ def _make_client(
 class TestEnrichParams:
 
     @patch("newapi.api_client.client.mwclient.Site")
-    @patch("newapi.api_client.client.get_cookie_path")
+    @patch("newapi.api_client.cookies_client.get_cookie_path")
     def test_query_action_strips_bot_and_summary(self, mock_path, mock_site) -> None:
         mock_path.return_value = MagicMock()
         mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
@@ -52,7 +57,7 @@ class TestEnrichParams:
         assert result["titles"] == "Python"
 
     @patch("newapi.api_client.client.mwclient.Site")
-    @patch("newapi.api_client.client.get_cookie_path")
+    @patch("newapi.api_client.cookies_client.get_cookie_path")
     def test_write_action_injects_bot_and_assertuser(self, mock_path, mock_site) -> None:
         mock_path.return_value = MagicMock()
         mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
@@ -119,7 +124,7 @@ class TestClientRequestRetry:
     def test_invalid_method_raises(self) -> None:
         with (
             patch("newapi.api_client.client.mwclient.Site") as mock_site,
-            patch("newapi.api_client.client.get_cookie_path"),
+            patch("newapi.api_client.cookies_client.get_cookie_path"),
         ):
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             client = WikiLoginClient("en", "wikipedia", "bot", "pass")
@@ -129,7 +134,7 @@ class TestClientRequestRetry:
     def test_api_error_raises_wiki_client_error(self) -> None:
         with (
             patch("newapi.api_client.client.mwclient.Site") as mock_site,
-            patch("newapi.api_client.client.get_cookie_path"),
+            patch("newapi.api_client.cookies_client.get_cookie_path"),
         ):
             site_instance = mock_site.return_value
             site_instance.api.return_value = {"query": {"userinfo": {"id": 1}}}
@@ -272,7 +277,7 @@ class TestSiteProperty:
 class TestRepr:
 
     @patch("newapi.api_client.client.mwclient.Site")
-    @patch("newapi.api_client.client.get_cookie_path")
+    @patch("newapi.api_client.cookies_client.get_cookie_path")
     def test_repr(self, mock_path, mock_site) -> None:
         mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
         client = WikiLoginClient("en", "wikipedia", "MyBot", "pass")
@@ -293,22 +298,22 @@ class TestInitCookiesDir:
     def test_passes_cookies_dir_to_get_cookie_path(self) -> None:
         with (
             patch("newapi.api_client.client.mwclient.Site") as mock_site,
-            patch("newapi.api_client.client.get_cookie_path") as mock_path,
+            patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
         ):
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             mock_path.return_value = MagicMock()
 
-            WikiLoginClient("en", "wikipedia", "bot", "pass", cookies_dir="/tmp/cookies")
+            WikiLoginClient("en", "wikipedia", "bot", "pass", cookies_dir="/tmp/cookies", use_cookies=True)
             mock_path.assert_called_once_with("/tmp/cookies", "wikipedia", "en", "bot")
 
     def test_default_cookies_dir_is_default_value(self) -> None:
         with (
             patch("newapi.api_client.client.mwclient.Site") as mock_site,
-            patch("newapi.api_client.client.get_cookie_path") as mock_path,
+            patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
         ):
             mock_site.return_value.api.return_value = {"query": {"userinfo": {"id": 1}}}
             mock_path.return_value = MagicMock()
 
-            WikiLoginClient("en", "wikipedia", "bot", "pass", "/tmp/cookies")
+            WikiLoginClient("en", "wikipedia", "bot", "pass", "/tmp/cookies", use_cookies=True)
             args = mock_path.call_args[0]
             assert args[0] == "/tmp/cookies"

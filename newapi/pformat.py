@@ -2,9 +2,6 @@
 python3 core8/pwb.py newapi/pformat
 """
 
-import sys
-from pathlib import Path
-
 import wikitextparser as wtp
 
 # python3 core8/pwb.py newapi/pformat -title:قالب:Cycling_race/stageclassification3

@@ -28,9 +28,9 @@ class Meta:
     create_data: dict = field(default_factory=dict)
     info: dict = field(default_factory=lambda: {"done": False})
     username: str = ""
-    Exists: str = ""
-    is_redirect: str = ""
-    flagged: str = ""
+    Exists: bool = False
+    is_redirect: bool = False
+    flagged: bool = False
     wikibase_item: str = ""
 
 
@@ -63,5 +63,5 @@ class CategoriesData:
 
 @dataclass
 class TemplateData:
-    templates: dict = field(default_factory=dict)
-    templates_api: dict = field(default_factory=dict)
+    templates: list = field(default_factory=list)
+    templates_api: list = field(default_factory=list)

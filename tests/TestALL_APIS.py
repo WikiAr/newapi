@@ -40,6 +40,7 @@ def test_all_apis_init(mock_dependencies) -> None:
         username=username,
         password=password,
         use_cookies=use_cookies,
+        cookies_dir=None,
     )
 
 

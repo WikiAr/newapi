@@ -6,18 +6,18 @@ The `api_client` package provides a robust, authenticated HTTP client for the Me
 
 ### Main Modules
 
-| Module | Purpose |
-|---|---|
-| `client.py` | Core client classes: `RequestsHandler` (retry/transport), `CookiesClient` (cookie I/O), `WikiLoginClient` (business layer) |
-| `cookies.py` | Cookie file path resolution, staleness checks, and cleanup |
-| `exceptions.py` | Custom exception hierarchy rooted at `WikiClientError` |
+| Module          | Purpose                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `client.py`     | Core client classes: `RequestsHandler` (retry/transport), `CookiesClient` (cookie I/O), `WikiLoginClient` (business layer) |
+| `cookies.py`    | Cookie file path resolution, staleness checks, and cleanup                                                                 |
+| `exceptions.py` | Custom exception hierarchy rooted at `WikiClientError`                                                                     |
 
 ### Technologies & Dependencies
 
-- **`mwclient`** -- MediaWiki client library (provides `Site` and session management)
-- **`requests`** -- HTTP transport (used internally by mwclient)
-- **`http.cookiejar.LWPCookieJar`** -- Mozilla-format cookie persistence
-- **Standard library:** `copy`, `logging`, `os`, `stat`, `time`, `datetime`, `pathlib`
+-   **`mwclient`** -- MediaWiki client library (provides `Site` and session management)
+-   **`requests`** -- HTTP transport (used internally by mwclient)
+-   **`http.cookiejar.LWPCookieJar`** -- Mozilla-format cookie persistence
+-   **Standard library:** `copy`, `logging`, `os`, `stat`, `time`, `datetime`, `pathlib`
 
 ---
 
@@ -33,10 +33,10 @@ The package follows a layered architecture:
 
 ### Design Patterns
 
-- **Template Method Pattern**: `RequestsHandler` defines the retry loop skeleton and calls abstract hooks (`_session`, `_refresh_csrf_token`, `_on_assertnameduserfailed`) that `WikiLoginClient` implements.
-- **Mixin / Multiple Inheritance**: `WikiLoginClient` inherits from both `CookiesClient` and `RequestsHandler`.
-- **Facade**: Wraps `mwclient.Site` and `requests.Session` behind a simplified interface.
-- **Strategy-like error handling**: The retry loop dispatches on error code to distinct handlers (CSRF, maxlag, assertnameduserfailed, ratelimited).
+-   **Template Method Pattern**: `RequestsHandler` defines the retry loop skeleton and calls abstract hooks (`_session`, `_refresh_csrf_token`, `_on_assertnameduserfailed`) that `WikiLoginClient` implements.
+-   **Mixin / Multiple Inheritance**: `WikiLoginClient` inherits from both `CookiesClient` and `RequestsHandler`.
+-   **Facade**: Wraps `mwclient.Site` and `requests.Session` behind a simplified interface.
+-   **Strategy-like error handling**: The retry loop dispatches on error code to distinct handlers (CSRF, maxlag, assertnameduserfailed, ratelimited).
 
 ### Maintainability
 
@@ -54,21 +54,21 @@ The client is single-threaded with no connection pooling configuration beyond wh
 
 ## Strengths
 
-- **Robust retry logic**: Handles CSRF token invalidation, maxlag, rate limiting, and session expiry with configurable retry counts and exponential backoff.
-- **Cookie persistence**: Sessions survive process restarts via LWPCookieJar with automatic staleness invalidation (3-day max age).
-- **Write-action safety**: Automatically injects `bot=1` and `assertuser` parameters for mutating API requests.
-- **Clean exception hierarchy**: Well-structured custom exceptions with a common base class.
-- **Continuation pagination**: `post_continue` handles multi-page API responses transparently.
+-   **Robust retry logic**: Handles CSRF token invalidation, maxlag, rate limiting, and session expiry with configurable retry counts and exponential backoff.
+-   **Cookie persistence**: Sessions survive process restarts via LWPCookieJar with automatic staleness invalidation (3-day max age).
+-   **Write-action safety**: Automatically injects `bot=1` and `assertuser` parameters for mutating API requests.
+-   **Clean exception hierarchy**: Well-structured custom exceptions with a common base class.
+-   **Continuation pagination**: `post_continue` handles multi-page API responses transparently.
 
 ---
 
 ## Weaknesses
 
-- **Code duplication**: `client_request_retry` (lines 693-766) is a copy-paste of `_client_request` logic. Any bug fix in one must be manually replicated in the other.
-- **Unused exceptions**: `MaxRetriesExceeded` and `CookieError` are defined and exported but never raised anywhere in the codebase.
-- **Shadowed builtins**: The `max` parameter in `post_continue` shadows Python's built-in `max()`.
-- **Hardcoded domain workaround**: `mdwiki.org` special case baked into the general-purpose client (line 442).
-- **Unused `**kwargs`**: All three request methods accept `**kwargs` but never pass them downstream.
+-   **Code duplication**: `client_request_retry` (lines 693-766) is a copy-paste of `_client_request` logic. Any bug fix in one must be manually replicated in the other.
+-   **Unused exceptions**: `MaxRetriesExceededError` and `CookieError` are defined and exported but never raised anywhere in the codebase.
+-   **Shadowed builtins**: The `max` parameter in `post_continue` shadows Python's built-in `max()`.
+-   **Hardcoded domain workaround**: `mdwiki.org` special case baked into the general-purpose client (line 442).
+-   **Unused `**kwargs`**: All three request methods accept `\*\*kwargs` but never pass them downstream.
 
 ---
 
@@ -116,26 +116,28 @@ Uses `client_request_safe` for continuation pages. If a continuation page fails,
 
 ## Areas That Need Attention
 
-- **Missing HTTP timeout**: Add `timeout=(connect, read)` to all HTTP requests.
-- **Missing `__init__.py` exports**: `_delete_cookie_file` is a private-underscore function imported across modules -- rename or make public.
-- **No context manager**: The client holds resources (`requests.Session`, cookie jar) but provides no `__enter__`/`__exit__` for clean release.
-- **No abstract base class**: `RequestsHandler` uses `raise NotImplementedError` instead of `abc.ABC` with `@abstractmethod`.
-- **No input validation**: `lang` and `family` parameters are not validated -- empty strings or special characters produce malformed URLs.
-- **No structured error context**: Exceptions carry only a message string. Adding `error_code`, `url`, `attempt_count` fields would aid debugging.
-- **f-string in logger call** (line 575): Inconsistent with the rest of the module's `%s` formatting and defeats lazy evaluation.
+-   **Missing HTTP timeout**: Add `timeout=(connect, read)` to all HTTP requests.
+-   **Missing `__init__.py` exports**: `_delete_cookie_file` is a private-underscore function imported across modules -- rename or make public.
+-   **No context manager**: The client holds resources (`requests.Session`, cookie jar) but provides no `__enter__`/`__exit__` for clean release.
+-   **No abstract base class**: `RequestsHandler` uses `raise NotImplementedError` instead of `abc.ABC` with `@abstractmethod`.
+-   **No input validation**: `lang` and `family` parameters are not validated -- empty strings or special characters produce malformed URLs.
+-   **No structured error context**: Exceptions carry only a message string. Adding `error_code`, `url`, `attempt_count` fields would aid debugging.
+-   **f-string in logger call** (line 575): Inconsistent with the rest of the module's `%s` formatting and defeats lazy evaluation.
 
 ---
 
 ## Improvement Plan
 
 ### Quick Wins
+
 1. Increment `attempt` in the `ratelimited` handler to prevent infinite loops.
 2. Add `timeout` parameter to `_execute_request`.
 3. Remove `client_request_retry` duplication -- delegate to `_client_request`.
-4. Raise unused exceptions (`MaxRetriesExceeded`, `CookieError`) or remove them.
+4. Raise unused exceptions (`MaxRetriesExceededError`, `CookieError`) or remove them.
 5. Fix the f-string logger call to use `%s` formatting.
 
 ### Medium-Term Improvements
+
 1. Implement `_ensure_logged_in` to actually trigger login when cookies are absent.
 2. Add `__enter__`/`__exit__` context manager support.
 3. Use `abc.ABC` and `@abstractmethod` for `RequestsHandler`.
@@ -144,6 +146,7 @@ Uses `client_request_safe` for continuation pages. If a continuation page fails,
 6. Make the `mdwiki.org` workaround configurable.
 
 ### Long-Term Refactoring
+
 1. Split `client.py` into separate modules: `transport.py`, `auth.py`, `pagination.py`.
 2. Add structured error context to all exceptions.
 3. Configure `urllib3.util.retry.Retry` and `HTTPAdapter` at the transport level.
@@ -154,10 +157,10 @@ Uses `client_request_safe` for continuation pages. If a continuation page fails,
 
 ## Comprehensive Review
 
-| Metric | Score |
-|---|---|
-| **Overall Rating** | **6.5/10** |
-| **Production Readiness** | Moderate -- functional but has infinite loop bug and missing timeouts |
-| **Technical Debt** | Medium -- code duplication, unused exceptions, hardcoded workarounds |
-| **Risk Assessment** | Medium-High -- the ratelimited infinite loop and missing timeouts are production risks |
-| **Maintainability** | 6/10 -- clear architecture but duplicated code and 850+ line file |
+| Metric                   | Score                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| **Overall Rating**       | **6.5/10**                                                                             |
+| **Production Readiness** | Moderate -- functional but has infinite loop bug and missing timeouts                  |
+| **Technical Debt**       | Medium -- code duplication, unused exceptions, hardcoded workarounds                   |
+| **Risk Assessment**      | Medium-High -- the ratelimited infinite loop and missing timeouts are production risks |
+| **Maintainability**      | 6/10 -- clear architecture but duplicated code and 850+ line file                      |

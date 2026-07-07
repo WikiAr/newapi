@@ -1,10 +1,12 @@
 """ """
 
+import copy
 import datetime
 import logging
 import time
 from collections.abc import KeysView
 from datetime import timedelta
+from typing import Any, Callable
 
 import tqdm
 
@@ -16,17 +18,58 @@ from ...client_wiki.api_utils.lang_codes import change_codes
 logger = logging.getLogger(__name__)
 
 
-class NewApi(HandleErrors, AskBot):
+class NewApiHelpers:
+    def __init__(self):
+        pass
+
+    def chunk_titles(self, titles, chunk_size: int = 50, noprint: bool = False):
+        # ---
+        if isinstance(titles, dict):
+            titles = list(titles.keys())
+
+        elif isinstance(titles, KeysView):
+            # TypeError: 'dict_keys' object is not subscriptable
+            titles = list(titles)
+        # ---
+        result = [titles[i : i + chunk_size] for i in range(0, len(titles), chunk_size)]
+        # ---
+        if not noprint:
+            result = tqdm.tqdm(result, desc=f"chunk_titles {len(titles)} split to {len(result)} chunks")
+        # ---
+        return result
+
+    def merge_all_jsons_deep(self, all_jsons, json1):
+        def deep_merge(a, b):
+            # if both are dicts, merge keys
+            if isinstance(a, dict) and isinstance(b, dict):
+                for k, v in b.items():
+                    if k in a:
+                        a[k] = deep_merge(a[k], v)
+                    else:
+                        a[k] = v
+                return a
+            # if both are lists, concatenate them
+            elif isinstance(a, list) and isinstance(b, list):
+                return a + b
+            # in case of different types, take the new one
+            else:
+                return b
+
+        # if all_jsons is not dict, make it dict
+        if not isinstance(all_jsons, dict):
+            all_jsons = {}
+
+        return deep_merge(all_jsons, json1)
+
+
+class NewApi(AskBot, NewApiHelpers):
     def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
         # ---
+        self.error_handler = HandleErrors()
         self.login_bot = login_bot
         # ---
         self.username = getattr(self, "username", "")
-        # self.family = family
         self.lang = change_codes.get(lang) or lang
-        # ---
-        # self.family = family
-        # self.endpoint = f"https://{lang}.{family}.org/w/api.php"
         # ---
         self.cxtoken_expiration = 0
         self.cxtoken = ""
@@ -59,9 +102,6 @@ class NewApi(HandleErrors, AskBot):
             json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
-                if not noprint:
-                    logger.info("<<lightred>> error when ")
-                # return table
                 continue
             # ---
             all_jsons = self.merge_all_jsons_deep(all_jsons, json1)
@@ -244,8 +284,13 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if start:
             params["apfrom"] = start
+
         # ---
-        newp = self.post_continue(params, "query", _p_="allpages", p_empty=[], max=limit_all)
+        def _load_data(body):
+            return body.get("query", {}).get("allpages") or []
+
+        # ---
+        newp = self.post_continue_list(params=params, action="query", max=limit_all, _load_data=_load_data)
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -254,6 +299,66 @@ class NewApi(HandleErrors, AskBot):
         logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
         logger.info(f"bot_api.py : find {len(Main_table)} pages.")
+        # ---
+        return Main_table
+
+    def Get_All_pages_generator(
+        self,
+        start: str = "",
+        namespace: str = "0",
+        limit: int = "max",
+        filterredir: str = "",
+        ppprop: str = "",
+        limit_all: int = 100000,
+    ):
+        # ---
+        logger.debug(
+            f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
+        )
+        # ---
+        params = {
+            "action": "query",
+            "format": "json",
+            "prop": "pageprops",
+            "generator": "allpages",
+            "gapnamespace": namespace,
+            "gaplimit": limit,
+            "formatversion": 2,
+            # "ppprop": "unlinkedwikibase_id",
+            "utf8": 1,
+        }
+        # ---
+        if str(namespace) in ["*", "", "all"]:
+            del params["gapnamespace"]
+        # ---
+        if ppprop:
+            params["ppprop"] = ppprop
+        # ---
+        if filterredir in ["redirects", "all", "nonredirects"]:
+            params["gapfilterredir"] = filterredir
+        # ---
+        if start:
+            params["gapfrom"] = start
+
+        # ---
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        newp = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=limit_all,
+        )
+        # ---
+        logger.debug(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
+        # ---
+        Main_table = {x["title"]: x for x in newp}
+        # ---
+        logger.debug(f"len of Main_table {len(Main_table)}.")
+        # ---
+        logger.info(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
@@ -303,8 +408,18 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if pslimit.isdigit():
             params["pslimit"] = pslimit
+
         # ---
-        newp = self.post_continue(params, "query", _p_="prefixsearch", p_empty=[], max=limit_all)
+        def _load_data(body):
+            return body.get("query", {}).get("prefixsearch") or []
+
+        # ---
+        newp = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=limit_all,
+        )
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -313,56 +428,6 @@ class NewApi(HandleErrors, AskBot):
         logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
         logger.info(f"bot_api.py : find {len(Main_table)} pages.")
-        # ---
-        return Main_table
-
-    def Get_All_pages_generator(
-        self,
-        start: str = "",
-        namespace: str = "0",
-        limit: int = "max",
-        filterredir: str = "",
-        ppprop: str = "",
-        limit_all: int = 100000,
-    ):
-        # ---
-        logger.debug(
-            f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
-        )
-        # ---
-        params = {
-            "action": "query",
-            "format": "json",
-            "prop": "pageprops",
-            "generator": "allpages",
-            "gapnamespace": namespace,
-            "gaplimit": limit,
-            "formatversion": 2,
-            # "ppprop": "unlinkedwikibase_id",
-            "utf8": 1,
-        }
-        # ---
-        if str(namespace) in ["*", "", "all"]:
-            del params["gapnamespace"]
-        # ---
-        if ppprop:
-            params["ppprop"] = ppprop
-        # ---
-        if filterredir in ["redirects", "all", "nonredirects"]:
-            params["gapfilterredir"] = filterredir
-        # ---
-        if start:
-            params["gapfrom"] = start
-        # ---
-        newp = self.post_continue(params, "query", _p_="pages", p_empty=[], max=limit_all)
-        # ---
-        logger.debug(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
-        # ---
-        Main_table = {x["title"]: x for x in newp}
-        # ---
-        logger.debug(f"len of Main_table {len(Main_table)}.")
-        # ---
-        logger.info(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
@@ -400,8 +465,17 @@ class NewApi(HandleErrors, AskBot):
         if addparams:
             addparams = {x: v for x, v in addparams.items() if v and x not in params}
             params = {**params, **addparams}
+
         # ---
-        search = self.post_continue(params, "query", _p_="search", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("search") or []
+
+        # ---
+        search = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
         # ---
         results = []
         # ---
@@ -455,8 +529,16 @@ class NewApi(HandleErrors, AskBot):
         else:
             limit = 5000
 
-        json1 = self.post_continue(params, "query", _p_="recentchanges", p_empty=[], max=limit)
+        def _load_data(body):
+            return body.get("query", {}).get("recentchanges") or []
 
+        # ---
+        json1 = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=limit,
+        )
         Main_table = [x["title"] for x in json1]
 
         logger.debug(f'bot_api. find "{len(Main_table)}" result. s')
@@ -481,28 +563,22 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if ucshow:
             params["ucshow"] = ucshow
+
         # ---
-        results = self.post_continue(params, "query", _p_="usercontribs", p_empty=[], max=limit)
+        def _load_data(body):
+            return body.get("query", {}).get("usercontribs") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=limit,
+        )
         # ---
         results = [x["title"] for x in results]
         # ---
         return results
-
-    def chunk_titles(self, titles, chunk_size: int = 50, noprint: bool = False):
-        # ---
-        if isinstance(titles, dict):
-            titles = list(titles.keys())
-
-        elif isinstance(titles, KeysView):
-            # TypeError: 'dict_keys' object is not subscriptable
-            titles = list(titles)
-        # ---
-        result = [titles[i : i + chunk_size] for i in range(0, len(titles), chunk_size)]
-        # ---
-        if not noprint:
-            result = tqdm.tqdm(result, desc=f"chunk_titles {len(titles)} split to {len(result)} chunks")
-        # ---
-        return result
 
     def Get_langlinks_for_list(self, titles, targtsitecode: str = "", numbes: int = 40):
         """Retrieve language links for a list of titles from a specified target
@@ -627,8 +703,21 @@ class NewApi(HandleErrors, AskBot):
             "ellimit": "max",
             "formatversion": 2,
         }
+
         # ---
-        results = self.post_continue(params, "query", "pages", [], first=True, _p_2="extlinks", _p_2_empty=[])
+        def _load_data(body):
+            data = body.get("query", {}).get("pages") or []
+            if isinstance(data, list) and data:
+                data = data[0]
+                data = data.get("extlinks", [])
+            return data
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
         # ---
         links = [x["url"] for x in results]
         # ---
@@ -647,15 +736,16 @@ class NewApi(HandleErrors, AskBot):
             "ellimit": "max",
             "formatversion": 2,
         }
+
         # ---
-        results = self.post_continue(
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        results = self.post_continue_list(
             params,
             "query",
             "pages",
-            [],
-            first=False,
-            _p_2="pageassessments",
-            _p_2_empty=[],
         )
         # ---
         return results
@@ -678,8 +768,17 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if options:
             params.update(options)
+
         # ---
-        results = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
         # ---
         return results
 
@@ -742,8 +841,18 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if qppage not in qppage_values:
             logger.info(f"<<lightred>> qppage {qppage} not in qppage_values.")
+
         # ---
-        results = self.post_continue(params, "query", _p_="querypage", p_empty=[], max=max)
+        def _load_data(body):
+            return body.get("query", {}).get("querypage") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=max,
+        )
         # ---
         logger.debug(f" len(results) = {len(results)}")
         # ---
@@ -762,8 +871,17 @@ class NewApi(HandleErrors, AskBot):
             "gtilimit": "max",
             "formatversion": "2",
         }
+
         # ---
-        results = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
         # ---
         # { "pageid": 2973452, "ns": 100, "title": "بوابة:سباق الدراجات الهوائية" }
         pages = [x["title"] for x in results]
@@ -847,8 +965,18 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if pwppropname != "":
             params["pwppropname"] = pwppropname
+
         # ---
-        results = self.post_continue(params, "query", _p_="pageswithprop", p_empty=[], max=max)
+        def _load_data(body):
+            return body.get("query", {}).get("pageswithprop") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+            max=max,
+        )
         # ---
         logger.debug(f" len(results) = {len(results)}")
         # ---
@@ -869,8 +997,17 @@ class NewApi(HandleErrors, AskBot):
                 "utf8": 1,
                 # "normalize": 1,
             }
+
             # ---
-            json1 = self.post_continue(params, "query", _p_="redirects", p_empty=[])
+            def _load_data(body):
+                return body.get("query", {}).get("redirects") or []
+
+            # ---
+            json1 = self.post_continue_list(
+                params=params,
+                action="query",
+                _load_data=_load_data,
+            )
             # ---
             lists = {x["from"]: x["to"] for x in json1}
             # ---
@@ -878,35 +1015,6 @@ class NewApi(HandleErrors, AskBot):
                 redirects.update(lists)
         # ---
         return redirects
-
-    def get_cxtoken(self):
-        # ---
-        if self.cxtoken and self.cxtoken_expiration:
-            current_time = int(time.time())
-            if current_time < self.cxtoken_expiration:
-                return self.cxtoken
-            else:
-                self.cxtoken = ""
-                self.cxtoken_expiration = 0
-        # ---
-        print("get_cxtoken")
-        # ---
-        params = {"action": "cxtoken", "format": "json"}
-        # ---
-        data = self.login_bot.client_request_safe(params, method="post")
-        # ---
-        if not data:
-            return ""
-        # ---
-        # { "jwt": "eyJ0eXAiOiJ.....", "exp": 1728172536, "age": 3600 }
-        jwt = data.get("jwt", "")
-        exp = data.get("exp", 0)
-        # ---
-        if jwt:
-            self.cxtoken = jwt
-            self.cxtoken_expiration = exp
-        # ---
-        return jwt
 
     def users_infos(self, ususers=None) -> list[dict]:
         # ---
@@ -940,8 +1048,17 @@ class NewApi(HandleErrors, AskBot):
         ususers = list(set(ususers))
         # ---
         params["ususers"] = "|".join(ususers)
+
         # ---
-        results = self.post_continue(params, "query", _p_="users", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("users") or []
+
+        # ---
+        results = self.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
         # ---
         logger.debug(f" len(results) = {len(results)}")
         # ---
@@ -949,59 +1066,34 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return results
 
-    def post_params(
-        self,
-        params,
-        method: str = "get",
-        files=None,
-        **kwargs,
-    ):
+    def get_cxtoken(self):
         # ---
-        return self.login_bot.client_request_safe(
-            params,
-            method=method,
-            files=files,
-            **kwargs,
-        )
-
-    def client_request_safe(
-        self,
-        params,
-        method: str = "get",
-        files=None,
-        **kwargs,
-    ):
+        if self.cxtoken and self.cxtoken_expiration:
+            current_time = int(time.time())
+            if current_time < self.cxtoken_expiration:
+                return self.cxtoken
+            else:
+                self.cxtoken = ""
+                self.cxtoken_expiration = 0
         # ---
-        return self.login_bot.client_request_safe(
-            params,
-            method=method,
-            files=files,
-            **kwargs,
-        )
-
-    def post_continue(
-        self,
-        params,
-        action,
-        _p_: str = "pages",
-        p_empty=None,
-        max: int = 500000,
-        first: bool = False,
-        _p_2: str = "",
-        _p_2_empty=None,
-        **kwargs,
-    ):
-        return self.login_bot.post_continue(
-            params,
-            action,
-            _p_=_p_,
-            p_empty=p_empty,
-            max=max,
-            first=first,
-            _p_2=_p_2,
-            _p_2_empty=_p_2_empty,
-            **kwargs,
-        )
+        print("get_cxtoken")
+        # ---
+        params = {"action": "cxtoken", "format": "json"}
+        # ---
+        data = self.login_bot.client_request_safe(params, method="post")
+        # ---
+        if not data:
+            return ""
+        # ---
+        # { "jwt": "eyJ0eXAiOiJ.....", "exp": 1728172536, "age": 3600 }
+        jwt = data.get("jwt", "")
+        exp = data.get("exp", 0)
+        # ---
+        if jwt:
+            self.cxtoken = jwt
+            self.cxtoken_expiration = exp
+        # ---
+        return jwt
 
     def Add_To_Bottom(self, text: str, summary, title, poss: str = "Head|Bottom"):
         # ---
@@ -1059,7 +1151,7 @@ class NewApi(HandleErrors, AskBot):
         # ---
         if error != {}:
             print(results)
-            er = self.handle_err(error, function="Add_To_Bottom", params=params)
+            er = self.error_handler.handle_err(error, function="Add_To_Bottom", params=params)
             # ---
             return er
         # ---
@@ -1313,53 +1405,98 @@ class NewApi(HandleErrors, AskBot):
         # ---
         return tab
 
-    def merge_all_jsons_deep(self, all_jsons, json1):
-        def deep_merge(a, b):
-            # إذا كان كلاهما dict → دمج مفاتيح
-            if isinstance(a, dict) and isinstance(b, dict):
-                for k, v in b.items():
-                    if k in a:
-                        a[k] = deep_merge(a[k], v)
-                    else:
-                        a[k] = v
-                return a
-            # إذا كان كلاهما list → تمديد القوائم
-            elif isinstance(a, list) and isinstance(b, list):
-                return a + b
-            # في حالة اختلاف النوع → نأخذ الجديد
-            else:
-                return b
-
-        # إذا لم يكن all_jsons dict نجعله dict
-        if not isinstance(all_jsons, dict):
-            all_jsons = {}
-
-        return deep_merge(all_jsons, json1)
-
-    def merge_all_jsons(self, all_jsons, json1):
-        # --- إذا كان all_jsons ليس dict نحوله
-        if not isinstance(all_jsons, dict):
-            all_jsons = {}
+    def post_params(
+        self,
+        params,
+        method: str = "get",
+        files=None,
+        **kwargs,
+    ):
         # ---
-        # guard against non-dict inputs for json1
-        if not isinstance(json1, dict):
-            return all_jsons
+        return self.login_bot.client_request_safe(
+            params,
+            method=method,
+            files=files,
+            **kwargs,
+        )
+
+    def client_request_safe(
+        self,
+        params,
+        method: str = "get",
+        files=None,
+        **kwargs,
+    ):
         # ---
-        for x, z in json1.items():
-            if x not in all_jsons:
-                all_jsons[x] = z
-                continue
-            # ---
-            tab = all_jsons[x]
-            # --- إذا كان كلاهما list
-            if isinstance(tab, list) and isinstance(z, list):
-                # explicit shallow copy of z to avoid surprises if z is reused
-                tab.extend(list(z))
-            # --- إذا كان كلاهما dict
-            elif isinstance(tab, dict) and isinstance(z, dict):
-                tab.update(z)
-            # --- في حالة اختلاف النوع أو قيمة بسيطة
-            else:
-                all_jsons[x] = z
-        # ---
-        return all_jsons
+        return self.login_bot.client_request_safe(
+            params,
+            method=method,
+            files=files,
+            **kwargs,
+        )
+
+    def post_continue_list(
+        self,
+        params: dict,
+        action: str,
+        _load_data: Callable,
+        max: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Drive a MediaWiki API continuation query to completion.
+
+        Iterates the ``continue`` token until all pages are fetched or *max*
+        results have been collected.
+
+        Args:
+            params:     Base API parameters.
+            action:     Top-level JSON key to extract results from
+                        (e.g. ``"query"``).
+            max:        Stop accumulating after this many results.
+
+        Returns:
+            Accumulated results as a list
+        """
+        logger.debug("action=%s", action)
+
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+        if max == 0:
+            max = 500_000
+        if max is None:
+            max = 500_000
+        results = []
+        continue_params: dict = {}
+
+        while True:
+            page_params = copy.deepcopy(params)
+
+            if not continue_params:
+                break
+            logger.debug("Applying continue_params: %s", continue_params)
+            page_params.update(continue_params)
+
+            body = self.login_bot.client_request(page_params)
+
+            if not body:
+                logger.debug("empty response, stopping")
+                break
+
+            continue_params = body.get("continue", {})
+
+            data = _load_data(body)
+
+            if not data:
+                logger.debug("no data in response, stopping")
+                break
+
+            logger.debug("+%d items (total %d)", len(data), len(results))
+
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
+
+            results.extend(data)
+
+        logger.debug("done, %d total results", len(results))
+        return results

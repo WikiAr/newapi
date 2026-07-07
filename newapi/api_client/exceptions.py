@@ -18,9 +18,19 @@ class MaxlagError(WikiClientError):
     """Raised when server maxlag is not resolved after all attempts."""
 
 
-class MaxRetriesExceeded(WikiClientError):
+class MaxRetriesExceededError(WikiClientError):
     """Raised when the generic retry cap is hit."""
 
 
 class CookieError(WikiClientError):
     """Raised when the cookie file cannot be read or written."""
+
+
+__all__ = [
+    "WikiClientError",
+    "LoginError",
+    "CSRFError",
+    "MaxlagError",
+    "MaxRetriesExceededError",
+    "CookieError",
+]

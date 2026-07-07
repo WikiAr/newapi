@@ -30,7 +30,7 @@ def find_edit_error(old, new) -> bool:
     return False
 
 
-class MainPage(HandleErrors, AskBot):
+class MainPage(AskBot):
     """
     Main page class for interacting with MediaWiki pages.
 
@@ -51,6 +51,7 @@ class MainPage(HandleErrors, AskBot):
         Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
         """
 
+        self.error_handler = HandleErrors()
         self.login_bot = login_bot
 
         self.title: str = title
@@ -638,7 +639,7 @@ class MainPage(HandleErrors, AskBot):
             self.get_text()
         return self.user
 
-    def get_templates(self) -> dict:
+    def get_templates(self) -> list[dict[str, Any]]:
         if not self.text:
             self.text = self.get_text()
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)
@@ -660,16 +661,16 @@ class MainPage(HandleErrors, AskBot):
         Prompts for confirmation and checks for invalid edits before submitting the change. Updates instance attributes with the latest revision and timestamps on success.
 
         Args:
-                newtext: The new wikitext to save to the page.
-                summary: Edit summary for the change.
-                nocreate: If 1 (default), prevents creating the page if it does not exist.
-                minor: Indicates if the edit should be marked as minor.
-                tags: Optional tags to associate with the edit.
-                nodiff: If True, skips showing a diff before saving.
-                ask: If True, prompts the user for confirmation before saving.
+            newtext: The new wikitext to save to the page.
+            summary: Edit summary for the change.
+            nocreate: If 1 (default), prevents creating the page if it does not exist.
+            minor: Indicates if the edit should be marked as minor.
+            tags: Optional tags to associate with the edit.
+            nodiff: If True, skips showing a diff before saving.
+            ask: If True, prompts the user for confirmation before saving.
 
         Returns:
-                True if the edit was successful, False otherwise.
+            True if the edit was successful, False otherwise.
         """
 
         self.newtext = newtext
@@ -744,7 +745,7 @@ class MainPage(HandleErrors, AskBot):
 
         if error != {}:
             logger.debug(pop)
-            er = self.handle_err(error, function="Save", params=params)
+            er = self.error_handler.handle_err(error, function="Save", params=params)
 
             return er
 
@@ -862,7 +863,7 @@ class MainPage(HandleErrors, AskBot):
 
         if error != {}:
             logger.debug(pop)
-            er = self.handle_err(error, function="Create", params=params)
+            er = self.error_handler.handle_err(error, function="Create", params=params)
             return er
 
         return False
@@ -896,7 +897,15 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # pages = data.get("query", {}).get("pages", [])
 
-        pages = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        pages = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         back_links = [x for x in pages if x["title"] != self.title]
 
@@ -924,7 +933,15 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # data = data.get('parse', {}).get('links', [])
 
-        data: list = self.post_continue(params, "parse", _p_="links", p_empty=[])
+        def _load_data(body):
+            return body.get("parse", {}).get("links") or []
+
+        # ---
+        data: list = self.login_bot.post_continue_list(
+            params=params,
+            action="parse",
+            _load_data=_load_data,
+        )
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -945,7 +962,15 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # data = data.get('query', {}).get('links', [])
 
-        data = self.post_continue(params, "query", _p_="links", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("links") or []
+
+        # ---
+        data: list = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -982,7 +1007,15 @@ class MainPage(HandleErrors, AskBot):
             "rvprop": "|".join(rvprop),
         }
 
-        _revisions = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        _revisions = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         revisions = []
 

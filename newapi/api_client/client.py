@@ -32,30 +32,17 @@ Examples::
 from __future__ import annotations
 
 import copy
-import http.cookiejar
 import logging
-import time
-from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Callable, Union
 
 import mwclient
 import mwclient.errors
-import requests
 
-from ..config import settings
-from .cookies import (
-    _delete_cookie_file,
-    get_cookie_path,
-)
-from .exceptions import (
-    CSRFError,
-    LoginError,
-    MaxlagError,
-    WikiClientError,
-)
+from .cookies_client import CookiesClient
+from .exceptions import LoginError, WikiClientError
+from .requests_handler import RequestsHandler
 
 logger = logging.getLogger(__name__)
-
 
 skip_log_params = [
     "token",
@@ -63,308 +50,13 @@ skip_log_params = [
     "lgpassword",
     "text",
 ]
-# ---------------------------------------------------------------------------
-# RequestsHandler — transport + retry layer
-# ---------------------------------------------------------------------------
-
-
-class RequestsHandler:
-    """
-    Owns a ``requests.Session`` and drives every HTTP call through a unified
-    retry loop that handles:
-
-    - CSRF / bad token  → refresh token, reinject, retry
-    - maxlag            → exponential back-off, retry
-    - assertnameduserfailed → delegate re-login hook, retry
-
-    Subclasses must supply ``_session`` (a ``requests.Session``) and may
-    override ``_on_assertnameduserfailed`` to implement session recovery.
-    """
-
-    # ------------------------------------------------------------------
-    # Abstract-ish contract that subclasses must satisfy
-    # ------------------------------------------------------------------
-
-    @property
-    def _session(self) -> requests.Session:
-        """The live ``requests.Session``.  Subclasses must assign this."""
-        raise NotImplementedError  # pragma: no cover
-
-    def _refresh_csrf_token(self) -> str:
-        """
-        Fetch and return a fresh CSRF token.
-        Subclasses override this to call ``site.get_token("csrf", force=True)``.
-        """
-        raise NotImplementedError  # pragma: no cover
-
-    def _on_assertnameduserfailed(self) -> None:
-        """
-        Called when the API returns ``assertnameduserfailed``.
-        Subclasses implement session-recovery logic (re-login, cookie reset).
-        """
-        raise NotImplementedError  # pragma: no cover
-
-    # ------------------------------------------------------------------
-    # Core request execution — the only method that touches the network
-    # ------------------------------------------------------------------
-
-    def _execute_request(
-        self,
-        method: str,
-        url: str,
-        *,
-        params: Optional[dict] = None,
-        data: Optional[dict] = None,
-        files: Optional[Any] = None,
-    ) -> requests.Response:
-        """
-        Send one HTTP request through the session with no retry logic.
-        Returns the raw ``requests.Response``.
-        """
-        return self._session.request(
-            method,
-            url,
-            params=params,
-            data=data,
-            files=files,
-        )
-
-    # ------------------------------------------------------------------
-    # Retry loop  (called by WikiLoginClient.client_request)
-    # ------------------------------------------------------------------
-
-    def _request_with_retry(
-        self,
-        method: str,
-        url: str,
-        *,
-        params: Optional[dict] = None,
-        data: Optional[dict] = None,
-        files: Optional[Any] = None,
-        assertnameduser_retries: int = 1,
-    ) -> dict:
-        """
-        Execute a request and automatically retry on transient API errors.
-
-        Retry conditions (each counted against ``settings.api_client.max_retries``):
-          - CSRF / bad token  → ``_handle_csrf``  → inject new token, retry
-          - maxlag            → ``_handle_maxlag`` → sleep, retry
-          - assertnameduserfailed → ``_on_assertnameduserfailed`` → retry once
-
-        All other errors bubble up unchanged.
-
-        Returns:
-            Parsed JSON response dict.
-
-        Raises:
-            CSRFError, MaxlagError: after exhausting retries.
-            WikiClientError:        on assertnameduserfailed after recovery.
-            requests.HTTPError:     on non-2xx HTTP status.
-        """
-        # Mutable copies so per-retry mutations (token reinject) stay local
-        # to this call and don't bleed into the caller's dict.
-        working_params = dict(params) if params else {}
-        working_data = dict(data) if data else {}
-
-        attempt = 0
-        named_user_attempts = 0
-
-        while attempt < settings.api_client.max_retries:
-            response = self._execute_request(
-                method,
-                url,
-                params=working_params or None,
-                data=working_data or None,
-                files=files,
-            )
-            response.raise_for_status()
-
-            # Non-JSON responses (e.g. uploads returning HTML) go straight back
-            content_type = response.headers.get("Content-Type", "")
-            if "application/json" not in content_type:
-                return {}
-
-            try:
-                body: dict = response.json()
-            except ValueError:
-                return {}
-
-            error = body.get("error", {})
-            if not error:
-                return body  # ← happy path
-
-            error_code: str = error.get("code", "")
-            error_info: str = error.get("info", "")
-
-            # ── CSRF ──────────────────────────────────────────────────────
-            if self._is_csrf_error(error_code, error_info):
-                attempt += 1
-                if attempt >= settings.api_client.max_retries:
-                    raise CSRFError(
-                        f"CSRF token remained invalid after {settings.api_client.max_retries} "
-                        f"attempts. Last error: {error_info or error_code}"
-                    )
-                working_data, working_params = self._handle_csrf(
-                    error_code, error_info, attempt, working_data, working_params
-                )
-                continue
-
-            # ── maxlag ────────────────────────────────────────────────────
-            if error_code == "maxlag":
-                attempt += 1
-                if attempt >= settings.api_client.max_retries:
-                    raise MaxlagError(f"Server maxlag not resolved after {settings.api_client.max_retries} attempts.")
-                self._handle_maxlag(response, attempt)
-                continue
-
-            # ── assertnameduserfailed ─────────────────────────────────────
-            if error_code == "assertnameduserfailed":
-                if named_user_attempts >= assertnameduser_retries:
-                    raise WikiClientError("assertnameduserfailed persists after re-login")
-                named_user_attempts += 1
-                logger.warning(
-                    "assertnameduserfailed — attempting recovery (try %d/%d)",
-                    named_user_attempts,
-                    assertnameduser_retries,
-                )
-                self._on_assertnameduserfailed()
-                # Reset the retry counter so maxlag/csrf budget is fresh
-                attempt = 0
-                continue
-
-            # ── ratelimited ───────────────────────────────────────────────
-            if error_code == "ratelimited":
-                sleep_time = 3
-                time.sleep(sleep_time)
-                logger.warning("ratelimited — sleeping for %d seconds before retrying", sleep_time)
-                continue
-            # ── any other error — let the caller decide ───────────────────
-            raise WikiClientError(f"API error {error_code}: {error_info}")
-
-        raise MaxlagError(f"Exceeded {settings.api_client.max_retries} retries without a successful response.")
-
-    # ------------------------------------------------------------------
-    # Protected CSRF helpers
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _is_csrf_error(code: str, info: str) -> bool:
-        return code in ("badtoken", "notoken") or info == "Invalid CSRF token."
-
-    def _handle_csrf(
-        self,
-        error_code: str,
-        error_info: str,
-        attempt: int,
-        data: dict,
-        params: dict,
-    ) -> tuple[dict, dict]:
-        """
-        Refresh the CSRF token and reinject it into whichever dict carries it.
-
-        Returns updated (data, params) copies — never mutates in place.
-        """
-
-        logger.debug(
-            "CSRF error (%s) — refreshing token (attempt %d/%d)",
-            error_code or error_info,
-            attempt,
-            settings.api_client.max_retries,
-        )
-        try:
-            new_token = self._refresh_csrf_token()
-        except Exception as exc:
-            raise CSRFError(f"Failed to refresh CSRF token: {exc}") from exc
-
-        # Reinject into whichever dict holds the token key
-        data, params = self._inject_token(new_token, data, params)
-        return data, params
-
-    @staticmethod
-    def _inject_token(token: str, data: dict, params: dict) -> tuple[dict, dict]:
-        """
-        Return (data, params) copies with ``token`` updated to *token*.
-        Only one dict should ever carry the key; we update the first match.
-        """
-        for bucket_name, bucket in (("data", data), ("params", params)):
-            if "token" in bucket:
-                bucket = dict(bucket)
-                bucket["token"] = token
-                logger.debug("Injected new CSRF token into %s", bucket_name)
-                if bucket_name == "data":
-                    return bucket, params
-                return data, bucket
-        return data, params
-
-    # ------------------------------------------------------------------
-    # Protected maxlag helper
-    # ------------------------------------------------------------------
-
-    def _handle_maxlag(self, response: requests.Response, attempt: int) -> None:
-        """
-        Sleep for the server-requested delay (or exponential back-off).
-        """
-        retry_after = response.headers.get(settings.api_client.maxlag_header)
-        try:
-            delay = float(retry_after) if retry_after is not None else None
-        except ValueError:
-            delay = None
-
-        if delay is None:
-            delay = settings.api_client.backoff_base * (2**attempt)
-
-        logger.debug(
-            "maxlag — sleeping %.1f s (attempt %d/%d)",
-            delay,
-            attempt,
-            settings.api_client.max_retries,
-        )
-        time.sleep(delay)
-
-
-# ---------------------------------------------------------------------------
-# CookiesClient — isolated cookie I/O (unchanged from original)
-# ---------------------------------------------------------------------------
-
-
-class CookiesClient:
-    """Static helpers for loading and persisting LWP cookie jars."""
-
-    @staticmethod
-    def save_cookies(cj: http.cookiejar.LWPCookieJar) -> None:
-        """
-        Persist the current session cookies to disk immediately.
-
-        Called automatically after every login, but you can call this manually
-        to checkpoint the session after a long batch of writes.
-        """
-        try:
-            # Save cookies to disk, ignoring discard and expire attributes
-            cj.save(ignore_discard=True, ignore_expires=True)
-            # Log successful cookie save operation
-            logger.debug("Cookies saved to _cookie_path")
-        except Exception:
-            # Log any exceptions that occur during cookie saving
-            logger.exception("Failed to save cookies")
-
-    @staticmethod
-    def _make_cookiejar(cookie_path: Path) -> http.cookiejar.LWPCookieJar:
-        # Create a new LWPCookieJar instance with the specified path
-        cj = http.cookiejar.LWPCookieJar(cookie_path)
-        if cookie_path.exists():
-            try:
-                cj.load(ignore_discard=True, ignore_expires=True)
-            except Exception as exc:
-                logger.error("Error loading cookies: %s", exc)
-        return cj
-
 
 # ---------------------------------------------------------------------------
 # WikiLoginClient — business layer
 # ---------------------------------------------------------------------------
 
 
-class WikiLoginClient(CookiesClient, RequestsHandler):
+class WikiLoginClient:
     """
     A thin wrapper around ``mwclient.Site`` that:
 
@@ -379,8 +71,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
     Usage::
 
-        client = WikiLoginClient(lang="en", family="wikipedia",
-                                 username="MyBot", password="s3cr3t")
+        client = WikiLoginClient(lang="en", family="wikipedia", username="MyBot", password="s3cr3t")
         data = client.client_request({"action": "query", "titles": "Python"})
     """
 
@@ -412,8 +103,11 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         family: str,
         username: str,
         password: str,
-        cookies_dir: str | None = settings.paths.cookies_dir,
-        use_cookies: bool = True,
+        cookies_dir: str | None = None,
+        use_cookies: None | bool = None,
+        max_retries: int = 5,
+        backoff_base: int = 1,
+        maxlag_header: str = "Retry-After",
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -432,15 +126,11 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self.username = username
         self._password = password  # kept private — never log or expose this
 
-        # ── Cookie path ────────────────────────────────────────────────────
-        self._cookie_path = None
-        self.use_cookies = use_cookies
+        self.cookies_client = CookiesClient(lang, family, username, cookies_dir, use_cookies)
+
         # ── mwclient Site ──────────────────────────────────────────────────
         logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
-        self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
-
-        if self.api_url == "https://www.mdwiki.org/w/api.php":
-            self.api_url = "https://mdwiki.org/w/api.php"
+        self.api_url = self._make_api_url()
 
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
@@ -449,11 +139,8 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
-        self.cj = None
-        if self.use_cookies:
-            self._cookie_path: Path = get_cookie_path(cookies_dir or settings.paths.cookies_dir, family, lang, username)
-            self.cj = self._make_cookiejar(self._cookie_path)
-            self._site.connection.cookies = self.cj
+
+        self.cookies_client.set_site_cookies(self._site)
 
         # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
         # wrap_session(self._site.connection, self._site)
@@ -461,18 +148,24 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         # ── Authenticate if necessary ──────────────────────────────────────
         self._ensure_logged_in()
 
+        self.requests_handler = RequestsHandler(
+            max_retries=max_retries,
+            backoff_base=backoff_base,
+            maxlag_header=maxlag_header,
+            _site=self._site,
+            on_assertnameduserfailed=self._on_assertnameduserfailed,
+        )
+
+    def _make_api_url(self) -> str:
+        api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
+
+        if api_url == "https://www.mdwiki.org/w/api.php":
+            api_url = "https://mdwiki.org/w/api.php"
+        return api_url
+
     # ------------------------------------------------------------------
     # RequestsHandler contract — concrete implementations
     # ------------------------------------------------------------------
-
-    @property
-    def _session(self) -> requests.Session:
-        """The mwclient-managed session."""
-        return self._site.connection
-
-    def _refresh_csrf_token(self) -> str:
-        """Force mwclient to fetch a fresh CSRF token from the server."""
-        return self._site.get_token("csrf", force=True)
 
     def _on_assertnameduserfailed(self) -> None:
         """
@@ -485,8 +178,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             self.lang,
             self.family,
         )
-        if self.use_cookies:
-            _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
+        self.cookies_client.delete_cookie_file(reason="assertnameduserfailed")
         self._do_login()
 
     # ------------------------------------------------------------------
@@ -506,9 +198,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self,
         params: dict,
         method: str = "post",
-        files: Optional[Any] = None,
+        files: Any | None = None,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Send a GET or POST request to the wiki API and return parsed JSON.
 
@@ -535,9 +227,12 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         if method not in ("get", "post"):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
+        method = method.upper()
+
         # Files can only travel via multipart POST
-        if files is not None:
-            method = "post"
+        action = params.get("action")
+        if action in self._WRITE_ACTIONS or files is not None:
+            method = "POST"
 
         # Always request JSON and inject write-action safety params
         params = self._enrich_params({"format": "json", **params})
@@ -550,21 +245,26 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
             list(files.keys()) if files else None,
         )
-        action = params.get("action")
-        if action in self._WRITE_ACTIONS:
-            method = "post"
 
-        if method == "get":
-            return self._request_with_retry("GET", self.api_url, params=params)
-            # return self._site.get(action, **params)
+        # Fetch a CSRF token now if the caller didn't supply one.
+        # The retry loop will refresh it automatically on CSRF errors.
+        if method == "POST" and "token" not in params:
+            params["token"] = self._site.get_token("csrf")
+
+        args = {}
+
+        if method == "GET":
+            args["params"] = params
         else:
-            # Fetch a CSRF token now if the caller didn't supply one.
-            # The retry loop will refresh it automatically on CSRF errors.
-            if "token" not in params:
-                params["token"] = self._site.get_token("csrf")
+            args["data"] = params
+            if files:
+                args["files"] = files
 
-            return self._request_with_retry("POST", self.api_url, data=params, files=files)
-            # return self._site.post(action, **params, files=files)
+        return self.requests_handler._request_with_retry(
+            method,
+            self.api_url,
+            **args,
+        )
 
     def _ensure_logged_in(self) -> None:
         """
@@ -575,20 +275,21 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
 
-        if self.use_cookies:
-            if self._cookie_path.exists():
-                try:
-                    self._site.site_init()
-                    if self._site.logged_in:
-                        logger.info("Revived session via cookies as %s", self._site.username)
-                        return
-                except Exception:
-                    logger.exception("Error in site_init")
+        if not self.cookies_client.is_cookie_path_exists():
+            return
+
+        try:
+            self._site.site_init()
+            if self._site.logged_in:
+                logger.info("Revived session via cookies as %s", self._site.username)
+                return
+        except Exception:
+            logger.exception("Error in site_init")
 
         # if not self._site.logged_in: self._do_login()
         # don't login yet, user can use login() method
 
-    def _enrich_params(self, params: dict) -> dict:
+    def _enrich_params(self, params: dict) -> dict[str, Any]:
         """
         Inject write-action safety parameters.
 
@@ -635,8 +336,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 self.lang,
                 self.family,
             )
-            if self.use_cookies:
-                self.save_cookies(self.cj)
+            self.cookies_client.save_cookies_cj()
 
     # ── Public methods ─────────────────────────────────────────────────────
 
@@ -660,9 +360,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self,
         params: dict,
         method: str = "post",
-        files: Optional[Any] = None,
+        files: Any | None = None,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """ """
         return self._client_request(
             params=params,
@@ -675,9 +375,9 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self,
         params: dict,
         method: str = "post",
-        files: Optional[Any] = None,
+        files: Any | None = None,
         **kwargs,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """ """
         try:
             return self._client_request(
@@ -694,89 +394,33 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         self,
         params: dict,
         method: str = "post",
-        files: Optional[Any] = None,
+        files: Any | None = None,
         **kwargs,
-    ) -> dict:
-        """
-        Send a GET or POST request to the wiki API and return parsed JSON.
-
-        CSRF tokens, maxlag backoff, and ``assertnameduserfailed`` recovery are
-        all handled transparently by the ``RequestsHandler`` base class.
-
-        Args:
-            params: MediaWiki API parameters. ``format`` defaults to ``"json"``.
-            method: ``"get"`` or ``"post"`` (case-insensitive).
-                    Files automatically force POST.
-            files:  ``{field_name: file-like}`` for multipart uploads.
-
-        Returns:
-            Parsed JSON response dict.
-
-        Raises:
-            ValueError:         On invalid *method*.
-            CSRFError:          CSRF token invalid after all retries.
-            MaxlagError:        Server maxlag unresolved after all retries.
-            WikiClientError:    On other API-level errors.
-            requests.HTTPError: On non-2xx HTTP responses.
-        """
+    ) -> dict[str, Any]:
+        """ """
         method = method.lower()
         if method not in ("get", "post"):
             raise ValueError(f"method must be 'get' or 'post', got {method!r}")
 
-        # Files can only travel via multipart POST
-        action = params.get("action")
-        if action in self._WRITE_ACTIONS or files is not None:
-            method = "post"
-
-        # Always request JSON and inject write-action safety params
-        params = self._enrich_params({"format": "json", **params})
-
-        skip_log_params = [
-            "token",
-            "password",
-            "lgpassword",
-            "text",
-        ]
-        logger.debug(
-            "%s %s params=%s files=%s",
-            method.upper(),
-            self.api_url,
-            # Never log token values
-            {k: ("***" if k in skip_log_params else v) for k, v in params.items()},
-            list(files.keys()) if files else None,
+        return self._client_request(
+            params=params,
+            method=method,
+            files=files,
+            **kwargs,
         )
-
-        if method == "get":
-            return self._request_with_retry(
-                "GET",
-                self.api_url,
-                params=params,
-            )
-        else:
-            # Fetch a CSRF token now if the caller didn't supply one.
-            # The retry loop will refresh it automatically on CSRF errors.
-            if "token" not in params:
-                params["token"] = self._site.get_token("csrf")
-
-            return self._request_with_retry(
-                "POST",
-                self.api_url,
-                data=params,
-                files=files,
-            )
 
     def post_continue(
         self,
         params: dict,
         action: str,
-        _p_: str = "pages",
-        p_empty: Optional[Union[list, dict]] = None,
-        max: int = 500_000,
-        first: bool = False,
-        _p_2: str = "",
-        _p_2_empty: Optional[Union[list, dict]] = None,
+        _p_: str | None = None,
+        p_empty: Union[list, dict] | None = None,
+        max: int | None = None,
+        first: int | None = None,
+        _p_2: str | None = None,
+        _p_2_empty: Union[list, dict] | None = None,
         **kwargs,
-    ) -> Union[list, dict]:
+    ) -> dict[str, Any]:
         """
         Drive a MediaWiki API continuation query to completion.
 
@@ -786,7 +430,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         Args:
             params:     Base API parameters.
             action:     Top-level JSON key to extract results from
-                        (e.g. ``"query"``, ``"wbsearchentities"``).
+                        (e.g. ``"query"``).
             _p_:        Sub-key inside *action* (default ``"pages"``).
             p_empty:    Seed value for the accumulator (list or dict).
             max:        Stop accumulating after this many results.
@@ -797,7 +441,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         Returns:
             Accumulated results as a list or dict, depending on *p_empty*.
         """
-        logger.debug("post_continue start. action=%s _p_=%s", action, _p_)
+        logger.debug("action=%s _p_=%s", action, _p_)
 
         if isinstance(max, str) and max.isdigit():
             max = int(max)
@@ -819,7 +463,7 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
                 logger.debug("Applying continue_params: %s", continue_params)
                 page_params.update(continue_params)
 
-            body = self.client_request_safe(page_params)
+            body = self.client_request(page_params)
 
             if not body:
                 logger.debug("empty response, stopping")
@@ -859,11 +503,77 @@ class WikiLoginClient(CookiesClient, RequestsHandler):
         logger.debug("done, %d total results", len(results))
         return results
 
+    def post_continue_list(
+        self,
+        params: dict,
+        action: str,
+        _load_data: Callable,
+        max: int | None = None,
+    ) -> list[Any]:
+        """
+        Drive a MediaWiki API continuation query to completion.
+
+        Iterates the ``continue`` token until all pages are fetched or *max*
+        results have been collected.
+
+        Args:
+            params:     Base API parameters.
+            action:     Top-level JSON key to extract results from
+                        (e.g. ``"query"``).
+            max:        Stop accumulating after this many results.
+
+        Returns:
+            Accumulated results as a list
+        """
+        logger.debug("action=%s", action)
+
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+        if max == 0:
+            max = 500_000
+        if max is None:
+            max = 500_000
+        results = []
+        continue_params: dict = {}
+        iterations = 0
+
+        while continue_params or iterations == 0:
+            page_params = copy.deepcopy(params)
+            iterations += 1
+
+            if continue_params:
+                logger.debug("Applying continue_params: %s", continue_params)
+                page_params.update(continue_params)
+
+            body = self.client_request(page_params)
+
+            if not body:
+                logger.debug("empty response, stopping")
+                break
+
+            continue_params = body.get("continue", {})
+
+            data = _load_data(body)
+
+            if not data:
+                logger.debug("no data in response, stopping")
+                break
+
+            logger.debug("+%d items (total %d)", len(data), len(results))
+
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
+
+            results.extend(data)
+
+        logger.debug("done, %d total results", len(results))
+        return results
+
     def __repr__(self) -> str:
         return f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, username={self.username!r})"
 
 
 __all__ = [
-    "RequestsHandler",
     "WikiLoginClient",
 ]

@@ -60,6 +60,6 @@ def get_query_result(query):
     # ---
     data = get_query_data(query)
     # ---
-    lista = [x for x in data.get("results", {}).get("bindings", [])]
+    lista = list(data.get("results", {}).get("bindings", []))
     # ---
     return lista
