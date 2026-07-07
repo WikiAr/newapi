@@ -140,15 +140,11 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
             maxlag_header=maxlag_header,
         )
         # ── Cookie path ────────────────────────────────────────────────────
-
-        self._cookie_path: Path = get_cookie_path(cookies_dir, family, lang, username)
-
+        self._cookie_path = None
+        self.use_cookies = use_cookies
         # ── mwclient Site ──────────────────────────────────────────────────
-        logger.debug("Creating mwclient.Site for %s.%s", lang, family)
-        self.api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
-
-        if self.api_url == "https://www.mdwiki.org/w/api.php":
-            self.api_url = "https://mdwiki.org/w/api.php"
+        logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
+        self.api_url = self._make_api_url()
 
         try:
             self._site = mwclient.Site(f"{self.lang}.{self.family}.org", do_init=False)
@@ -157,14 +153,25 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
-        self.cj = self._make_cookiejar(self._cookie_path)
-        self._site.connection.cookies = self.cj  # type: ignore
+        self.cj = None
+        if self.use_cookies:
+            self._cookie_path: Path = get_cookie_path(cookies_dir, family, lang, username)
+            self.cj = self._make_cookiejar(self._cookie_path)
+            self._site.connection.cookies = self.cj  # type: ignore
 
         # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
         # wrap_session(self._site.connection, self._site)
 
         # ── Authenticate if necessary ──────────────────────────────────────
         self._ensure_logged_in()
+
+
+    def _make_api_url(self) -> str:
+        api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
+
+        if api_url == "https://www.mdwiki.org/w/api.php":
+            api_url = "https://mdwiki.org/w/api.php"
+        return api_url
 
     # ------------------------------------------------------------------
     # RequestsHandler contract — concrete implementations
@@ -339,16 +346,17 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         try:
             self._site.login(self.username, self._password)
         except mwclient.errors.LoginError as exc:
-            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}: {exc}") from exc
+            raise LoginError(f"login failed for {self.username} on {self.lang}.{self.family}.org: {exc}") from exc
 
         if self._site.logged_in:
             logger.info(
-                "Logged in successfully as %s on %s.%s",
+                "Logged in successfully as %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
             )
-            self.save_cookies(self.cj)
+            if self.use_cookies:
+                self.save_cookies(self.cj)
 
     # ── Public methods ─────────────────────────────────────────────────────
 
@@ -361,7 +369,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         """
         if force or not self._site.logged_in:
             logger.info(
-                "Forcing re-login for %s on %s.%s",
+                "Forcing re-login for %s on %s.%s.org",
                 self.username,
                 self.lang,
                 self.family,
