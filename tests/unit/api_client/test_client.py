@@ -2,7 +2,7 @@
 Unit tests for src/core/api_client/client.py module.
 """
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import mwclient.errors
 import pytest

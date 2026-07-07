@@ -5,9 +5,8 @@ Unit tests for src/core/api_client/client.py - RequestsHandler and related metho
 from unittest.mock import MagicMock, patch
 
 import pytest
-import requests
 from newapi.api_client.client import WikiLoginClient
-from newapi.api_client.exceptions import CSRFError, MaxlagError, WikiClientError
+from newapi.api_client.exceptions import MaxlagError
 
 
 def _make_client(lang: str = "en", family: str = "wikipedia", username: str = "MyBot", password: str = "pass"):
