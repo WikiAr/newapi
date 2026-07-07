@@ -3,7 +3,6 @@
 import copy
 import datetime
 import logging
-import time
 from collections.abc import KeysView
 from datetime import timedelta
 from typing import Any, Callable
@@ -38,29 +37,6 @@ class NewApiHelpers:
         # ---
         return result
 
-    def merge_all_jsons_deep(self, all_jsons, json1):
-        def deep_merge(a, b):
-            # if both are dicts, merge keys
-            if isinstance(a, dict) and isinstance(b, dict):
-                for k, v in b.items():
-                    if k in a:
-                        a[k] = deep_merge(a[k], v)
-                    else:
-                        a[k] = v
-                return a
-            # if both are lists, concatenate them
-            elif isinstance(a, list) and isinstance(b, list):
-                return a + b
-            # in case of different types, take the new one
-            else:
-                return b
-
-        # if all_jsons is not dict, make it dict
-        if not isinstance(all_jsons, dict):
-            all_jsons = {}
-
-        return deep_merge(all_jsons, json1)
-
 
 class NewApi(AskBot, NewApiHelpers):
     def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
@@ -71,21 +47,26 @@ class NewApi(AskBot, NewApiHelpers):
         self.username = getattr(self, "username", "")
         self.lang = change_codes.get(lang) or lang
         # ---
-        self.cxtoken_expiration = 0
-        self.cxtoken = ""
-        # ---
         super().__init__()
 
     def get_username(self):
         return self.username
 
-    def Find_pages_exists_or_not(self, liste, get_redirect: bool = False, noprint: bool = False):
+    def Find_pages_exists_or_not(
+        self,
+        liste,
+        get_redirect: bool = False,
+        noprint: bool = False,
+        chunk_size: int = 50,
+    ):
         # ---
         done = 0
         # ---
-        all_jsons = {}
+        pages_table = []
+        normalized_table = []
         # ---
-        for titles in self.chunk_titles(liste, chunk_size=50, noprint=noprint):
+        # ---
+        for titles in self.chunk_titles(liste, chunk_size=chunk_size, noprint=noprint):
             # ---
             done += len(titles)
             # ---
@@ -97,47 +78,43 @@ class NewApi(AskBot, NewApiHelpers):
                 "formatversion": 2,
             }
             # ---
-            # if get_redirect: params["redirects"] = 1
-            # ---
             json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
                 continue
             # ---
-            all_jsons = self.merge_all_jsons_deep(all_jsons, json1)
+            query = json1.get("query", {})
+            # ---
+            pages_table.extend(query.get("pages", []))
+            normalized_table.extend(query.get("normalized", []))
         # ---
         redirects = 0
         missing = 0
         exists = 0
         # ---
-        query_table = all_jsons.get("query", {})
-        # ---
-        normalz = query_table.get("normalized", [])
-        normalized = {red["to"]: red["from"] for red in normalz}
-        # ---
-        query_pages = query_table.get("pages", [])
+        normalized = {red["to"]: red["from"] for red in normalized_table}
         # ---
         table = {}
         # ---
-        for kk in query_pages:
+        for kk in pages_table:
             # ---
-            if isinstance(query_pages, dict):
-                kk = query_pages[kk]
+            if isinstance(pages_table, dict):
+                kk = pages_table[kk]
             # ---
-            tit = kk.get("title", "")
+            title_x = kk.get("title", "")
             # ---
-            if not tit:
+            if not title_x:
                 continue
             # ---
-            tit = normalized.get(tit, tit)
+            title_x = normalized.get(title_x, title_x)
             # ---
-            table[tit] = True
+            table[title_x] = True
             # ---
             if "missing" in kk:
-                table[tit] = False
+                table[title_x] = False
                 missing += 1
             elif "redirect" in kk and get_redirect:
-                table[tit] = "redirect"
+                table[title_x] = "redirect"
                 redirects += 1
             else:
                 exists += 1
@@ -158,6 +135,10 @@ class NewApi(AskBot, NewApiHelpers):
     ):
         # ---
         done = 0
+        # ---
+        pages_table = []
+        normalized_table = []
+        redirects_table = []
         # ---
         all_jsons = {}
         # ---
@@ -181,32 +162,24 @@ class NewApi(AskBot, NewApiHelpers):
             json1 = self.login_bot.client_request_safe(params, method="post")
             # ---
             if not json1:
-                if not noprint:
-                    logger.info("<<lightred>> error when Find_pages_exists_or_not")
-                # return table
                 continue
             # ---
-            all_jsons = self.merge_all_jsons_deep(all_jsons, json1)
+            query = json1.get("query", {})
+            # ---
+            pages_table.extend(query.get("pages", []))
+            normalized_table.extend(query.get("normalized", []))
+            redirects_table.extend(query.get("redirects", []))
         # ---
         redirects = 0
         missing = 0
         exists = 0
         # ---
-        query_table = all_jsons.get("query", {})
-        # ---
-        normalized_table = query_table.get("normalized", [])
-        redirects_table = query_table.get("redirects", [])
-        # ---
-        query_pages = query_table.get("pages", [])
-        # ---
         table = {}
         # ---
-        for kk in query_pages:
+        for kk in pages_table:
             # ---
-            if isinstance(query_pages, dict):
-                kk = query_pages[kk]
-            # ---
-            # {'pageid': 3191861, 'ns': 0, 'title': 'Abdomen', 'contentmodel': 'wikitext', 'pagelanguage': 'en', 'pagelanguagehtmlcode': 'en', 'pagelanguagedir': 'ltr', 'touched': '2025-07-31T20:53:20Z', 'lastrevid': 1302382633, 'length': 25596, 'pageprops': {'wikibase_item': 'Q9597'}}
+            if isinstance(pages_table, dict):
+                kk = pages_table[kk]
             # ---
             wikibase_item = kk.get("pageprops", {}).get("wikibase_item", "")
             # ---
@@ -215,7 +188,6 @@ class NewApi(AskBot, NewApiHelpers):
             if not title_x:
                 continue
             # ---
-            # { "user_input": title, "redirect_to": "", "normalized_to": "", "real_title": title, }
             title_tab = self.get_title_redirect_normalize(title_x, redirects_table, normalized_table)
             # ---
             if use_user_input_title and title_tab.get("user_input"):
@@ -793,7 +765,7 @@ class NewApi(AskBot, NewApiHelpers):
             "formatversion": 2,
         }
         # ---
-        if qplimit.isdigit():
+        if qplimit and qplimit.isdigit():
             params["qplimit"] = qplimit
         # ---
         params["qppage"] = qppage
@@ -1015,85 +987,6 @@ class NewApi(AskBot, NewApiHelpers):
                 redirects.update(lists)
         # ---
         return redirects
-
-    def users_infos(self, ususers=None) -> list[dict]:
-        # ---
-        if not isinstance(ususers, list):
-            ususers = []
-        # ---
-        params = {
-            "action": "query",
-            "format": "json",
-            "list": "users",
-            "utf8": 1,
-            "formatversion": "2",
-            "usprop": "groups|implicitgroups|editcount|gender|registration",
-            "ususers": "Mr.Ibrahembot",
-        }
-        # ---
-        _all_usprops = [
-            "groups",
-            "implicitgroups",
-            "cancreate",
-            "editcount",
-            "centralids",
-            "blockinfo",
-            "emailable",
-            "gender",
-            "groupmemberships",
-            "registration",
-            "rights",
-        ]
-        # ---
-        ususers = list(set(ususers))
-        # ---
-        params["ususers"] = "|".join(ususers)
-
-        # ---
-        def _load_data(body):
-            return body.get("query", {}).get("users") or []
-
-        # ---
-        results = self.post_continue_list(
-            params=params,
-            action="query",
-            _load_data=_load_data,
-        )
-        # ---
-        logger.debug(f" len(results) = {len(results)}")
-        # ---
-        results = [dict(x) for x in results]
-        # ---
-        return results
-
-    def get_cxtoken(self):
-        # ---
-        if self.cxtoken and self.cxtoken_expiration:
-            current_time = int(time.time())
-            if current_time < self.cxtoken_expiration:
-                return self.cxtoken
-            else:
-                self.cxtoken = ""
-                self.cxtoken_expiration = 0
-        # ---
-        print("get_cxtoken")
-        # ---
-        params = {"action": "cxtoken", "format": "json"}
-        # ---
-        data = self.login_bot.client_request_safe(params, method="post")
-        # ---
-        if not data:
-            return ""
-        # ---
-        # { "jwt": "eyJ0eXAiOiJ.....", "exp": 1728172536, "age": 3600 }
-        jwt = data.get("jwt", "")
-        exp = data.get("exp", 0)
-        # ---
-        if jwt:
-            self.cxtoken = jwt
-            self.cxtoken_expiration = exp
-        # ---
-        return jwt
 
     def Add_To_Bottom(self, text: str, summary, title, poss: str = "Head|Bottom"):
         # ---

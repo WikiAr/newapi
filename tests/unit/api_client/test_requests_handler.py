@@ -156,9 +156,7 @@ class TestOnAssertNamedUserFailed:
             site_instance.get_token = MagicMock(return_value="test_token")
             site_instance.login = MagicMock()
 
-            client = WikiLoginClient(
-                "en", "wikipedia", "MyBot", "pass", use_cookies=True
-            )
+            client = WikiLoginClient("en", "wikipedia", "MyBot", "pass", use_cookies=True)
             client._on_assertnameduserfailed()
             mock_delete.assert_called_once()
             site_instance.login.assert_called_once_with("MyBot", "pass")
