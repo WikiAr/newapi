@@ -30,7 +30,7 @@ def find_edit_error(old, new) -> bool:
     return False
 
 
-class MainPage(HandleErrors, AskBot):
+class MainPage(AskBot):
     """
     Main page class for interacting with MediaWiki pages.
 
@@ -51,6 +51,7 @@ class MainPage(HandleErrors, AskBot):
         Sets up page attributes including title, language, family, API endpoint, and metadata fields. Normalizes the language code, loads user tables if available, and logs into the wiki if required.
         """
 
+        self.error_handler = HandleErrors()
         self.login_bot = login_bot
 
         self.title: str = title
@@ -744,7 +745,7 @@ class MainPage(HandleErrors, AskBot):
 
         if error != {}:
             logger.debug(pop)
-            er = self.handle_err(error, function="Save", params=params)
+            er = self.error_handler.handle_err(error, function="Save", params=params)
 
             return er
 
@@ -862,7 +863,7 @@ class MainPage(HandleErrors, AskBot):
 
         if error != {}:
             logger.debug(pop)
-            er = self.handle_err(error, function="Create", params=params)
+            er = self.error_handler.handle_err(error, function="Create", params=params)
             return er
 
         return False
@@ -896,7 +897,10 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # pages = data.get("query", {}).get("pages", [])
 
-        pages = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+        # ---
+        pages = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
 
         back_links = [x for x in pages if x["title"] != self.title]
 
@@ -924,7 +928,10 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # data = data.get('parse', {}).get('links', [])
 
-        data: list = self.post_continue(params, "parse", _p_="links", p_empty=[])
+        def _load_data(body):
+            return body.get("parse", {}).get("links") or []
+        # ---
+        data: list = self.login_bot.post_continue_list(params=params, action="parse", _load_data=_load_data,)
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -945,7 +952,10 @@ class MainPage(HandleErrors, AskBot):
         # data = self.client_request_safe(params)
         # data = data.get('query', {}).get('links', [])
 
-        data = self.post_continue(params, "query", _p_="links", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("links") or []
+        # ---
+        data: list = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -982,7 +992,11 @@ class MainPage(HandleErrors, AskBot):
             "rvprop": "|".join(rvprop),
         }
 
-        _revisions = self.post_continue(params, "query", _p_="pages", p_empty=[])
+        def _load_data(body):
+            return body.get("query", {}).get("pages") or []
+
+        # ---
+        _revisions = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
 
         revisions = []
 

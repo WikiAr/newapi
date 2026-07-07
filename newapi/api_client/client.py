@@ -32,8 +32,9 @@ Examples::
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Callable, Union
 
+import copy
 import mwclient
 import mwclient.errors
 
@@ -407,6 +408,165 @@ class WikiLoginClient:
             files=files,
             **kwargs,
         )
+
+    def post_continue(
+        self,
+        params: dict,
+        action: str,
+        _p_: str | None = None,
+        p_empty: Union[list, dict] | None= None,
+        max: int | None = None,
+        first: int | None = None,
+        _p_2: str | None = None,
+        _p_2_empty:  Union[list, dict] | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Drive a MediaWiki API continuation query to completion.
+
+        Iterates the ``continue`` token until all pages are fetched or *max*
+        results have been collected.
+
+        Args:
+            params:     Base API parameters.
+            action:     Top-level JSON key to extract results from
+                        (e.g. ``"query"``).
+            _p_:        Sub-key inside *action* (default ``"pages"``).
+            p_empty:    Seed value for the accumulator (list or dict).
+            max:        Stop accumulating after this many results.
+            first:      Return only the first element of the result list.
+            _p_2:       Secondary sub-key when *first* is True.
+            _p_2_empty: Seed for secondary accumulator.
+
+        Returns:
+            Accumulated results as a list or dict, depending on *p_empty*.
+        """
+        logger.debug("post_continue start. action=%s _p_=%s", action, _p_)
+
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+        if max == 0:
+            max = 500_000
+
+        p_empty = p_empty if p_empty is not None else []
+        _p_2_empty = _p_2_empty if _p_2_empty is not None else []
+
+        results = p_empty
+        continue_params: dict = {}
+        iterations = 0
+
+        while continue_params or iterations == 0:
+            page_params = copy.deepcopy(params)
+            iterations += 1
+
+            if continue_params:
+                logger.debug("Applying continue_params: %s", continue_params)
+                page_params.update(continue_params)
+
+            body = self.client_request(page_params)
+
+            if not body:
+                logger.debug("empty response, stopping")
+                break
+
+            continue_params = {}
+
+            if action == "wbsearchentities":
+                data = body.get("search", [])
+            else:
+                continue_params = body.get("continue", {})
+                data = body.get(action, {}).get(_p_, p_empty)
+
+                if _p_ == "querypage":
+                    data = data.get("results", [])
+                elif first:
+                    if isinstance(data, list) and data:
+                        data = data[0]
+                        if _p_2:
+                            data = data.get(_p_2, _p_2_empty)
+
+            if not data:
+                logger.debug("no data in response, stopping")
+                break
+
+            logger.debug("+%d items (total %d)", len(data), len(results))
+
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
+
+            if isinstance(results, list):
+                results.extend(data)
+            else:
+                results = {**results, **data}
+
+        logger.debug("done, %d total results", len(results))
+        return results
+
+    def post_continue_list(
+        self,
+        params: dict,
+        action: str,
+        _load_data: Callable,
+        max: int | None = None,
+    ) -> list[Any]:
+        """
+        Drive a MediaWiki API continuation query to completion.
+
+        Iterates the ``continue`` token until all pages are fetched or *max*
+        results have been collected.
+
+        Args:
+            params:     Base API parameters.
+            action:     Top-level JSON key to extract results from
+                        (e.g. ``"query"``).
+            max:        Stop accumulating after this many results.
+
+        Returns:
+            Accumulated results as a list
+        """
+        logger.debug("post_continue start. action=%s", action)
+
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+        if max == 0:
+            max = 500_000
+        results = []
+        continue_params: dict = {}
+        iterations = 0
+
+        while continue_params or iterations == 0:
+            page_params = copy.deepcopy(params)
+            iterations += 1
+
+            if continue_params:
+                logger.debug("Applying continue_params: %s", continue_params)
+                page_params.update(continue_params)
+
+            body = self.login_bot.client_request(page_params)
+
+            if not body:
+                logger.debug("empty response, stopping")
+                break
+
+            continue_params = body.get("continue", {})
+
+            data = _load_data(body)
+
+            if not data:
+                logger.debug("no data in response, stopping")
+                break
+
+            logger.debug("+%d items (total %d)", len(data), len(results))
+
+            if len(results) >= max:
+                logger.debug("max=%d reached, stopping", max)
+                break
+
+            results.extend(data)
+
+        logger.debug("done, %d total results", len(results))
+        return results
 
     def __repr__(self) -> str:
         return f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, username={self.username!r})"
