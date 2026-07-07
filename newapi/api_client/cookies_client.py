@@ -133,7 +133,7 @@ class CookiesClient:
         self.use_cookies = use_cookies
 
         self.cj = None
-        self._cookie_path: None | Path
+        self._cookie_path: None | Path = None
         if use_cookies:
             self._cookie_path = self.get_cookies_path()
             self.cj = self._make_cookiejar()
