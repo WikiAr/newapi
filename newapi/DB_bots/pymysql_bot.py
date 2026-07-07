@@ -15,12 +15,16 @@ def sql_connect_pymysql(
     query,
     return_dict: bool = False,
     values=None,
-    main_args={},
-    credentials={},
+    main_args=None,
+    credentials=None,
     conversions=None,
     many: bool = False,
     **kwargs,
 ):
+    if credentials is None:
+        credentials = {}
+    if main_args is None:
+        main_args = {}
     args = copy.deepcopy(main_args)
     args["cursorclass"] = pymysql.cursors.DictCursor if return_dict else pymysql.cursors.Cursor
     if conversions:

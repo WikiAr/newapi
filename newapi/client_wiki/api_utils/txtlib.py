@@ -49,7 +49,7 @@ def extract_templates_and_params(text: str):
     return result
 
 
-def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: bool = False, get_all_temps: bool = False):
+def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: bool = False, get_all_temps: bool = False,):
     ingr = extract_templates_and_params(text)
     # ---
     temps = templates
@@ -87,7 +87,7 @@ def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: boo
     return named
 
 
-def get_all_temps_params(text: str, templates=None, lowers: bool = False):
+def get_all_temps_params(text: str, templates=None, lowers: bool = False,):
     # ---
     if templates is None:
         templates = []
