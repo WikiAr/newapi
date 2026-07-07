@@ -10,3 +10,4 @@ profile_slow.prof
 .pytest_cache/
 *.zip
 /_src
+/.commandcode
