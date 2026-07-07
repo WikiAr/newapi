@@ -14,7 +14,7 @@ def _make_client(lang: str = "en", family: str = "wikipedia", username: str = "M
     """Create a WikiLoginClient with all external dependencies mocked."""
     with (
         patch("newapi.api_client.client.mwclient.Site") as mock_site,
-        patch("newapi.api_client.client.get_cookie_path") as mock_path,
+        patch("newapi.api_client.cookies_client.get_cookie_path") as mock_path,
     ):
         mock_path.return_value = MagicMock()
         site_instance = mock_site.return_value
@@ -264,7 +264,7 @@ class TestPostContinue:
 class TestCookieLoading:
     """Tests for cookie loading error handling."""
 
-    @patch("newapi.api_client.client.http.cookiejar.LWPCookieJar")
+    @patch("newapi.api_client.cookies_client.http.cookiejar.LWPCookieJar")
     def test_make_cookiejar_loads_existing_cookies(self, mock_jar_class) -> None:
         from pathlib import Path
 

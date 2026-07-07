@@ -103,7 +103,7 @@ class WikiLoginClient:
         family: str,
         username: str,
         password: str,
-        cookies_dir: str | None,
+        cookies_dir: str | None = None,
         use_cookies: None | bool = None,
         max_retries: int = 5,
         backoff_base: int = 1,
