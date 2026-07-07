@@ -1463,17 +1463,18 @@ class NewApi(AskBot, NewApiHelpers):
             max = int(max)
         if max == 0:
             max = 500_000
+        if max is None:
+            max = 500_000
         results = []
         continue_params: dict = {}
-        iterations = 0
 
-        while continue_params or iterations == 0:
+        while True:
             page_params = copy.deepcopy(params)
-            iterations += 1
 
-            if continue_params:
-                logger.debug("Applying continue_params: %s", continue_params)
-                page_params.update(continue_params)
+            if not continue_params:
+                break
+            logger.debug("Applying continue_params: %s", continue_params)
+            page_params.update(continue_params)
 
             body = self.login_bot.client_request(page_params)
 
