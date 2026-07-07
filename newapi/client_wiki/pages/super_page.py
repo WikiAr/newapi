@@ -638,7 +638,7 @@ class MainPage(HandleErrors, AskBot):
             self.get_text()
         return self.user
 
-    def get_templates(self) -> dict:
+    def get_templates(self) -> list[dict[str, Any]]:
         if not self.text:
             self.text = self.get_text()
         self.template_data.templates = txtlib.extract_templates_and_params(self.text)
@@ -660,16 +660,16 @@ class MainPage(HandleErrors, AskBot):
         Prompts for confirmation and checks for invalid edits before submitting the change. Updates instance attributes with the latest revision and timestamps on success.
 
         Args:
-                newtext: The new wikitext to save to the page.
-                summary: Edit summary for the change.
-                nocreate: If 1 (default), prevents creating the page if it does not exist.
-                minor: Indicates if the edit should be marked as minor.
-                tags: Optional tags to associate with the edit.
-                nodiff: If True, skips showing a diff before saving.
-                ask: If True, prompts the user for confirmation before saving.
+            newtext: The new wikitext to save to the page.
+            summary: Edit summary for the change.
+            nocreate: If 1 (default), prevents creating the page if it does not exist.
+            minor: Indicates if the edit should be marked as minor.
+            tags: Optional tags to associate with the edit.
+            nodiff: If True, skips showing a diff before saving.
+            ask: If True, prompts the user for confirmation before saving.
 
         Returns:
-                True if the edit was successful, False otherwise.
+            True if the edit was successful, False otherwise.
         """
 
         self.newtext = newtext
