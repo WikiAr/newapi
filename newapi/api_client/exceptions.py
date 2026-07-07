@@ -25,6 +25,7 @@ class MaxRetriesExceededError(WikiClientError):
 class CookieError(WikiClientError):
     """Raised when the cookie file cannot be read or written."""
 
+
 __all__ = [
     "WikiClientError",
     "LoginError",

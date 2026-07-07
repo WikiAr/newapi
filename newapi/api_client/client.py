@@ -43,12 +43,12 @@ from .cookies import (
     _delete_cookie_file,
     get_cookie_path,
 )
+from .cookies_client import CookiesClient
 from .exceptions import (
     LoginError,
     WikiClientError,
 )
 from .requests_handler import RequestsHandler
-from .cookies_client import CookiesClient
 
 logger = logging.getLogger(__name__)
 

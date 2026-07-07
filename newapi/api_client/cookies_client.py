@@ -1,5 +1,4 @@
-"""
-"""
+""" """
 
 from __future__ import annotations
 
@@ -44,7 +43,6 @@ class CookiesClient:
             except Exception as exc:
                 logger.error("Error loading cookies: %s", exc)
         return cj
-
 
 
 __all__ = [

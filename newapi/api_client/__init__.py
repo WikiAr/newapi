@@ -1,4 +1,5 @@
 from .client import WikiLoginClient
+from .cookies_client import CookiesClient
 from .exceptions import (
     CookieError,
     CSRFError,
@@ -8,7 +9,6 @@ from .exceptions import (
     WikiClientError,
 )
 from .requests_handler import RequestsHandler
-from .cookies_client import CookiesClient
 
 __all__ = [
     "WikiLoginClient",

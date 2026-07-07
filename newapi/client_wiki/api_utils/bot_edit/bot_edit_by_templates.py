@@ -34,9 +34,9 @@ def _handle_nobots_template(params, title_page, botjob, _template) -> bool:
         Bot_Cache[botjob][title_page] = False
         return False
     elif params.get("1"):
-        List = [x.strip() for x in params.get("1", "").split(",")]
+        list_data = [x.strip() for x in params.get("1", "").split(",")]
         # if 'all' in List or pywikibot.calledModuleName() in List or BOT_USERNAME in List:
-        if "all" in List or BOT_USERNAME in List:
+        if "all" in list_data or BOT_USERNAME in list_data:
             logger.debug(f"<<lightred>> botEdit.py: the page has temp:({_template}), botjob:{botjob} skipp.")
             logger.debug(f"bot {BOT_USERNAME} in nobots list - blocking {title_page}")
             # Bot_Cache[title_page] = False
