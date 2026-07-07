@@ -1,5 +1,6 @@
 """ """
 
+import copy
 import datetime
 import logging
 import time
@@ -8,7 +9,6 @@ from datetime import timedelta
 from typing import Any, Callable
 
 import tqdm
-import copy
 
 from ...api_client import WikiLoginClient
 from ...client_wiki.api_utils.ask_bot import AskBot
@@ -60,6 +60,7 @@ class NewApiHelpers:
             all_jsons = {}
 
         return deep_merge(all_jsons, json1)
+
 
 class NewApi(AskBot, NewApiHelpers):
     def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
@@ -283,16 +284,13 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if start:
             params["apfrom"] = start
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("allpages") or []
+
         # ---
-        newp = self.post_continue_list(
-            params=params,
-            action="query",
-            max=limit_all,
-            _load_data=_load_data
-        )
+        newp = self.post_continue_list(params=params, action="query", max=limit_all, _load_data=_load_data)
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -341,9 +339,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if start:
             params["gapfrom"] = start
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
+
         # ---
         newp = self.post_continue_list(
             params=params,
@@ -408,9 +408,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if pslimit.isdigit():
             params["pslimit"] = pslimit
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("prefixsearch") or []
+
         # ---
         newp = self.post_continue_list(
             params=params,
@@ -463,9 +465,11 @@ class NewApi(AskBot, NewApiHelpers):
         if addparams:
             addparams = {x: v for x, v in addparams.items() if v and x not in params}
             params = {**params, **addparams}
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("search") or []
+
         # ---
         search = self.post_continue_list(
             params=params,
@@ -527,6 +531,7 @@ class NewApi(AskBot, NewApiHelpers):
 
         def _load_data(body):
             return body.get("query", {}).get("recentchanges") or []
+
         # ---
         json1 = self.post_continue_list(
             params=params,
@@ -558,9 +563,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if ucshow:
             params["ucshow"] = ucshow
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("usercontribs") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -696,6 +703,7 @@ class NewApi(AskBot, NewApiHelpers):
             "ellimit": "max",
             "formatversion": 2,
         }
+
         # ---
         def _load_data(body):
             data = body.get("query", {}).get("pages") or []
@@ -703,6 +711,7 @@ class NewApi(AskBot, NewApiHelpers):
                 data = data[0]
                 data = data.get("extlinks", [])
             return data
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -727,9 +736,11 @@ class NewApi(AskBot, NewApiHelpers):
             "ellimit": "max",
             "formatversion": 2,
         }
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
+
         # ---
         results = self.post_continue_list(
             params,
@@ -757,9 +768,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if options:
             params.update(options)
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -828,9 +841,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if qppage not in qppage_values:
             logger.info(f"<<lightred>> qppage {qppage} not in qppage_values.")
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("querypage") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -856,9 +871,11 @@ class NewApi(AskBot, NewApiHelpers):
             "gtilimit": "max",
             "formatversion": "2",
         }
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -948,9 +965,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if pwppropname != "":
             params["pwppropname"] = pwppropname
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("pageswithprop") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -978,9 +997,11 @@ class NewApi(AskBot, NewApiHelpers):
                 "utf8": 1,
                 # "normalize": 1,
             }
+
             # ---
             def _load_data(body):
                 return body.get("query", {}).get("redirects") or []
+
             # ---
             json1 = self.post_continue_list(
                 params=params,
@@ -1027,9 +1048,11 @@ class NewApi(AskBot, NewApiHelpers):
         ususers = list(set(ususers))
         # ---
         params["ususers"] = "|".join(ususers)
+
         # ---
         def _load_data(body):
             return body.get("query", {}).get("users") or []
+
         # ---
         results = self.post_continue_list(
             params=params,
@@ -1382,7 +1405,6 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return tab
 
-
     def post_params(
         self,
         params,
@@ -1435,7 +1457,7 @@ class NewApi(AskBot, NewApiHelpers):
         Returns:
             Accumulated results as a list
         """
-        logger.debug("post_continue start. action=%s", action)
+        logger.debug("action=%s", action)
 
         if isinstance(max, str) and max.isdigit():
             max = int(max)

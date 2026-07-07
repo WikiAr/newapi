@@ -49,4 +49,3 @@ def extract_templates_and_params(text: str) -> list[dict[str, Any]]:
         result.append(ficrt)
     # ---
     return result
-

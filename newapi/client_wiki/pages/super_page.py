@@ -899,8 +899,13 @@ class MainPage(AskBot):
 
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
+
         # ---
-        pages = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
+        pages = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         back_links = [x for x in pages if x["title"] != self.title]
 
@@ -930,8 +935,13 @@ class MainPage(AskBot):
 
         def _load_data(body):
             return body.get("parse", {}).get("links") or []
+
         # ---
-        data: list = self.login_bot.post_continue_list(params=params, action="parse", _load_data=_load_data,)
+        data: list = self.login_bot.post_continue_list(
+            params=params,
+            action="parse",
+            _load_data=_load_data,
+        )
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -954,8 +964,13 @@ class MainPage(AskBot):
 
         def _load_data(body):
             return body.get("query", {}).get("links") or []
+
         # ---
-        data: list = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
+        data: list = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         # [{'ns': 14, 'title': 'تصنيف:مقالات بحاجة لشريط بوابات', 'exists': True}, {'ns': 14, 'title': 'تصنيف:مقالات بحاجة لصندوق معلومات', 'exists': False}]
 
@@ -996,7 +1011,11 @@ class MainPage(AskBot):
             return body.get("query", {}).get("pages") or []
 
         # ---
-        _revisions = self.login_bot.post_continue_list(params=params, action="query", _load_data=_load_data,)
+        _revisions = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            _load_data=_load_data,
+        )
 
         revisions = []
 

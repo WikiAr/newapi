@@ -31,10 +31,10 @@ Examples::
 
 from __future__ import annotations
 
+import copy
 import logging
 from typing import Any, Callable, Union
 
-import copy
 import mwclient
 import mwclient.errors
 
@@ -414,11 +414,11 @@ class WikiLoginClient:
         params: dict,
         action: str,
         _p_: str | None = None,
-        p_empty: Union[list, dict] | None= None,
+        p_empty: Union[list, dict] | None = None,
         max: int | None = None,
         first: int | None = None,
         _p_2: str | None = None,
-        _p_2_empty:  Union[list, dict] | None = None,
+        _p_2_empty: Union[list, dict] | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -441,7 +441,7 @@ class WikiLoginClient:
         Returns:
             Accumulated results as a list or dict, depending on *p_empty*.
         """
-        logger.debug("post_continue start. action=%s _p_=%s", action, _p_)
+        logger.debug("action=%s _p_=%s", action, _p_)
 
         if isinstance(max, str) and max.isdigit():
             max = int(max)
@@ -525,7 +525,7 @@ class WikiLoginClient:
         Returns:
             Accumulated results as a list
         """
-        logger.debug("post_continue start. action=%s", action)
+        logger.debug("action=%s", action)
 
         if isinstance(max, str) and max.isdigit():
             max = int(max)
@@ -543,7 +543,7 @@ class WikiLoginClient:
                 logger.debug("Applying continue_params: %s", continue_params)
                 page_params.update(continue_params)
 
-            body = self.login_bot.client_request(page_params)
+            body = self.client_request(page_params)
 
             if not body:
                 logger.debug("empty response, stopping")
