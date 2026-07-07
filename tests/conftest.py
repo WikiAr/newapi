@@ -1,9 +1,8 @@
 from unittest.mock import MagicMock
 
 import pytest
-from pytest_socket import disable_socket
-
 from newapi import WikiLoginClient
+from pytest_socket import disable_socket
 
 
 @pytest.fixture(autouse=True)

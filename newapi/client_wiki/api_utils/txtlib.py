@@ -3,6 +3,7 @@
 
 import logging
 from functools import lru_cache
+from typing import Any
 
 import wikitextparser as wtp
 
@@ -10,18 +11,22 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=512)
-def extract_templates_and_params(text: str):
+def extract_templates_and_params(text: str) -> list[dict[str, Any]]:
     # ---
     result = []
     # ---
-    parsed = wtp.parse(text)
-    templates = parsed.templates
-    arguments = "arguments"
+    if not text or not isinstance(text, str):
+        return result
     # ---
-    for template in templates:
+    parsed = wtp.parse(text)
+    # ---
+    for template in parsed.templates:
+        # ---
+        if not template:
+            continue
         # ---
         params = {}
-        for param in getattr(template, arguments):
+        for param in template.arguments:
             value = str(param.value)  # mwpfh needs upcast to str
             key = str(param.name)
             key = key.strip()
@@ -29,11 +34,8 @@ def extract_templates_and_params(text: str):
         # ---
         name = template.name.strip()
         # ---
-        # print('=====')
-        # ---
         name = str(template.normal_name()).strip()
         pa_item = template.string
-        # logger.info( "<<lightyellow>> pa_item: %s" % pa_item )
         # ---
         namestrip = name
         # ---
@@ -49,10 +51,16 @@ def extract_templates_and_params(text: str):
     return result
 
 
-def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: bool = False, get_all_temps: bool = False,):
+def get_one_temp_params(
+    text: str,
+    tempname: str = "",
+    templates=None,
+    lowers: bool = False,
+    get_all_temps: bool = False,
+) -> Any | list[Any] | dict[Any, Any]:
     ingr = extract_templates_and_params(text)
     # ---
-    temps = templates
+    temps = list(templates) if templates is not None else []
     # ---
     if tempname:
         temps.append(tempname)
@@ -62,14 +70,10 @@ def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: boo
     if lowers:
         temps = [x.lower() for x in temps]
     # ---
-    named = {}
-    # ---
-    if get_all_temps:
-        named = []
+    named = [] if get_all_temps else {}
     # ---
     for temp in ingr:
         # ---
-        # name, namestrip, params, template = temp['name'], temp['namestrip'], temp['params'], temp['item']
         namestrip, params = temp["namestrip"], temp["params"]
         # ---
         if lowers:
@@ -78,20 +82,11 @@ def get_one_temp_params(text: str, tempname: str = "", templates=[], lowers: boo
         if namestrip in temps:
             if not get_all_temps:
                 return params
-            # ---
-            # print("te:%s, namestrip:%s" % (te,namestrip) )
-            # ---
             tabe = {namestrip: params}
-            named.append(tabe)
+
+            if isinstance(named, list):
+                named.append(tabe)
+            else:
+                named.update(tabe)
     # ---
     return named
-
-
-def get_all_temps_params(text: str, templates=None, lowers: bool = False,):
-    # ---
-    if templates is None:
-        templates = []
-    # ---
-    tab = get_one_temp_params(text, templates=templates, lowers=lowers, get_all_temps=True)
-    # ---
-    return tab
