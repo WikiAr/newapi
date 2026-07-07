@@ -32,22 +32,14 @@ Examples::
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 from typing import Any
 
 import mwclient
 import mwclient.errors
 import requests
 
-from .cookies import (
-    _delete_cookie_file,
-    get_cookie_path,
-)
 from .cookies_client import CookiesClient
-from .exceptions import (
-    LoginError,
-    WikiClientError,
-)
+from .exceptions import LoginError, WikiClientError
 from .requests_handler import RequestsHandler
 
 logger = logging.getLogger(__name__)
@@ -64,7 +56,7 @@ skip_log_params = [
 # ---------------------------------------------------------------------------
 
 
-class WikiLoginClient(RequestsHandler, CookiesClient):
+class WikiLoginClient:
     """
     A thin wrapper around ``mwclient.Site`` that:
 
@@ -112,10 +104,10 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         username: str,
         password: str,
         cookies_dir: str | None,
+        use_cookies: None | bool = None,
         max_retries: int = 5,
         backoff_base: int = 1,
         maxlag_header: str = "Retry-After",
-        use_cookies: None | bool = None,
     ) -> None:
         """
         Initialise the client, load any saved cookies, and ensure the session
@@ -134,14 +126,8 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         self.username = username
         self._password = password  # kept private — never log or expose this
 
-        super().__init__(
-            max_retries=max_retries,
-            backoff_base=backoff_base,
-            maxlag_header=maxlag_header,
-        )
-        # ── Cookie path ────────────────────────────────────────────────────
-        self._cookie_path = None
-        self.use_cookies = use_cookies
+        self.cookies_client = CookiesClient(lang, family, username, cookies_dir, use_cookies)
+
         # ── mwclient Site ──────────────────────────────────────────────────
         logger.debug("Creating mwclient.Site for %s.%s.org", lang, family)
         self.api_url = self._make_api_url()
@@ -153,11 +139,8 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
 
         # ── Inject saved cookies ───────────────────────────────────────────
         # mwclient stores its requests.Session at site.connection.
-        self.cj = None
-        if self.use_cookies:
-            self._cookie_path: Path = get_cookie_path(cookies_dir, family, lang, username)
-            self.cj = self._make_cookiejar(self._cookie_path)
-            self._site.connection.cookies = self.cj  # type: ignore
+
+        self.cookies_client.set_site_cookies(self._site)
 
         # ── Wrap the session with retry / CSRF / maxlag logic ──────────────
         # wrap_session(self._site.connection, self._site)
@@ -165,6 +148,13 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
         # ── Authenticate if necessary ──────────────────────────────────────
         self._ensure_logged_in()
 
+        self.requests_handler = RequestsHandler(
+            max_retries=max_retries,
+            backoff_base=backoff_base,
+            maxlag_header=maxlag_header,
+            _site=self._site,
+            on_assertnameduserfailed=self._on_assertnameduserfailed,
+        )
 
     def _make_api_url(self) -> str:
         api_url = f"https://{self.lang}.{self.family}.org/w/api.php"
@@ -177,15 +167,6 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
     # RequestsHandler contract — concrete implementations
     # ------------------------------------------------------------------
 
-    @property
-    def _session(self) -> requests.Session:
-        """The mwclient-managed session."""
-        return self._site.connection
-
-    def _refresh_csrf_token(self) -> str:
-        """Force mwclient to fetch a fresh CSRF token from the server."""
-        return self._site.get_token("csrf", force=True)
-
     def _on_assertnameduserfailed(self) -> None:
         """
         Session expired mid-run: nuke stale cookies and re-authenticate.
@@ -197,8 +178,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
             self.lang,
             self.family,
         )
-        if self.use_cookies:
-            _delete_cookie_file(self._cookie_path, reason="assertnameduserfailed")
+        self.cookies_client.delete_cookie_file(reason="assertnameduserfailed")
         self._do_login()
 
     # ------------------------------------------------------------------
@@ -280,7 +260,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
             if files:
                 args["files"] = files
 
-        return self._request_with_retry(
+        return self.requests_handler._request_with_retry(
             method,
             self.api_url,
             **args,
@@ -295,15 +275,16 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
             logger.info(f"Session already authenticated {self._site.logged_in=}")
             return
 
-        if self.use_cookies:
-            if self._cookie_path.exists():
-                try:
-                    self._site.site_init()
-                    if self._site.logged_in:
-                        logger.info("Revived session via cookies as %s", self._site.username)
-                        return
-                except Exception:
-                    logger.exception("Error in site_init")
+        if not self.cookies_client.is_cookie_path_exists():
+            return
+
+        try:
+            self._site.site_init()
+            if self._site.logged_in:
+                logger.info("Revived session via cookies as %s", self._site.username)
+                return
+        except Exception:
+            logger.exception("Error in site_init")
 
         # if not self._site.logged_in: self._do_login()
         # don't login yet, user can use login() method
@@ -355,8 +336,7 @@ class WikiLoginClient(RequestsHandler, CookiesClient):
                 self.lang,
                 self.family,
             )
-            if self.use_cookies:
-                self.save_cookies(self.cj)
+            self.cookies_client.save_cookies_cj()
 
     # ── Public methods ─────────────────────────────────────────────────────
 

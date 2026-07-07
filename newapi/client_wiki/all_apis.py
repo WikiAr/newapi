@@ -9,6 +9,7 @@ from .pages import super_page
 
 logger = logging.getLogger(__name__)
 
+
 class AllAPIS:
     """
     A class that provides access to various API functionalities.

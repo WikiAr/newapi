@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from typing import Any
 
+import mwclient
 import requests
 
 from .exceptions import (
@@ -30,19 +32,24 @@ class RequestsHandler:
     - maxlag            → exponential back-off, retry
     - assertnameduserfailed → delegate re-login hook, retry
 
-    Subclasses must supply ``_session`` (a ``requests.Session``) and may
-    override ``_on_assertnameduserfailed`` to implement session recovery.
+    The caller injects an ``on_assertnameduserfailed`` callback at construction
+    time for session-recovery logic (re-login, cookie reset).
     """
 
     def __init__(
         self,
+        _site: mwclient.Site,
         max_retries: int = 5,
         backoff_base: int = 1,
         maxlag_header: str = "Retry-After",
+        on_assertnameduserfailed: Callable[[], None] | None = None,
     ) -> None:
+        self._site = _site
+
         self.max_retries = max_retries
         self.backoff_base = backoff_base
         self.maxlag_header = maxlag_header
+        self._on_assertnameduserfailed = on_assertnameduserfailed or self._on_assertnameduserfailed_default
 
     # ------------------------------------------------------------------
     # Abstract-ish contract that subclasses must satisfy
@@ -50,21 +57,15 @@ class RequestsHandler:
 
     @property
     def _session(self) -> requests.Session:
-        """The live ``requests.Session``.  Subclasses must assign this."""
-        raise NotImplementedError  # pragma: no cover
+        """The mwclient-managed session."""
+        return self._site.connection
 
     def _refresh_csrf_token(self) -> str:
-        """
-        Fetch and return a fresh CSRF token.
-        Subclasses override this to call ``site.get_token("csrf", force=True)``.
-        """
-        raise NotImplementedError  # pragma: no cover
+        """Force mwclient to fetch a fresh CSRF token from the server."""
+        return self._site.get_token("csrf", force=True)
 
-    def _on_assertnameduserfailed(self) -> None:
-        """
-        Called when the API returns ``assertnameduserfailed``.
-        Subclasses implement session-recovery logic (re-login, cookie reset).
-        """
+    @staticmethod
+    def _on_assertnameduserfailed_default() -> None:
         raise NotImplementedError  # pragma: no cover
 
     # ------------------------------------------------------------------
@@ -177,6 +178,12 @@ class RequestsHandler:
                 self._on_assertnameduserfailed()
                 # Reset the retry counter so maxlag/csrf budget is fresh
                 attempt = 0
+                # Refresh CSRF token — the old one is tied to the expired session
+                try:
+                    new_token = self._refresh_csrf_token()
+                    working_data, working_params = self._inject_token(new_token, working_data, working_params)
+                except Exception:
+                    logger.debug("Could not refresh CSRF token after re-login — next error will retry")
                 continue
 
             # ── ratelimited ───────────────────────────────────────────────
