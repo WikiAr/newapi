@@ -1,15 +1,4 @@
-"""
-
-Usage:
-# from .db_bot import LiteDB
-# db = LiteDB(db_path)
-# db.create_table(table_name, fields, pk="id", **kwargs)
-# db.show_tables(self)
-# db.insert(table_name, data, check=True)
-# db.get_data(table_name)
-# db.select(table_name, args)
-
-"""
+""" """
 
 # ---
 from typing import Any, Dict, Iterator, List, Optional

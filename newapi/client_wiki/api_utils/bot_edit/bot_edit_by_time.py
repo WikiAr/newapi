@@ -31,7 +31,6 @@ def check_create_time(page, title_page):
     delay_hours = 3
 
     if create_data.get("timestamp"):
-
         create_time = create_data["timestamp"]
         ts_c_time = datetime.datetime.strptime(create_time, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.UTC)
 

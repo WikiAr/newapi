@@ -68,11 +68,6 @@ class WikiLoginClient:
 
     ``RequestsHandler`` provides the transport/retry layer; this class owns
     only auth logic, parameter enrichment, and continuation pagination.
-
-    Usage::
-
-        client = WikiLoginClient(lang="en", family="wikipedia", username="MyBot", password="s3cr3t")
-        data = client.client_request({"action": "query", "titles": "Python"})
     """
 
     # Write actions that need bot=1 and assertuser injected

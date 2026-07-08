@@ -5,6 +5,7 @@ Unit tests for src/core/api_client/client.py - RequestsHandler and related metho
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from newapi.api_client.client import WikiLoginClient
 from newapi.api_client.exceptions import MaxlagError
 
