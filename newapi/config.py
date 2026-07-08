@@ -176,7 +176,7 @@ class WikiSiteInfo:
     """Configuration for a wiki site with family and code.
 
     Attributes:
-        family: Wiki family (e.g., "wikipedia", "commons", "wikiquote")
+        family: wiki family (e.g., "wikipedia", "commons", "wikiquote")
         code: Language/site code (e.g., "en", "ar", "commons")
         use: Whether this site is enabled for use
     """

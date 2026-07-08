@@ -1,15 +1,6 @@
-"""
-python3 core8/pwb.py newapi/pformat
-"""
+""" """
 
 import wikitextparser as wtp
-
-# python3 core8/pwb.py newapi/pformat -title:قالب:Cycling_race/stageclassification3
-# python3 core8/pwb.py newapi/pformat -title:قالب:معلومات_خاصية_ويكي_بيانات/تتبع
-# python3 core8/pwb.py newapi/pformat -title:
-# python3 core8/pwb.py newapi/pformat -title:
-# python3 core8/pwb.py newapi/pformat -title:قالب:Interlanguage_link_multi
-# python3 core8/pwb.py newapi/pformat -title:قالب:Cs1_wrapper
 
 
 def make_new_text(text: str):

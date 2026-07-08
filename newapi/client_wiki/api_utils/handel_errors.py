@@ -73,7 +73,6 @@ class HandleErrors:
         _tt = f"<<lightred>>{function} ERROR: <<default>>code:{err_code}."
         # ["protectedpage", "تأخير البوتات 3 ساعات", False]
         if err_code == "abusefilter-disallowed":
-
             # oioioi = {'error': {'code': 'abusefilter-disallowed', 'info': 'This', 'abusefilter': {'id': '169', 'description': 'تأخير البوتات 3 ساعات', 'actions': ['disallow']}, '*': 'See https'}, 'servedby': 'mw1374'}
 
             abusefilter = error.get("abusefilter", "")

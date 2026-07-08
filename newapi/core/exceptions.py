@@ -8,7 +8,7 @@ replacing the inconsistent return types (str, bool, None) in error handling.
 from typing import Any, Dict, Optional
 
 
-class NewApiException(Exception):
+class NewApiExceptionError(Exception):
     """
     Base exception for all mw_api errors.
 
@@ -21,7 +21,7 @@ class NewApiException(Exception):
         super().__init__(message)
 
 
-class ApiError(NewApiException):
+class ApiError(NewApiExceptionError):
     """
     Exception for MediaWiki API errors.
 
@@ -172,7 +172,7 @@ class InvalidTokenError(ApiError):
         super().__init__(code="badtoken", message=message, is_retryable=True, raw_error=raw_error)
 
 
-class AuthenticationError(NewApiException):
+class AuthenticationError(NewApiExceptionError):
     """
     Exception for authentication failures.
     """
@@ -181,7 +181,7 @@ class AuthenticationError(NewApiException):
         super().__init__(message, code="auth_failed")
 
 
-class ValidationError(NewApiException):
+class ValidationError(NewApiExceptionError):
     """
     Exception for validation errors in input data.
     """

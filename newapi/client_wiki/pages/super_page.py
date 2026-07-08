@@ -82,7 +82,6 @@ class MainPage(AskBot):
         files: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Dict[str, Any]:
-
         return self.login_bot.client_request(
             params,
             method=method,
@@ -309,7 +308,6 @@ class MainPage(AskBot):
         self.meta.is_redirect = True if "redirect" in ta else False
 
         for cat in ta.get("categories", []):
-
             # _cat_ = { "ns": 14, "title": "تصنيف:بوابة سباق الدراجات الهوائية/مقالات متعلقة", "sortkey": "d8b7", "sortkeyprefix": "", "hidden": True }
 
             if "sortkey" in cat:
@@ -326,13 +324,11 @@ class MainPage(AskBot):
                 self.categories_data.categories[category_title] = cat
 
         if ta.get("langlinks", []) != []:
-
             # {"lang": "ca", "*": "UCI World Tour 2023"} or {'lang': 'bh', 'title': 'टेम्पलेट:AWB'}
 
             self.langlinks = {ta["lang"]: ta.get("*") or ta.get("title") for ta in ta.get("langlinks", [])}
 
         if ta.get("templates", []) != []:
-
             # 'templates': [{'ns': 10, 'title': 'قالب:No redirect'}],
 
             self.template_data.templates_api = [ta["title"] for ta in ta.get("templates", [])]
@@ -425,7 +421,6 @@ class MainPage(AskBot):
         d = 0
 
         while continue_params != {} or d == 0:
-
             d += 1
 
             if continue_params:
@@ -508,14 +503,12 @@ class MainPage(AskBot):
         return self.langlinks
 
     def get_templates_API(self):
-
         if not self.meta.info["done"]:
             self.get_infos()
 
         return self.template_data.templates_api
 
     def get_links_here(self):
-
         if not self.meta.info["done"]:
             self.get_infos()
 
@@ -752,7 +745,6 @@ class MainPage(AskBot):
         return False
 
     def purge(self):
-
         params = {
             "action": "purge",
             "forcelinkupdate": 1,
@@ -978,7 +970,6 @@ class MainPage(AskBot):
         return self.links_data.links
 
     def get_revisions(self, rvprops=None) -> list:
-
         rvprop = [
             "comment",
             "timestamp",

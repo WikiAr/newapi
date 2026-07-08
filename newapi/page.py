@@ -7,30 +7,6 @@ from .all_apis import AllAPIS
 from .config import settings
 from .super.S_API import bot_api
 
-MainPage_DEPRECATION_WARNING = """
-    NewApi is deprecated. Please use:
-    from api_page import load_main_api
-    api = load_main_api("en", "wikipedia")
-    page = api.MainPage('title')
-"""
-
-CatDepth_DEPRECATION_WARNING = """
-    NewApi is deprecated. Please use:
-    from api_page import load_main_api
-    api = load_main_api("en", "wikipedia")
-    cat_members = api.CatDepth('Category Title', depth=0, ns=10, nslist=[], ...)
-"""
-
-NEW_API_DEPRECATION_WARNING = """
-    NewApi is deprecated. Please use:
-    from api_page import load_main_api
-    api = load_main_api("en", "wikipedia")
-    new_api = api.NewApi()
-    result = new_api.Get_All_pages(start="!", namespace=0, ...)
-"""
-
-# def deprecated(msg):
-
 
 @functools.lru_cache(maxsize=1)
 def _load_credentials() -> tuple[str, str]:
@@ -58,7 +34,6 @@ def load_main_api(lang, family: str = "wikipedia") -> AllAPIS:
     )
 
 
-# @deprecated(MainPage_DEPRECATION_WARNING)
 def MainPage(title, lang, family: str = "wikipedia"):
     # ---
     main_bot = load_main_api(lang, family)
@@ -68,7 +43,6 @@ def MainPage(title, lang, family: str = "wikipedia"):
     return page
 
 
-# @deprecated(CatDepth_DEPRECATION_WARNING)
 def CatDepth(title, sitecode: str = "", family: str = "wikipedia", **kwargs):
     # ---
     main_bot = load_main_api(sitecode, family)
@@ -78,7 +52,6 @@ def CatDepth(title, sitecode: str = "", family: str = "wikipedia", **kwargs):
     return result
 
 
-# @deprecated(NEW_API_DEPRECATION_WARNING)
 def NewApi(lang: str = "", family: str = "wikipedia") -> bot_api.NewApi:
     main_bot = load_main_api(lang, family)
     return main_bot.NewApi()

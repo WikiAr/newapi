@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from newapi.client_wiki.pages.super_page import MainPage
 
 
