@@ -816,7 +816,6 @@ class NewApi(AskBot, NewApiHelpers):
             query = body.get("query", {})
             return query.get("querypage") or query.get("results") or []
 
-        # ---
         results = self.login_bot.post_continue_list(
             params=params,
             action="query",
