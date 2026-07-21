@@ -1,7 +1,10 @@
 """ """
 
+from __future__ import annotations
+
 import copy
 import logging
+from typing import Any
 
 from tqdm import tqdm
 
@@ -30,7 +33,7 @@ class CategoryDepth:
         self.len_pages: int = 0
         self.revids: dict = {}
         self.timestamps: dict = {}
-        self.result_table: dict = {}
+        self.result_table: dict[str, dict] = {}
 
         self.props: list = []
 
@@ -62,7 +65,9 @@ class CategoryDepth:
             return
 
         self.len_pages = 0
-        self.revids, self.timestamps, self.result_table = {}, {}, {}
+        self.revids, self.timestamps = {}, {}
+        self.result_table: dict[str, dict] = {}
+
         self.title = kwargs.get("title", "")
         logger.debug(f"parsing params for {self.title}: depth={kwargs.get('depth')}, ns={kwargs.get('ns')}")
 
@@ -72,7 +77,7 @@ class CategoryDepth:
             logger.error(f"self.depth != int: {kwargs.get('depth')}")
             self.depth = 0
 
-        self.props = []
+        self.props: list = []
         if isinstance(kwargs.get("props"), str):
             self.props = [kwargs.get("props")]
 
@@ -90,7 +95,6 @@ class CategoryDepth:
         self.without_lang = kwargs.get("without_lang") or ""
         self.with_lang = kwargs.get("with_lang") or ""
 
-        self.depth = kwargs.get("depth") or 0
         self.ns = str(kwargs.get("ns") or "all")
         self.nslist = kwargs.get("nslist") or []
 
@@ -104,7 +108,7 @@ class CategoryDepth:
         t_props = ["revisions"] if not self.no_gcm_sort else []
 
         if self.no_props:
-            t_props = []
+            t_props: list = []
 
         if self.template_whitelist:
             t_props.append("templates")
@@ -131,7 +135,7 @@ class CategoryDepth:
 
         if self.ns in ["0", "10"]:
             params["gcmtype"] = "page"
-        elif self.ns in [14]:
+        elif int(self.ns) in [14]:
             params["gcmtype"] = "subcat"
 
         if self.nslist == [14]:
@@ -195,38 +199,38 @@ class CategoryDepth:
             else:
                 tablese["categories"] = categories
 
-    def pages_table_work(self, table: dict, pages: dict) -> dict:
+    def pages_table_work(self, results: dict, pages: list[dict[str, Any]]) -> dict:
         self.len_pages += len(pages)
 
-        for category in pages:
-            caca = pages[category] if isinstance(pages, dict) else category
-            cate_title = caca["title"]
+        for item_data in pages:
+            # item_data exampe: { "pageid": 350939, "ns": 0, "title": "Yemen", "langlinks": [ { "lang": "ar", "title": "اليمن" } ] }
+            cate_title = item_data["title"]
 
-            timestamp, revid = self._extract_timestamp_revid(caca)
+            timestamp, revid = self._extract_timestamp_revid(item_data)
             self.timestamps[cate_title] = timestamp
             self.revids[cate_title] = revid
 
-            p_ns = str(caca.get("ns", 0))
+            p_ns = str(item_data.get("ns", 0))
 
-            tablese = table.get(cate_title, {})
+            tablese = results.get(cate_title, {})
             if revid:
                 tablese["revid"] = revid
 
             if p_ns:
-                tablese["ns"] = caca["ns"]
+                tablese["ns"] = item_data["ns"]
                 if not self._filter_by_namespace(p_ns):
                     continue
 
-            self._merge_templates(tablese, caca)
-            self._merge_langlinks(tablese, caca)
-            self._merge_categories(tablese, caca)
+            self._merge_templates(tablese, item_data)
+            self._merge_langlinks(tablese, item_data)
+            self._merge_categories(tablese, item_data)
 
-            table[cate_title] = tablese
+            results[cate_title] = tablese
 
-        return table
+        return results
 
     def get_cat_new(self, cac: str) -> dict:
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "utf8": 1,
@@ -245,11 +249,8 @@ class CategoryDepth:
 
         results = {}
         continue_params = {}
-        d = 0
 
-        while continue_params != {} or d == 0:
-            d += 1
-
+        while True:
             if self.limit > 0 and len(results) >= self.limit:
                 logger.debug(f"<<yellow>> limit:{self.limit} reached, len of results: {len(results)} break ..")
                 break
@@ -264,8 +265,11 @@ class CategoryDepth:
                 break
 
             continue_params = api_data.get("continue", {})
-            pages = api_data.get("query", {}).get("pages", {})
+            pages: list[dict[str, Any]] = api_data.get("query", {}).get("pages") or []
             results = self.pages_table_work(results, pages)
+
+            if not continue_params:
+                break
 
         return results
 
@@ -308,7 +312,7 @@ class CategoryDepth:
         depth_done = 0
 
         while self.depth > depth_done:
-            new_tab2 = []
+            new_tab2: list = []
 
             if self.limit > 0 and len(self.result_table) >= self.limit:
                 logger.debug(
@@ -335,3 +339,8 @@ class CategoryDepth:
 
         logger.info(f"{self.title=}, {self.depth}, {len(self.result_table)} total results")
         return self.result_table
+
+
+__all__ = [
+    "CategoryDepth",
+]
