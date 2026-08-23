@@ -2,8 +2,8 @@
 
 import logging
 
-from .bot_edit.bot_edit_by_templates import is_bot_edit_allowed
-from .bot_edit.bot_edit_by_time import check_create_time, check_last_edit_time
+from .bot_edit_by_templates import is_bot_edit_allowed
+from .bot_edit_by_time import check_create_time, check_last_edit_time
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@
 from . import page
 from .all_apis import AllAPIS
 from .api_client.client import WikiLoginClient
-from .client_wiki.api_utils import botEdit, txtlib, wd_sparql
+from .client_wiki.api_utils import txtlib, wd_sparql
 from .client_wiki.api_utils.lang_codes import change_codes
 from .DB_bots import db_bot, pymysql_bot
 
@@ -13,7 +13,6 @@ __all__ = [
     "txtlib",
     "pymysql_bot",
     "db_bot",
-    "botEdit",
     "page",
     "WikiLoginClient",
     "change_codes",

@@ -1,5 +1,5 @@
 from .ask_bot import AskBot, showDiff
-from .botEdit import (
+from .bot_edit import (
     bot_May_Edit,
     check_create_time,
     check_last_edit_time,
