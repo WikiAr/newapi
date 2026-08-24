@@ -1,7 +1,8 @@
 """ """
 
 # ---
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
+from collections.abc import Iterator
 
 import sqlite_utils
 
@@ -16,11 +17,11 @@ class LiteDB:
         # self.db = sqlite_utils.Database(db_path, tracer=tracer)
         self.db = sqlite_utils.Database(db_path)
 
-    def create_table(self, table_name: str, fields: Dict[str, Any], pk: str = "id", **kwargs) -> None:
+    def create_table(self, table_name: str, fields: dict[str, Any], pk: str = "id", **kwargs) -> None:
         # Create table if it doesn't exist
         self.db[table_name].create(fields, pk=pk, if_not_exists=True, ignore=True, **kwargs)
 
-    def query(self, sql: str) -> List[tuple]:
+    def query(self, sql: str) -> list[tuple]:
         # return self.db.query(sql)
         return list(self.db.execute(sql).fetchall())
 
@@ -33,7 +34,7 @@ class LiteDB:
             print(f"Table: {tab}")
             print(f"schema: {self.db[tab].schema}")
 
-    def insert(self, table_name: str, data: Dict[str, Any], check: bool = True) -> None:
+    def insert(self, table_name: str, data: dict[str, Any], check: bool = True) -> None:
         if check:
             is_in = self.select(table_name, data)
             if is_in:
@@ -43,16 +44,16 @@ class LiteDB:
         self.db[table_name].insert(data, ignore=True, pk="id")
         del data
 
-    def insert_all(self, table_name: str, datalist: List[Dict[str, Any]], prnt: bool = True) -> None:
+    def insert_all(self, table_name: str, datalist: list[dict[str, Any]], prnt: bool = True) -> None:
         if prnt:
             print(f"inserting {len(datalist)} rows")
         self.db[table_name].insert_all(datalist, ignore=True, pk="id")
         del datalist
 
-    def get_data(self, table_name: str) -> Iterator[Dict[str, Any]]:
+    def get_data(self, table_name: str) -> Iterator[dict[str, Any]]:
         return self.db[table_name].rows
 
-    def select(self, table_name: str, args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def select(self, table_name: str, args: dict[str, Any]) -> list[dict[str, Any]]:
         # ---
         where_conditions = []
         params = []
@@ -71,7 +72,7 @@ class LiteDB:
         # ---
         return lista
 
-    def select_or(self, table_name: str, args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def select_or(self, table_name: str, args: dict[str, Any]) -> list[dict[str, Any]]:
         # ---
         where_conditions = []
         params = []
@@ -109,7 +110,7 @@ class LiteDbRepository:
         """
         self._db = sqlite_utils.Database(db_path)
 
-    def get_by_id(self, table: str, id: int) -> Optional[Dict[str, Any]]:
+    def get_by_id(self, table: str, id: int) -> dict[str, Any] | None:
         """
         Get a record by its ID.
 
@@ -125,7 +126,7 @@ class LiteDbRepository:
         except Exception:
             return None
 
-    def get_all(self, table: str) -> List[Dict[str, Any]]:
+    def get_all(self, table: str) -> list[dict[str, Any]]:
         """
         Get all records from a table.
 
@@ -137,7 +138,7 @@ class LiteDbRepository:
         """
         return list(self._db[table].rows)
 
-    def find_by(self, table: str, **criteria) -> List[Dict[str, Any]]:
+    def find_by(self, table: str, **criteria) -> list[dict[str, Any]]:
         """
         Find records matching criteria.
 
@@ -160,7 +161,7 @@ class LiteDbRepository:
         where_clause = " AND ".join(where_parts)
         return list(self._db[table].rows_where(where_clause, params))
 
-    def find_one(self, table: str, **criteria) -> Optional[Dict[str, Any]]:
+    def find_one(self, table: str, **criteria) -> dict[str, Any] | None:
         """
         Find a single record matching criteria.
 
@@ -174,7 +175,7 @@ class LiteDbRepository:
         results = self.find_by(table, **criteria)
         return results[0] if results else None
 
-    def insert(self, table: str, data: Dict[str, Any]) -> int:
+    def insert(self, table: str, data: dict[str, Any]) -> int:
         """
         Insert a new record.
 
@@ -187,7 +188,7 @@ class LiteDbRepository:
         """
         return self._db[table].insert(data).last_rowid
 
-    def insert_many(self, table: str, records: List[Dict[str, Any]]) -> None:
+    def insert_many(self, table: str, records: list[dict[str, Any]]) -> None:
         """
         Insert multiple records.
 
@@ -197,7 +198,7 @@ class LiteDbRepository:
         """
         self._db[table].insert_all(records)
 
-    def update(self, table: str, id: int, data: Dict[str, Any]) -> bool:
+    def update(self, table: str, id: int, data: dict[str, Any]) -> bool:
         """
         Update a record by ID.
 
@@ -260,7 +261,7 @@ class LiteDbRepository:
         """
         return table in self._db.table_names()
 
-    def create_table(self, table: str, schema: Dict[str, type], pk: str = "id") -> None:
+    def create_table(self, table: str, schema: dict[str, type], pk: str = "id") -> None:
         """
         Create a table if it doesn't exist.
 
