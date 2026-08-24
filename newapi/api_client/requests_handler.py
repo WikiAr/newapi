@@ -72,7 +72,7 @@ class RequestsHandler:
     # Retry loop  (called by WikiLoginClient.client_request)
     # ------------------------------------------------------------------
 
-    def _request_with_retry(
+    def request_with_retry(
         self,
         method: str,
         url: str,
@@ -191,9 +191,10 @@ class RequestsHandler:
                 attempt += 1
                 if attempt >= self.max_retries:
                     raise WikiClientError(f"Ratelimit persists after {self.max_retries} attempts.")
-                sleep_time = 3
-                time.sleep(sleep_time)
-                logger.warning("ratelimited — sleeping for %d seconds before retrying", sleep_time)
+
+                ratelimit_sleep_time = 3
+                time.sleep(ratelimit_sleep_time)
+                logger.warning("ratelimited — sleeping for %d seconds before retrying", ratelimit_sleep_time)
                 continue
 
             # ── any other error — let the caller decide ───────────────────

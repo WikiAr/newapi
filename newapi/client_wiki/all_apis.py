@@ -1,9 +1,12 @@
 """ """
 
+from __future__ import annotations
+
 import logging
+from typing import Any
 
 from ..api_client import WikiLoginClient
-from ..super.S_API import bot_api
+from . import bot_api
 from .categories import catdepth_new
 from .pages import super_page
 
@@ -32,13 +35,33 @@ class AllAPIS:
         self.cookies_dir = cookies_dir
         self.login_bot = self._login()
 
-    def MainPage(self, title: str, *args, **kwargs) -> super_page.MainPage:
+    def mainpage(self, title: str, *args, **kwargs) -> super_page.MainPage:
         return super_page.MainPage(self.login_bot, title, self.lang, family=self.family)
 
-    def CatDepth(self, title: str, sitecode: str = "", family: str = "", *args, **kwargs):
-        return catdepth_new.subcatquery(self.login_bot, title, sitecode=self.lang, family=self.family, **kwargs)
+    def mainpagesolvereditect(self, title: str, *args, **kwargs) -> super_page.MainPage:
+        page = super_page.MainPage(self.login_bot, title, self.lang, family=self.family)
 
-    def NewApi(self, *args, **kwargs) -> bot_api.NewApi:
+        if page.isredirect():
+            target = page.get_redirect_target()
+            if target:
+                return super_page.MainPage(self.login_bot, target, self.lang, family=self.family)
+
+        return page
+
+    def catdepth(
+        self,
+        title: str,
+        **kwargs,
+    ) -> dict[Any, Any]:
+        return catdepth_new.subcatquery(
+            self.login_bot,
+            title,
+            sitecode=self.lang,
+            family=self.family,
+            **kwargs,
+        )
+
+    def newapi(self, *args, **kwargs) -> bot_api.NewApi:
         # ---
         return bot_api.NewApi(self.login_bot, lang=self.lang, family=self.family)
 

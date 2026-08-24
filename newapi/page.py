@@ -5,7 +5,7 @@ import os
 
 from .all_apis import AllAPIS
 from .config import settings
-from .super.S_API import bot_api
+from .client_wiki import bot_api
 
 
 @functools.lru_cache(maxsize=1)
@@ -34,31 +34,31 @@ def load_main_api(lang, family: str = "wikipedia") -> AllAPIS:
     )
 
 
-def MainPage(title, lang, family: str = "wikipedia"):
+def mainpage(title, lang, family: str = "wikipedia"):
     # ---
     main_bot = load_main_api(lang, family)
     # ---
-    page = main_bot.MainPage(title, lang, family=family)
+    page = main_bot.mainpage(title, lang, family=family)
     # ---
     return page
 
 
-def CatDepth(title, sitecode: str = "", family: str = "wikipedia", **kwargs):
+def catdepth(title, sitecode: str = "", family: str = "wikipedia", **kwargs):
     # ---
     main_bot = load_main_api(sitecode, family)
     # ---
-    result = main_bot.CatDepth(title, sitecode=sitecode, family=family, **kwargs)
+    result = main_bot.catdepth(title, sitecode=sitecode, family=family, **kwargs)
     # ---
     return result
 
 
-def NewApi(lang: str = "", family: str = "wikipedia") -> bot_api.NewApi:
+def newapi(lang: str = "", family: str = "wikipedia") -> bot_api.NewApi:
     main_bot = load_main_api(lang, family)
-    return main_bot.NewApi()
+    return main_bot.newapi()
 
 
 __all__ = [
-    "MainPage",
-    "NewApi",
-    "CatDepth",
+    "mainpage",
+    "newapi",
+    "catdepth",
 ]

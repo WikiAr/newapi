@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .client import WikiLoginClient
 from .cookies_client import CookiesClient
 from .exceptions import (

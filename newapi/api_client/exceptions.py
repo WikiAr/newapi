@@ -2,6 +2,9 @@
 # Typed exceptions so callers can catch specific failure modes.
 
 
+from __future__ import annotations
+
+
 class WikiClientError(Exception):
     """Base exception for all api_client errors."""
 

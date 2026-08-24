@@ -60,7 +60,7 @@ def test_all_apis_cat_depth(mock_dependencies) -> None:
     api = AllAPIS("en", "wikipedia", "user", "pass")
     title = "Category:Test"
 
-    api.CatDepth(title, depth=2)
+    api.catdepth(title, depth=2)
 
     mock_dependencies["subcatquery"].assert_called_once_with(
         mock_dependencies["LoginInstance"],
@@ -74,7 +74,7 @@ def test_all_apis_cat_depth(mock_dependencies) -> None:
 def test_all_apis_new_api(mock_dependencies) -> None:
     api = AllAPIS("en", "wikipedia", "user", "pass")
 
-    api.NewApi()
+    api.newapi()
 
     mock_dependencies["NewApi"].assert_called_once_with(
         mock_dependencies["LoginInstance"], lang="en", family="wikipedia"

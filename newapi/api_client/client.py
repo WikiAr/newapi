@@ -33,7 +33,8 @@ from __future__ import annotations
 
 import copy
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import mwclient
 import mwclient.errors
@@ -120,6 +121,7 @@ class WikiLoginClient:
         self.family = family
         self.username = username
         self._password = password  # kept private — never log or expose this
+        self._is_bot_cached: bool | None = None
 
         self.cookies_client = CookiesClient(lang, family, username, cookies_dir, use_cookies)
 
@@ -184,6 +186,47 @@ class WikiLoginClient:
     def site(self) -> mwclient.Site:
         """The underlying ``mwclient.Site`` — use for high-level wiki access."""
         return self._site
+
+    @property
+    def is_bot(self) -> bool:
+        """
+        Check if the logged-in user is a bot.
+        Caches the result to avoid redundant API queries.
+        """
+        if self._is_bot_cached is not None:
+            return self._is_bot_cached
+
+        self._is_bot_cached = False
+
+        if not self.username:
+            return self._is_bot_cached
+
+        if self.username.lower().endswith("bot"):
+            self._is_bot_cached = True
+            return self._is_bot_cached
+
+        # Query user groups to see if the user belongs to the 'bot' group
+        params = {
+            "action": "query",
+            "format": "json",
+            "list": "users",
+            "ususers": self.username,
+            "usprop": "groups",
+            "formatversion": "2",
+        }
+        try:
+            data = self.client_request_safe(params, method="get")
+            if data:
+                users = data.get("query", {}).get("users", [])
+                if users:
+                    groups = users[0].get("groups", [])
+                    self._is_bot_cached = "bot" in groups
+                else:
+                    self._is_bot_cached = False
+        except Exception as exc:
+            logger.warning("Failed to query user groups for %s: %s", self.username, exc)
+
+        return self._is_bot_cached or False
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -255,7 +298,7 @@ class WikiLoginClient:
             if files:
                 args["files"] = files
 
-        return self.requests_handler._request_with_retry(
+        return self.requests_handler.request_with_retry(
             method,
             self.api_url,
             **args,
@@ -406,9 +449,11 @@ class WikiLoginClient:
 
     def post_continue_dict(
         self,
+        *,
         params: dict,
         action: str,
         _load_data: Callable,
+        max: int | str | None = None,
     ) -> dict[str, Any]:
         """
         Drive a MediaWiki API continuation query to completion.
@@ -425,18 +470,13 @@ class WikiLoginClient:
         """
         logger.debug("action=%s", action)
 
-        if isinstance(max, str) and max.isdigit():
-            max = int(max)
-        if max == 0:
-            max = 500_000
+        max = self.get_max(max)
 
         results = {}
         continue_params: dict = {}
-        iterations = 0
 
-        while continue_params or iterations == 0:
+        while True:
             page_params = copy.deepcopy(params)
-            iterations += 1
 
             if continue_params:
                 logger.debug("Applying continue_params: %s", continue_params)
@@ -464,15 +504,19 @@ class WikiLoginClient:
 
             results = {**results, **data}
 
+            if not continue_params:
+                break
+
         logger.debug("done, %d total results", len(results))
         return results
 
     def post_continue_list(
         self,
+        *,
         params: dict,
         action: str,
         _load_data: Callable,
-        max: int | None = None,
+        max: int | str | None = None,
     ) -> list[Any]:
         """
         Drive a MediaWiki API continuation query to completion.
@@ -491,20 +535,14 @@ class WikiLoginClient:
         """
         logger.debug("action=%s", action)
 
-        if isinstance(max, str) and max.isdigit():
-            max = int(max)
-        if max == 0:
-            max = 500_000
-        if max is None:
-            max = 500_000
-        results = []
+        max = self.get_max(max)
+
+        results: list = []
         continue_params: dict = {}
 
         while True:
             page_params = copy.deepcopy(params)
 
-            if not continue_params:
-                break
             logger.debug("Applying continue_params: %s", continue_params)
             page_params.update(continue_params)
 
@@ -530,8 +568,26 @@ class WikiLoginClient:
 
             results.extend(data)
 
+            if not continue_params:
+                break
+
         logger.debug("done, %d total results", len(results))
         return results
+
+    def get_max(self, max: int | str | None = None) -> int:
+        if isinstance(max, str) and max.isdigit():
+            max = int(max)
+
+        if max == 0:
+            max = 500_000
+
+        if max is None:
+            max = 500_000
+
+        if isinstance(max, str):
+            max = 500_000
+
+        return max
 
     def __repr__(self) -> str:
         return f"WikiLoginClient(lang={self.lang!r}, family={self.family!r}, username={self.username!r})"
