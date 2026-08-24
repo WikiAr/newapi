@@ -98,7 +98,7 @@ class CategoryDepth:
         self.ns = str(kwargs.get("ns") or "all")
         self.nslist = kwargs.get("nslist") or []
 
-    def _determine_gcmtype(self, params: dict) -> dict:
+    def _determine_gcmtype(self, params: dict) -> dict[str, Any]:
         if self.no_gcm_sort:
             del params["gcmsort"]
             del params["gcmdir"]
@@ -118,7 +118,7 @@ class CategoryDepth:
 
         return t_props
 
-    def params_work(self, params: dict) -> dict:
+    def params_work(self, params: dict) -> dict[str, Any]:
         t_props = self._build_prop_list()
 
         params = self._determine_gcmtype(params)
@@ -135,7 +135,7 @@ class CategoryDepth:
 
         if self.ns in ["0", "10"]:
             params["gcmtype"] = "page"
-        elif int(self.ns) in [14]:
+        elif str(self.ns) == "14":
             params["gcmtype"] = "subcat"
 
         if self.nslist == [14]:
@@ -199,10 +199,10 @@ class CategoryDepth:
             else:
                 tablese["categories"] = categories
 
-    def pages_table_work(self, results: dict, pages: list[dict[str, Any]]) -> dict:
-        self.len_pages += len(pages)
+    def pages_table_work(self, results: dict, pages_list: list[dict[str, Any]]) -> dict[str, Any]:
+        self.len_pages += len(pages_list)
 
-        for item_data in pages:
+        for item_data in pages_list:
             # item_data exampe: { "pageid": 350939, "ns": 0, "title": "Yemen", "langlinks": [ { "lang": "ar", "title": "اليمن" } ] }
             cate_title = item_data["title"]
 
@@ -217,7 +217,7 @@ class CategoryDepth:
                 tablese["revid"] = revid
 
             if p_ns:
-                tablese["ns"] = item_data["ns"]
+                tablese["ns"] = item_data.get("ns", 0)
                 if not self._filter_by_namespace(p_ns):
                     continue
 
@@ -229,7 +229,7 @@ class CategoryDepth:
 
         return results
 
-    def get_cat_new(self, cac: str) -> dict:
+    def get_cat_new(self, cac: str) -> dict[str, Any]:
         params: dict[str, Any] = {
             "action": "query",
             "format": "json",
@@ -265,8 +265,18 @@ class CategoryDepth:
                 break
 
             continue_params = api_data.get("continue", {})
-            pages: list[dict[str, Any]] = api_data.get("query", {}).get("pages") or []
-            results = self.pages_table_work(results, pages)
+
+            pages = api_data.get("query", {}).get("pages") or []
+
+            pages_list = []
+            if isinstance(pages, list):
+                # {"pages": [{ "pageid": 3648118, "ns": 10, "title": "قالب:Ill-WD2/test", "revisions": [] }, ...
+                pages_list = pages
+            elif isinstance(pages, dict):
+                # {"pages": { "3648118": { "pageid": 3648118, "ns": 10, "title": "قالب:Ill-WD2/test", "revisions": [] }, ...
+                pages_list = list(pages.values())
+
+            results = self.pages_table_work(results, pages_list)
 
             if not continue_params:
                 break
@@ -304,8 +314,8 @@ class CategoryDepth:
         logger.debug(f"starting subcatquery for {self.title}, depth={self.depth}")
         tablemember = self.get_cat_new(self.title)
 
-        for x, zz in tablemember.items():
-            self.add_to_result_table(x, zz)
+        for x, time_stamps in tablemember.items():
+            self.add_to_result_table(x, time_stamps)
 
         new_list = [x for x, xx in tablemember.items() if int(xx["ns"]) == 14]
 
@@ -334,7 +344,11 @@ class CategoryDepth:
             new_list = new_tab2
 
         if not self.no_gcm_sort:
-            soro = sorted(self.result_table.items(), key=lambda item: self.timestamps.get(item[0], 0), reverse=True)
+
+            def _get_timestamps(item) -> str:
+                return self.timestamps.get(item[0], "")
+
+            soro = sorted(self.result_table.items(), key=_get_timestamps, reverse=True)
             self.result_table = dict(soro)
 
         logger.info(f"{self.title=}, {self.depth}, {len(self.result_table)} total results")

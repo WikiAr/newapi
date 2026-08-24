@@ -104,7 +104,7 @@ class TestCommandLineBypass:
         setup_parser([{"name": "nobots", "arguments": None}])
 
         text = "{{nobots}}"
-        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
+        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.main_settings") as mock_settings:
             if argv_value in ("botedit", "editbot"):
                 mock_settings.bot.force_edit = True
             else:
@@ -119,21 +119,21 @@ class TestBypassConditions:
     def test_bypass_with_botedit_arg(self, original_argv) -> None:
         """Should return True when 'botedit' is in sys.argv."""
         text = "{{nobots}}"
-        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
+        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.main_settings") as mock_settings:
             mock_settings.bot.force_edit = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
     def test_bypass_with_editbot_arg(self, original_argv) -> None:
         """Should return True when 'editbot' is in sys.argv."""
         text = "{{nobots}}"
-        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
+        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.main_settings") as mock_settings:
             mock_settings.bot.force_edit = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 
     def test_bypass_with_workibrahem_arg(self, original_argv) -> None:
         """Should return True when 'workibrahem' is in sys.argv."""
         text = "{{nobots}}"
-        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.settings") as mock_settings:
+        with patch("newapi.client_wiki.api_utils.bot_edit.bot_edit_by_templates.main_settings") as mock_settings:
             mock_settings.bot.workibrahem = True
             assert is_bot_edit_allowed(text=text, title_page="Test", botjob="all")
 

@@ -4,6 +4,8 @@ from .api_utils.user_agent import default_user_agent
 
 """
 
+from __future__ import annotations
+
 import os
 from functools import lru_cache
 
@@ -19,3 +21,8 @@ def default_user_agent():
     # logger.info(f": {li}")
     # ---
     return li
+
+
+__all__ = [
+    "default_user_agent",
+]

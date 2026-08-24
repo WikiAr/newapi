@@ -1,5 +1,7 @@
 """Timing decorator for profiling function execution."""
 
+from __future__ import annotations
+
 import functools
 import logging
 import time
@@ -18,3 +20,8 @@ def function_timer(func):
         return result
 
     return wrapper
+
+
+__all__ = [
+    "function_timer",
+]

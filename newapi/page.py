@@ -4,7 +4,7 @@ import functools
 import os
 
 from .all_apis import AllAPIS
-from .config import settings
+from .config import main_settings
 from .client_wiki import bot_api
 
 
@@ -13,7 +13,7 @@ def _load_credentials() -> tuple[str, str]:
     username = os.getenv("WIKIPEDIA_BOT_USERNAME", "")
     password = os.getenv("WIKIPEDIA_BOT_PASSWORD", "")
 
-    if settings.bot.workibrahem:
+    if main_settings.bot.workibrahem:
         username = os.getenv("WIKIPEDIA_HIMO_USERNAME", "")
         password = os.getenv("WIKIPEDIA_HIMO_PASSWORD", "")
 

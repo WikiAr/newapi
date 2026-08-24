@@ -4,19 +4,19 @@ import logging
 
 import pywikibot
 
-from ...config import settings
+from ...config import main_settings
 
 logger = logging.getLogger(__name__)
 
 
 def showDiff(text_a: str, text_b: str, context: int = 0) -> None:
-    if settings.bot.no_diff:
+    if main_settings.bot.no_diff:
         return
     pywikibot.showDiff(text_a, text_b)
 
 
 def output(textm, *args, **kwargs) -> None:
-    if settings.bot.no_print and not kwargs.get("p", False):
+    if main_settings.bot.no_print and not kwargs.get("p", False):
         return
     logger.info(textm)
 

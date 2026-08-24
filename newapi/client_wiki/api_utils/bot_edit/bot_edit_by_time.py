@@ -1,33 +1,41 @@
 """ """
 
+from __future__ import annotations
+
 import datetime
 import logging
-
-_created_cache = {}
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
+_created_cache = {}
 
-def check_create_time(page, title_page):
+
+def check_create_time(
+    page_data: dict[str, Any],
+    title_page: str,
+) -> bool:
     """
     Checks if a page was created at least three hours ago before allowing bot edits.
 
-    Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing. Returns False if the page was created less than three hours ago, caching the result for future checks.
+    Returns True if the page is not in the Arabic main namespace or if the creation timestamp is missing.
+    Returns False if the page was created less than three hours ago, caching the result for future checks.
     """
-
     if title_page in _created_cache:
         return _created_cache[title_page]
 
-    ns = page.namespace()
-    lang = page.lang
+    ns = page_data.get("ns")
+    lang = page_data.get("lang")
+    create_data = page_data.get("create_data") or {}
 
     if ns != 0 or lang != "ar":
+        _created_cache[title_page] = True
         return True
 
+    # load times
     now = datetime.datetime.now(datetime.UTC)
 
-    create_data = page.get_create_data()  # { "timestamp" : "2025-05-07T12:00:17Z", "user" : "", "anon" : "" }
-
+    # delay_hours
     delay_hours = 3
 
     if create_data.get("timestamp"):
@@ -41,48 +49,37 @@ def check_create_time(page, title_page):
         wait_time = delay_hours - diff
 
         if diff < delay_hours:
-            logger.debug(f"<<yellow>>Page:{title_page} create at ({create_time}).")
-            logger.debug(f"<<invert>>Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
+            logger.debug(f"Page:{title_page} create at ({create_time}).")
+            logger.debug(f"Page Created before {diff:.2f} hours by: {user}, wait {wait_time:.2f}H.")
             return False
 
+    _created_cache[title_page] = True
     return True
 
 
-def check_last_edit_time(page, title_page, delay) -> bool:
+def check_last_edit_time(
+    title_page: str,
+    delay: int,
+    userinfo: dict[str, Any],
+    timestamp: str,
+) -> bool:
     """
     Checks if enough time has passed since the last non-bot edit before allowing a bot to edit.
-
-    If the last editor is a bot, editing is allowed immediately. Otherwise, returns False if the last edit was made less than the specified delay (in minutes) ago; returns True if the delay has passed or if no last edit timestamp is available.
-
-    Args:
-        page: The page object to check.
-        title_page: The title of the page.
-        delay: Minimum number of minutes that must have passed since the last edit.
     """
-    userinfo = page.get_userinfo()
 
     if "bot" in userinfo.get("groups", []):
         return True
 
     # example: 2025-05-07T12:00:17Z
-    timestamp = page.get_timestamp()
-
     now = datetime.datetime.now(datetime.UTC)
 
     if timestamp:
         ts_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.UTC)
-
         diff_minutes = (now - ts_time).total_seconds() / 60
-
-        # logger.info(f"<<grey>> last-edit Δ={diff_minutes:.2f} min for {title_page}")
-
         wait_time = delay - diff_minutes
-
         if diff_minutes < delay:
-            logger.info(f"<<yellow>>Page:{title_page} last edit ({timestamp}).")
-            logger.info(
-                f"<<invert>>Page Last edit before {delay} minutes, Wait {wait_time:.2f} minutes. title:{title_page}"
-            )
+            logger.debug(f"Page:{title_page} last edit ({timestamp}), delay: {delay}.")
+            logger.debug(f"Wait {wait_time:.2f} minutes. title:{title_page}")
             return False
 
     return True

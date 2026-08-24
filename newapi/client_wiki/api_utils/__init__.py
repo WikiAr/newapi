@@ -1,9 +1,8 @@
-from .ask_bot import AskBot, showDiff
-from .bot_edit import (
-    bot_May_Edit,
-    check_create_time,
-    check_last_edit_time,
-)
+from __future__ import annotations
+
+from .ask_bot import AskBot
+from .bot_edit import is_page_editable
+from .handel_errors import HandleErrors
 
 change_codes = {
     "bat_smg": "bat-smg",
@@ -23,8 +22,6 @@ change_codes = {
 __all__ = [
     "AskBot",
     "change_codes",
-    "showDiff",
-    "bot_May_Edit",
-    "check_create_time",
-    "check_last_edit_time",
+    "is_page_editable",
+    "HandleErrors",
 ]

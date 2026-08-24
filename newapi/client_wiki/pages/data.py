@@ -6,7 +6,10 @@ from .data import Content, Meta, RevisionsData, LinksData, CategoriesData, Templ
 
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -26,7 +29,7 @@ class Meta:
     # ns: int = 0
     userinfo: dict = field(default_factory=dict)
     create_data: dict = field(default_factory=dict)
-    info: dict = field(default_factory=lambda: {"done": False})
+    info: dict[str, Any] = field(default_factory=lambda: {"done": False})
     username: str = ""
     Exists: bool = False
     is_redirect: bool = False
@@ -42,6 +45,20 @@ class RevisionsData:
     timestamp: str = ""
     revisions: list = field(default_factory=list)
     touched: str = ""
+
+    def update_from_edit(self, edit: dict[str, Any]):
+        if edit.get("pageid"):
+            self.pageid = edit["pageid"]
+
+        if edit.get("newrevid"):
+            self.revid = edit["newrevid"]
+            self.newrevid = edit["newrevid"]
+
+        if edit.get("newtimestamp"):
+            self.timestamp = edit["newtimestamp"]
+
+        if edit.get("touched"):
+            self.timestamp = edit["touched"]
 
 
 @dataclass
@@ -65,3 +82,13 @@ class CategoriesData:
 class TemplateData:
     templates: list = field(default_factory=list)
     templates_api: list = field(default_factory=list)
+
+
+__all__ = [
+    "Content",
+    "Meta",
+    "RevisionsData",
+    "LinksData",
+    "CategoriesData",
+    "TemplateData",
+]

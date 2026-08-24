@@ -1,7 +1,10 @@
 """ """
 
+from __future__ import annotations
+
 import functools
 import logging
+from typing import Any
 
 from ...utils import function_timer
 from ..constants import CATEGORY_PREFIXES
@@ -24,7 +27,7 @@ def title_process(title: str, sitecode: str) -> str:
     return title
 
 
-def args_group(title: str, kwargs: dict) -> dict:
+def args_group(title: str, kwargs: dict) -> dict[str, Any]:
     args2 = {
         "title": title,
         "depth": None,
@@ -46,7 +49,12 @@ def args_group(title: str, kwargs: dict) -> dict:
 
 
 @function_timer
-def subcatquery(login_bot, title: str, sitecode: str = SITECODE, family: str = FAMILY, **kwargs) -> dict:
+def subcatquery(
+    login_bot,
+    title: str,
+    sitecode: str = SITECODE,
+    **kwargs,
+) -> dict[str, Any]:
     print_s = kwargs.get("print_s", True)
     get_revids = kwargs.get("get_revids", False)
 
@@ -55,12 +63,12 @@ def subcatquery(login_bot, title: str, sitecode: str = SITECODE, family: str = F
 
     if print_s:
         logger.debug(
-            f"<<lightyellow>> catdepth_new.py sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
+            f"sub cat query for {sitecode}:{title}, depth:{args2['depth']}, ns:{args2['ns']}, onlyns:{args2['onlyns']}"
         )
 
     # logger.debug(f"starting subcategory query: {sitecode}:{title}")
     bot = CategoryDepth(login_bot, title, **kwargs)
-    result: dict[str, dict] = bot.subcatquery_()
+    result: dict[str, dict] = bot.subcatquery_()  # type: ignore
 
     if get_revids:
         result: dict[str, int] = bot.get_revids()
@@ -68,7 +76,7 @@ def subcatquery(login_bot, title: str, sitecode: str = SITECODE, family: str = F
     if print_s:
         lenpages = bot.get_len_pages()
         logger.debug(
-            f"<<lightblue>> find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} | {lenpages=}"
+            f"find {len(result)} pages({args2['ns']}) in {sitecode}:{title}, depth:{args2['depth']} | {lenpages=}"
         )
 
     return result

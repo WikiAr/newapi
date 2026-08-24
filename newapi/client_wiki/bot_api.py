@@ -1,25 +1,27 @@
 """ """
 
+from __future__ import annotations
+
 import datetime
 import logging
+import sys
 from collections.abc import KeysView
 from datetime import timedelta
-
-import tqdm
+from typing import Any
 
 from ..api_client import WikiLoginClient
+from .api_utils import change_codes
 from .api_utils.ask_bot import AskBot
 from .api_utils.handel_errors import HandleErrors
-from .api_utils.lang_codes import change_codes
 
 logger = logging.getLogger(__name__)
 
 
 class NewApiHelpers:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def chunk_titles(self, titles, chunk_size: int = 50, noprint: bool = False):
+    def chunk_titles(self, titles: Any, chunk_size: int = 50):
         # ---
         if isinstance(titles, dict):
             titles = list(titles.keys())
@@ -30,14 +32,16 @@ class NewApiHelpers:
         # ---
         result = [titles[i : i + chunk_size] for i in range(0, len(titles), chunk_size)]
         # ---
-        if not noprint:
-            result = tqdm.tqdm(result, desc=f"chunk_titles {len(titles)} split to {len(result)} chunks")
-        # ---
         return result
 
 
-class NewApi(AskBot, NewApiHelpers):
-    def __init__(self, login_bot: WikiLoginClient, lang: str = "", family: str = "wikipedia") -> None:
+class NewApi(NewApiHelpers):
+    def __init__(
+        self,
+        login_bot: WikiLoginClient,
+        lang: str = "",
+        family: str = "wikipedia",
+    ) -> None:
         # ---
         self.error_handler = HandleErrors()
         self.login_bot = login_bot
@@ -45,30 +49,34 @@ class NewApi(AskBot, NewApiHelpers):
         self.username = getattr(self, "username", "")
         self.lang = change_codes.get(lang) or lang
         # ---
+        self.ask_bot = AskBot(
+            ask="ask" in sys.argv,
+            nodiff="nodiff" in sys.argv,
+        )
+        # ---
         super().__init__()
 
     def get_username(self):
         return self.username
 
-    def Find_pages_exists_or_not(
+    def find_pages_exists_or_not(
         self,
         liste,
         get_redirect: bool = False,
-        noprint: bool = False,
         chunk_size: int = 50,
-    ):
+    ) -> dict[str, Any]:
         # ---
         done = 0
         # ---
-        pages_table = []
-        normalized_table = []
+        pages_table: list = []
+        normalized_table: list = []
         # ---
         # ---
-        for titles in self.chunk_titles(liste, chunk_size=chunk_size, noprint=noprint):
+        for titles in self.chunk_titles(liste, chunk_size=chunk_size):
             # ---
             done += len(titles)
             # ---
-            params = {
+            params: dict[str, Any] = {
                 "action": "query",
                 "titles": "|".join(titles),
                 "prop": "info|pageprops",
@@ -117,34 +125,32 @@ class NewApi(AskBot, NewApiHelpers):
             else:
                 exists += 1
         # ---
-        if not noprint:
-            logger.info(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+        logger.debug(f"find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
         # ---
         return table
 
-    def Find_pages_exists_or_not_with_qids(
+    def find_pages_exists_or_not_with_qids(
         self,
         liste,
         get_redirect: bool = False,
-        noprint: bool = False,
         return_all_jsons: bool = False,
         use_user_input_title: bool = False,
         chunk_size: int = 50,
-    ):
+    ) -> dict | tuple[dict, dict]:
         # ---
         done = 0
         # ---
-        pages_table = []
-        normalized_table = []
-        redirects_table = []
+        pages_table: list = []
+        normalized_table: list[dict[str, dict]] = []
+        redirects_table: list[dict[str, dict]] = []
         # ---
         all_jsons = {}
         # ---
-        for titles in self.chunk_titles(liste, chunk_size=chunk_size, noprint=noprint):
+        for titles in self.chunk_titles(liste, chunk_size=chunk_size):
             # ---
             done += len(titles)
             # ---
-            params = {
+            params: dict[str, Any] = {
                 "action": "query",
                 "titles": "|".join(titles),
                 "prop": "info|pageprops",
@@ -186,7 +192,7 @@ class NewApi(AskBot, NewApiHelpers):
             if not title_x:
                 continue
             # ---
-            title_tab = self.get_title_redirect_normalize(title_x, redirects_table, normalized_table)
+            title_tab = self._get_title_redirect_normalize(title_x, redirects_table, normalized_table)
             # ---
             if use_user_input_title and title_tab.get("user_input"):
                 title_x = title_tab["user_input"]
@@ -210,29 +216,28 @@ class NewApi(AskBot, NewApiHelpers):
                 table[title_x]["exist"] = True
                 exists += 1
         # ---
-        if not noprint:
-            logger.info(f"Find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
+        logger.debug(f"find_pages_exists_or_not : missing:{missing}, exists: {exists}, redirects: {redirects}")
         # ---
         if return_all_jsons:
             return table, all_jsons
         # ---
         return table
 
-    def Get_All_pages(
+    def get_all_pages(
         self,
         start: str = "",
         namespace: str = "0",
-        limit: int = "max",
+        limit: int | str = "max",
         apfilterredir: str = "",
         ppprop: str = "",
         limit_all: int = 100000,
     ) -> list[str]:
         # ---
         logger.debug(
-            f"Get_All_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}"
+            f"get_all_pages for start:{start}, limit:{limit},namespace:{namespace},apfilterredir:{apfilterredir}"
         )
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "pageprops",
@@ -244,7 +249,7 @@ class NewApi(AskBot, NewApiHelpers):
         }
         # ---
         if str(namespace) in ["*", "", "all"]:
-            del params["apnamespace"]
+            params.pop("apnamespace", None)
         # ---
         if ppprop:
             params["ppprop"] = ppprop
@@ -259,8 +264,12 @@ class NewApi(AskBot, NewApiHelpers):
         def _load_data(body):
             return body.get("query", {}).get("allpages") or []
 
-        # ---
-        newp = self.login_bot.post_continue_list(params=params, action="query", max=limit_all, _load_data=_load_data)
+        newp = self.login_bot.post_continue_list(
+            params=params,
+            action="query",
+            max=limit_all,
+            _load_data=_load_data,
+        )
         # ---
         logger.debug(f"<<lightpurple>> --- : find {len(newp)} pages.")
         # ---
@@ -272,21 +281,21 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return Main_table
 
-    def Get_All_pages_generator(
+    def get_all_pages_generator(
         self,
         start: str = "",
         namespace: str = "0",
-        limit: int = "max",
+        limit: int | str = "max",
         filterredir: str = "",
         ppprop: str = "",
         limit_all: int = 100000,
     ):
         # ---
         logger.debug(
-            f"Get_All_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
+            f"get_all_pages_generator for start:{start}, limit:{limit},namespace:{namespace},filterredir:{filterredir}"
         )
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "pageprops",
@@ -322,17 +331,23 @@ class NewApi(AskBot, NewApiHelpers):
             max=limit_all,
         )
         # ---
-        logger.debug(f"<<lightpurple>> --- Get_All_pages_generator : find {len(newp)} pages.")
+        logger.debug(f"<<lightpurple>> --- get_all_pages_generator : find {len(newp)} pages.")
         # ---
         Main_table = {x["title"]: x for x in newp}
         # ---
         logger.debug(f"len of Main_table {len(Main_table)}.")
         # ---
-        logger.info(f"bot_api.py Get_All_pages_generator : find {len(Main_table)} pages.")
+        logger.info(f"bot_api.py get_all_pages_generator : find {len(Main_table)} pages.")
         # ---
         return Main_table
 
-    def PrefixSearch(self, pssearch: str = "", ns: str = "0", pslimit: str = "max", limit_all: int = 100000):
+    def prefixsearch(
+        self,
+        pssearch: str = "",
+        ns: str = "0",
+        pslimit: str = "max",
+        limit_all: int = 100000,
+    ) -> list:
         """Perform a prefix search for titles in a specified namespace.
 
         This function constructs a query to search for titles that start with a
@@ -360,7 +375,7 @@ class NewApi(AskBot, NewApiHelpers):
         if not pssearch:
             return []
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "list": "prefixsearch",
             "pssearch": pssearch,
@@ -373,10 +388,10 @@ class NewApi(AskBot, NewApiHelpers):
         if str(ns) in ["*", "", "all"]:
             del params["apnamespace"]
         # ---
-        if ns.isdigit():
+        if str(ns).isdigit():
             params["psnamespace"] = ns
         # ---
-        if pslimit.isdigit():
+        if str(pslimit).isdigit():
             params["pslimit"] = pslimit
 
         # ---
@@ -401,22 +416,20 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return Main_table
 
-    def Search(
+    def api_search(
         self,
         value: str = "",
         ns: str = "*",
-        offset: int = "",
+        offset: int | str = "",
         srlimit: str = "max",
-        return_dict: bool = False,
         addparams=None,
-    ):
+    ) -> list[dict[str, Any]]:
         # ---
         logger.debug(f'bot_api. for "{value}",ns:{ns}')
         # ---
         if not srlimit:
             srlimit = "max"
-        # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "search",
@@ -425,59 +438,53 @@ class NewApi(AskBot, NewApiHelpers):
             "srlimit": srlimit,
             "formatversion": 1,
         }
-        # ---
+
         if ns:
             params["srnamespace"] = ns
-        # ---
+
         if offset:
             params["sroffset"] = offset
-        # ---
+
         if addparams:
             addparams = {x: v for x, v in addparams.items() if v and x not in params}
-            params = {**params, **addparams}
+            params: dict[str, Any] = {**params, **addparams}
 
-        # ---
         def _load_data(body):
             return body.get("query", {}).get("search") or []
 
-        # ---
         search = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
         )
-        # ---
-        results = []
-        # ---
+        results: list = []
         for pag in search:
-            if return_dict:
-                results.append(pag)
-            else:
-                results.append(pag["title"])
+            # results.append(pag["title"])
+            results.append(pag)
         # ---
         logger.debug(f'bot_api. find "{len(search)}" all result: {len(results)}')
         # ---
         return results
 
-    def Get_Newpages(
+    def get_newpages(
         self,
-        limit: int = 5000,
+        limit: int | str = 5000,
         namespace: str = "0",
         rcstart: str = "",
         user: str = "",
         three_houers: bool = False,
-        offset_minutes: bool = False,
+        offset_minutes: int | str | None = None,
         offset_hours: bool = False,
-    ):
+    ) -> list[str]:
         if three_houers:
             dd = datetime.datetime.now(datetime.UTC) - timedelta(hours=3)
             rcstart = dd.strftime("%Y-%m-%dT%H:%M:00.000Z")
 
         elif offset_minutes and isinstance(offset_minutes, int):
-            dd = datetime.datetime.now(datetime.UTC) - timedelta(minutes=offset_minutes)
+            dd = datetime.datetime.now(datetime.UTC) - timedelta(minutes=offset_minutes or 0)
             rcstart = dd.strftime("%Y-%m-%dT%H:%M:00.000Z")
 
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "recentchanges",
@@ -515,9 +522,18 @@ class NewApi(AskBot, NewApiHelpers):
 
         return Main_table
 
-    def UserContribs(self, user, limit: int = 5000, namespace: str = "*", ucshow: str = ""):
+    def user_contribs(
+        self,
+        user,
+        limit: int | str = 5000,
+        namespace: str = "*",
+        ucshow: str = "",
+    ) -> list[Any]:
         # ---
-        params = {
+        if not limit or limit == 0:
+            limit = 5000
+        # ---
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "usercontribs",
@@ -539,18 +555,23 @@ class NewApi(AskBot, NewApiHelpers):
             return body.get("query", {}).get("usercontribs") or []
 
         # ---
-        results = self.login_bot.post_continue_list(
+        results_data = self.login_bot.post_continue_list(
             params=params,
             action="query",
             _load_data=_load_data,
             max=limit,
         )
         # ---
-        results = [x["title"] for x in results]
+        results = [x["title"] for x in results_data]
         # ---
         return results
 
-    def Get_langlinks_for_list(self, titles, targtsitecode: str = "", numbes: int = 40):
+    def get_langlinks_for_list(
+        self,
+        titles: list[str],
+        targtsitecode: str = "",
+        numbes: int = 40,
+    ) -> dict[str, Any]:
         """Retrieve language links for a list of titles from a specified target
         site.
 
@@ -573,7 +594,7 @@ class NewApi(AskBot, NewApiHelpers):
         """
 
         # ---
-        logger.debug(f'bot_api.Get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
+        logger.debug(f'bot_api.get_langlinks_for_list for "{len(titles)} pages". in wiki:{self.lang}')
         # ---
         targtsitecode = targtsitecode.removesuffix("wiki")
         # ---
@@ -582,7 +603,7 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         numbes = 50
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "langlinks",
@@ -638,14 +659,14 @@ class NewApi(AskBot, NewApiHelpers):
                         find_targtsitecode += 1
         # ---
         logger.info(
-            f'bot_api.Get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}'
+            f'bot_api.get_langlinks_for_list find "{len(table)}" in table,find_targtsitecode:{targtsitecode}:{find_targtsitecode}'
         )
         # ---
         return table
 
-    def get_logs(self, title):
+    def get_logs(self, title: str) -> list:
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "logevents",
@@ -663,8 +684,8 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return logevents
 
-    def get_extlinks(self, title):
-        params = {
+    def get_extlinks(self, title: str):
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "extlinks",
@@ -693,11 +714,11 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return sorted(set(links))
 
-    def get_pageassessments(self, titles):
-        if isinstance(titles, list):
-            titles = "|".join(titles)
+    def get_page_assessments(self, titles_list: str | list[str]) -> list[Any]:
+
+        titles = "|".join(titles_list) if isinstance(titles_list, list) else titles_list
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "pageassessments",
@@ -707,22 +728,24 @@ class NewApi(AskBot, NewApiHelpers):
             "formatversion": 2,
         }
 
-        # ---
         def _load_data(body):
             return body.get("query", {}).get("pages") or []
 
-        # ---
         results = self.login_bot.post_continue_list(
-            params,
-            "query",
-            "pages",
+            params=params,
+            action="query",
+            _load_data=_load_data,
         )
-        # ---
         return results
 
-    def get_revisions(self, title, rvprop: str = "comment|timestamp|user|content|ids", options=None):
+    def get_revisions(
+        self,
+        title: str,
+        rvprop: str = "comment|timestamp|user|content|ids",
+        options=None,
+    ) -> list[Any]:
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "revisions",
@@ -752,9 +775,14 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return results
 
-    def querypage_list(self, qppage: str = "Wantedcategories", qplimit=None, max=None):
+    def querypage_list(
+        self,
+        qppage: str = "Wantedcategories",
+        qplimit=None,
+        max=None,
+    ) -> list[Any]:
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "querypage",
@@ -763,7 +791,7 @@ class NewApi(AskBot, NewApiHelpers):
             "formatversion": 2,
         }
         # ---
-        if qplimit and qplimit.isdigit():
+        if qplimit and str(qplimit).isdigit():
             params["qplimit"] = qplimit
         # ---
         params["qppage"] = qppage
@@ -827,11 +855,16 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return results
 
-    def Get_template_pages(self, title, namespace: str = "*", max: int = 10000):
+    def get_template_pages(
+        self,
+        title: str,
+        namespace: str = "*",
+        max: int = 10000,
+    ) -> list[Any]:
         # ---
-        logger.debug(f'Get_template_pages for template:"{title}", limit:"{max}",namespace:"{namespace}"')
+        logger.debug(f'get_template_pages for template:"{title}", limit:"{max}",namespace:"{namespace}"')
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             # "prop": "info",
             "titles": title,
@@ -859,14 +892,14 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return pages
 
-    def Get_image_url(self, title):
+    def get_image_url(self, title: str) -> str:
         # ---
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
         logger.debug(f' for file:"{title}":')
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "imageinfo",
@@ -891,14 +924,14 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return url
 
-    def Get_imageinfo(self, title):
+    def get_imageinfo(self, title: str) -> Any:
         # ---
         if not title.startswith("File:") and not title.startswith("ملف:"):
             title = f"File:{title}"
         # ---
         logger.debug(f' for file:"{title}":')
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "prop": "imageinfo",
@@ -916,9 +949,14 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return data
 
-    def pageswithprop(self, pwppropname: str = "unlinkedwikibase_id", pwplimit=None, max=None):
+    def pageswithprop(
+        self,
+        pwppropname: str = "unlinkedwikibase_id",
+        pwplimit=None,
+        max=None,
+    ) -> list[Any]:
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "pageswithprop",
@@ -929,7 +967,7 @@ class NewApi(AskBot, NewApiHelpers):
             "pwpprop": "title|value",
         }
         # ---
-        if pwplimit and pwplimit.isdigit():
+        if pwplimit and str(pwplimit).isdigit():
             params["pwplimit"] = pwplimit
         # ---
         if pwppropname != "":
@@ -951,13 +989,13 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return results
 
-    def get_titles_redirects(self, titles):
+    def get_titles_redirects(self, titles: list[str]) -> dict[str, str]:
         # ---
         redirects = {}
         # ---
         # for i in range(0, len(titles), 50): group = titles[i : i + 50]
         for title_chunk in self.chunk_titles(titles, chunk_size=50):
-            params = {
+            params: dict[str, Any] = {
                 "action": "query",
                 "format": "json",
                 "titles": "|".join(title_chunk),
@@ -985,203 +1023,9 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return redirects
 
-    def Add_To_Bottom(self, text: str, summary, title, poss: str = "Head|Bottom"):
+    def expandtemplates(self, text: str) -> str:
         # ---
-        if not title.strip():
-            logger.info('** .. title == ""')
-            return False
-        # ---
-        if not text.strip():
-            logger.info('** .. text == ""')
-            return False
-        # ---
-        logger.debug(f"** .. [[{title}]] ")
-        # ---
-        user = self.username
-        # ---
-        ask = self.ask_put(
-            newtext=text,
-            message=f"** Add_To {poss} .. [[{title}]] ",
-            job="Add_To_Bottom",
-            username=user,
-            summary=summary,
-        )
-        # ---
-        if ask is False:
-            return False
-        # ---
-        params = {
-            "action": "edit",
-            "format": "json",
-            "title": title,
-            "summary": summary,
-            "notminor": 1,
-            "nocreate": 1,
-            "utf8": 1,
-        }
-        # ---
-        if poss == "Head":
-            params["prependtext"] = f"{text.strip()}\n"
-        else:
-            params["appendtext"] = f"\n{text.strip()}"
-        # ---
-        results = self.login_bot.client_request_safe(params)
-        # ---
-        if not results:
-            return ""
-        # ---
-        data = results.get("edit", {})
-        result = data.get("result", "")
-        # ---
-        if result == "Success":
-            logger.info(f"<<lightgreen>>** True. title:({title})")
-            return True
-        # ---
-        error = results.get("error", {})
-        # ---
-        if error != {}:
-            print(results)
-            er = self.error_handler.handle_err(error, function="Add_To_Bottom", params=params)
-            # ---
-            return er
-        # ---
-        return True
-
-    def move(
-        self,
-        old_title,
-        to,
-        reason: str = "",
-        noredirect: bool = False,
-        movesubpages: bool = False,
-        return_dict: bool = False,
-    ):
-        # ---
-        logger.info(f"<<lightyellow>> def [[{old_title}]] to [[{to}]] ")
-        # ---
-        params = {
-            "action": "move",
-            "format": "json",
-            "from": old_title,
-            "to": to,
-            "movetalk": 1,
-            "formatversion": 2,
-        }
-        # ---
-        if noredirect:
-            params["noredirect"] = 1
-        if movesubpages:
-            params["movesubpages"] = 1
-        # ---
-        if reason:
-            params["reason"] = reason
-        # ---
-        if old_title == to:
-            logger.debug(f"<<lightred>>** old_title == to {to} ")
-            return {}
-        # ---
-        message = f"Do you want to move page:[[{old_title}]] to [[{to}]]?"
-        # ---
-        user = self.username
-        # ---
-        if not self.ask_put(message=message, job="move", username=user):
-            return {}
-        # ---
-        data = self.login_bot.client_request_safe(params)
-        # { "move": { "from": "d", "to": "d2", "reason": "wrong", "redirectcreated": true, "moveoverredirect": false } }
-        # ---
-        if not data:
-            logger.info("no data")
-            return {}
-        # ---
-        _expend_data = {
-            "move": {
-                "from": "User:Mr. Ibrahem",
-                "to": "User:Mr. Ibrahem/x",
-                "reason": "wrong title",
-                "redirectcreated": True,
-                "moveoverredirect": False,
-                "talkmove-errors": [
-                    {
-                        "message": "content-not-allowed-here",
-                        "params": [
-                            "Structured Discussions board",
-                            "User talk:Mr. Ibrahem/x",
-                            "main",
-                        ],
-                        "code": "contentnotallowedhere",
-                        "type": "error",
-                    },
-                    {
-                        "message": "flow-error-allowcreation-flow-create-board",
-                        "params": [],
-                        "code": "flow-error-allowcreation-flow-create-board",
-                        "type": "error",
-                    },
-                ],
-                "subpages": {
-                    "errors": [
-                        {
-                            "message": "cant-move-subpages",
-                            "params": [],
-                            "code": "cant-move-subpages",
-                            "type": "error",
-                        }
-                    ]
-                },
-                "subpages-talk": {
-                    "errors": [
-                        {
-                            "message": "cant-move-subpages",
-                            "params": [],
-                            "code": "cant-move-subpages",
-                            "type": "error",
-                        }
-                    ]
-                },
-            }
-        }
-        # ---
-        move_done = data.get("move", {})
-        error = data.get("error", {})
-        error_code = error.get("code", "")  # missingtitle
-        # ---
-        # elif "Please choose another name." in r4:
-        # ---
-        if move_done:
-            logger.info("<<lightgreen>>** true.")
-            # ---
-            if return_dict:
-                return move_done
-            # ---
-            return True
-        # ---
-        if error:
-            if error_code == "ratelimited":
-                logger.info("<<red>> ratelimited:")
-                return self.move(
-                    old_title,
-                    to,
-                    reason=reason,
-                    noredirect=noredirect,
-                    movesubpages=movesubpages,
-                    return_dict=return_dict,
-                )
-
-            if error_code == "articleexists":
-                logger.info("<<red>> articleexists")
-                return "articleexists"
-
-            logger.info("<<red>> error")
-            logger.info(error)
-
-            return {}
-        # ---
-        return {}
-
-    def expandtemplates(self, text: str):
-        # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "expandtemplates",
             "format": "json",
             "text": text,
@@ -1198,9 +1042,9 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return newtext
 
-    def Parse_Text(self, line, title):
+    def parse_text(self, line, title: str) -> str:
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "parse",
             "prop": "wikitext",
             "text": line,
@@ -1224,7 +1068,14 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         return textnew
 
-    def upload_by_file(self, file_name, text: str, file_path, comment: str = "", ignorewarnings: bool = False):
+    def upload_by_file(
+        self,
+        file_name,
+        text: str,
+        file_path,
+        comment: str = "",
+        ignorewarnings: bool = False,
+    ) -> dict[str, Any]:
         # ---
         logger.info(f"<<lightyellow>> def . {file_name=}")
         # ---
@@ -1236,7 +1087,7 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         logger.info(f"<<lightyellow>> {file_path=}...")
         # ---
-        params = {
+        params: dict[str, Any] = {
             "action": "upload",
             "format": "json",
             "filename": file_name,
@@ -1259,41 +1110,153 @@ class NewApi(AskBot, NewApiHelpers):
         # ---
         if success:
             logger.info(f"<<lightgreen>> ** upload true .. [[File:{file_name}]] ")
-            return True
+            return {"success": True, **upload_result}
         # ---
         if duplicate:
             logger.info(f"<<lightred>> ** duplicate file: {duplicate}.")
         # ---
-        return data
+        return {"success": False, **upload_result}
 
-    def get_title_redirect_normalize(self, title, redirects, normalized):
+    def _get_title_redirect_normalize(
+        self,
+        title: str,
+        redirects: list[dict[str, dict]],
+        normalized: list[dict[str, dict]],
+    ) -> dict[str, Any]:
         # ---
-        redirects = redirects or []
-        normalized = normalized or []
-        # ---
-        tab = {
+        tab: dict[str, Any] = {
             "user_input": title,
             "redirect_to": "",
             "normalized_to": "",
             "real_title": title,
         }
         # ---
-        normalized = {x["to"]: x["from"] for x in normalized}
+        normalized_tab = {x["to"]: x["from"] for x in normalized}
         # ---
-        redirects = {x["to"]: x["from"] for x in redirects}
+        redirects_tab = {x["to"]: x["from"] for x in redirects}
         # ---
-        if tab["user_input"] in redirects:
+        if tab["user_input"] in redirects_tab:
             tab["redirect_to"] = tab["user_input"]
-            tab["user_input"] = redirects[tab["user_input"]]
+            tab["user_input"] = redirects_tab[tab["user_input"]]
         # ---
-        if tab["user_input"] in normalized:
+        if tab["user_input"] in normalized_tab:
             tab["normalized_to"] = tab["user_input"]
-            tab["user_input"] = normalized[tab["user_input"]]
+            tab["user_input"] = normalized_tab[tab["user_input"]]
         # ---
         if tab["user_input"] == title:
             return {}
         # ---
         return tab
+
+    def get_page_info_from_wikipedia(
+        self,
+        title,
+        findtemp: str = "",
+    ) -> dict[str, Any]:
+        title = title.strip()
+
+        params: dict[str, Any] = {
+            "action": "query",
+            "titles": title,
+            "redirects": 1,
+            "prop": "langlinks|pageprops|templates|linkshere|flagged|categories",
+            "ppprop": "wikibase_item",
+            "tlnamespace": "10",
+            "tllimit": "max",
+        }
+        if findtemp:
+            params["tltemplates"] = findtemp
+
+        tata = {
+            "isRedirectPage": False,
+            "exists": True,
+            "from": "",
+            "to": "",
+            "title": "",
+            "ns": "",
+            "pageid": "",
+            "countlinkshere": 0,
+            "linkshere": {},
+            "langlinks": {},
+            "templates": {},
+            "wikibase_item": "",
+            "q": "",
+        }
+        table = {}
+
+        json1 = self.login_bot.client_request_safe(params, method="get")
+
+        if not json1:
+            return {}
+
+        title2 = title
+
+        # {'batchcomplete': '', 'query': {'pages': {'361534': {'pageid': 361534, 'ns': 4, 'title': 'ويكيبيديا:ملعب'}}}}
+        query = json1.get("query", {})
+
+        if not query:
+            return {}
+
+        for xio in query.get("normalized", []):
+            if xio["from"] == title:
+                title2 = xio["to"]
+
+        for red in query.get("redirects", []):
+            logger.debug(f'page is redirects to : "{red["to"]}"')
+
+            table2 = dict(tata)
+            table2["isRedirectPage"] = True
+            table2["exists"] = False
+            table2["from"] = red["from"]
+            table2["to"] = red["to"]
+            table2["title"] = red["from"]
+            table[red["from"]] = table2
+
+        pages = query.get("pages", {})
+
+        numb = 1
+
+        for id2, kk in pages.items():
+            _title = kk.get("title", "")
+            table[_title] = dict(tata)
+            table[_title]["title"] = _title
+
+            if id2 == "-1":
+                logger.debug(f'a {numb}/{len(pages)} title:{_title}, id :"{id2}"')
+                table[_title]["exists"] = False
+                continue
+
+            table[_title]["ns"] = kk.get("ns", "")
+            if "missing" in kk:
+                table[_title]["exists"] = False
+
+            table[_title]["langlinks"] = {x["lang"]: x["*"] for x in kk.get("langlinks", [])}
+
+            table[_title]["flagged"] = kk.get("flagged", False) is not False
+
+            table[_title]["pageid"] = kk.get("pageid", "")
+
+            q_q = kk.get("pageprops", {}).get("wikibase_item", "")
+            table[_title]["wikibase_item"] = q_q
+            table[_title]["q"] = q_q
+            linkshere = {x["title"]: x for x in kk.get("linkshere", []) if x["ns"] in [0, 10]}
+            table[_title]["linkshere"] = linkshere
+            table[_title]["countlinkshere"] = len(linkshere.keys())
+
+            table[_title]["categories"] = [x["title"] for x in kk.get("categories", [])]
+
+            table[_title]["templates"] = [x["title"] for x in kk.get("templates", [])]
+
+            table[_title]["iwlinks"] = {x["prefix"]: x["*"] for x in kk.get("iwlinks", [])}
+
+        result = table
+
+        if title in table:
+            result = table[title]
+        elif title2 in table:
+            result = table[title2]
+
+        return result
 
     def post_params(
         self,
@@ -1301,7 +1264,7 @@ class NewApi(AskBot, NewApiHelpers):
         method: str = "get",
         files=None,
         **kwargs,
-    ):
+    ) -> dict[str, Any]:
         # ---
         return self.login_bot.client_request_safe(
             params,
@@ -1316,7 +1279,7 @@ class NewApi(AskBot, NewApiHelpers):
         method: str = "get",
         files=None,
         **kwargs,
-    ):
+    ) -> dict[str, Any]:
         # ---
         return self.login_bot.client_request_safe(
             params,
@@ -1324,6 +1287,22 @@ class NewApi(AskBot, NewApiHelpers):
             files=files,
             **kwargs,
         )
+
+    def users_infos(self, ususers: list[str]):
+        params: dict[str, Any] = {
+            "action": "query",
+            "format": "json",
+            "list": "users",
+            "formatversion": "2",
+            "usprop": "groups",
+            "ususers": ususers,
+        }
+
+        data = self.login_bot.client_request_safe(params, method="get")
+
+        data = data.get("query", {}).get("users", [{}])
+
+        return data
 
     def __repr__(self) -> str:
         return f"NewApi(lang={self.lang!r}, username={self.username!r})"
